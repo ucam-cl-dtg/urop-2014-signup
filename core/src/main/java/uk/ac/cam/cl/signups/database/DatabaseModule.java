@@ -7,7 +7,9 @@ package uk.ac.cam.cl.signups.database;
 
 import org.mongojack.JacksonDBCollection;
 
-import uk.ac.cam.cl.git.database.Mongo;
+import uk.ac.cam.cl.signups.User;
+import uk.ac.cam.cl.signups.api.Sheet;
+import uk.ac.cam.cl.signups.database.Mongo;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -20,14 +22,22 @@ public class DatabaseModule extends AbstractModule {
     
     @Override
     protected void configure() {
-        
+        bind(DatabaseCollection.class).to(MongoCollection.class);
     }
     
     @Provides
-    public JacksonDBCollection<Sheet, String> provideMongoCollection() {
+    public JacksonDBCollection<Sheet, String> provideSheetCollection() {
         return JacksonDBCollection.wrap
                 ( Mongo.getDB().getCollection("sheets")
-                        , Repository.class
+                        , Sheet.class
+                        , String.class);
+    }
+    
+    @Provides
+    public JacksonDBCollection<User, String> provideUserCollection() {
+        return JacksonDBCollection.wrap
+                ( Mongo.getDB().getCollection("users")
+                        , User.class
                         , String.class);
     }
 

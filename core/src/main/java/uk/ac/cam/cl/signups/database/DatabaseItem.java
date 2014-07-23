@@ -5,6 +5,11 @@
  */
 package uk.ac.cam.cl.signups.database;
 
+import org.mongojack.Id;
+import org.mongojack.ObjectId;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * @author ird28
  *

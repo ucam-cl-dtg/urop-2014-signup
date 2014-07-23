@@ -6,14 +6,12 @@ import java.util.List;
 
 import org.mongojack.JacksonDBCollection;
 
-import uk.ac.cam.cl.git.Repository;
-import uk.ac.cam.cl.git.api.RepositoryNotFoundException;
-
+import com.google.inject.Inject;
 import com.mongodb.BasicDBObject;
 
 public class MongoCollection<T extends DatabaseItem> implements DatabaseCollection<T> {
     
-    @Inject private static JacksonDBCollection<T, String> collection;
+    @Inject private JacksonDBCollection<T, String> collection;
 
     public void insertItem(T item) throws DuplicateNameException {
         try {
