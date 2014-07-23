@@ -79,10 +79,11 @@ public interface WebInterface {
      * and the user has permission to do so.
      * @param details Contains the CRSID of the user who wants to book it, and the
      * sheet, column and time of the slot they want to book.
+     * @throws NotAllowedException The booking failed.
      */
     @POST
     @Path("/book")
-    public void bookSlot(SlotBookingBean details);
+    public void bookSlot(SlotBookingBean details) throws NotAllowedException;
 
     /**
      * Books the specified slot for the given user no matter what - admin privileges.
@@ -96,13 +97,15 @@ public interface WebInterface {
 
     /**
      * Unbooks the specified slot for the given user, but only if the passed CRSID
-     * is actually booked into the given slot.
+     * is actually booked into the given slot. Will not allow the unbooking if the start
+     * time has passed.
      * @param details Contains the CRSID of the user to unbook, and the
      * sheet, column and time of the slot they want to unbook.
+     * @throws NotAllowedException The unbooking failed.
      */
     @POST
     @Path("/unbook")
-    public void unbookSlot(SlotBookingBean details);
+    public void unbookSlot(SlotBookingBean details) throws NotAllowedException;
 
     /**
      * Unbooks the specified slot for the given user no matter what -
@@ -124,6 +127,14 @@ public interface WebInterface {
     @Path("/sheets/{sheet}/{column}")
     public List<Slot> listSlots(@PathParam("sheet") String sheet,
             @PathParam("column") String column);
+    
+    /**
+     * @param sheet
+     * @return A list of all columns in the sheet
+     */
+    @GET
+    @Path("/sheets/{sheet}")
+    public List<String> listColumns(@PathParam("sheet") String sheet);
 
     /**
      * Allows the user to user to sign up using the specified column
@@ -135,11 +146,12 @@ public interface WebInterface {
      * that the user must use to sign up for a specific comment.
      * If it returns null, then the user can use any column for
      * that comment.
+     * @param authCode
      */
     @POST
     @Path("/whitelist")
     public void addToWhitelist(String sheet, String CRSID,
-            Map<String, String> commentColumnMap);
+            Map<String, String> commentColumnMap, String authCode);
 
 
     /**
@@ -148,10 +160,11 @@ public interface WebInterface {
      * @param sheet
      * @param CRSID
      * @param comments The comments to be forbidden.
+     * @param authCode
      */
     @DELETE
-    @Path("whitelist")
+    @Path("/whitelist")
     public void removeFromWhitelist(String sheet, String CRSID,
-            Collection<String> comments);
+            Collection<String> comments, String authCode);
 
 }
