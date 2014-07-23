@@ -5,6 +5,7 @@
  */
 package uk.ac.cam.cl.signups.api;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +26,7 @@ public class Column {
     
     public void addSlot(Slot slot) {
         slots.add(slot);
+        Collections.sort(slots);
     }
     
     public Slot getSlot(Date startTime) throws ItemNotFoundException {

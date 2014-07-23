@@ -104,30 +104,34 @@ public class SignupsService implements WebInterface {
         slot.unbook();
     }
 
-    public void unassignSlot(SlotBookingBean details, String authCode) {
-        // TODO Auto-generated method stub
-
+    public void unassignSlot(SlotBookingBean details, String authCode)
+            throws ItemNotFoundException, NotAllowedException {
+        Sheet sheet = sheets.getItem(details.getSheetID());
+        if (!sheet.isAuthCode(authCode)) {
+            throw new NotAllowedException("Incorrect authorisation code");
+        }
+        sheet.getColumn(details.getColumnName())
+        .getSlot(details.getStartTime())
+        .unbook();
     }
 
-    public List<Slot> listSlots(String sheet, String column) {
-        // TODO Auto-generated method stub
-        return null;
+    public List<Slot> listSlots(String sheetID, String columnName) throws ItemNotFoundException {
+        return sheets.getItem(sheetID).getColumn(columnName).getSlots();
     }
 
-    public List<String> listColumns(String sheet) {
-        // TODO Auto-generated method stub
-        return null;
+    public List<Column> listColumns(String sheetID) throws ItemNotFoundException {
+        return sheets.getItem(sheetID).listColumns();
     }
 
     public void addToWhitelist(String CRSID, String groupID,
             Map<String, String> commentColumnMap, String authCode) {
-        // TODO Auto-generated method stub
+        /* TODO: Implement whitelist functionality */
 
     }
 
     public void removeFromWhitelist(String CRSID, String groupID,
             Collection<String> comments, String authCode) {
-        // TODO Auto-generated method stub
+        /* TODO: Implement whitelist functionality */
 
     }
 

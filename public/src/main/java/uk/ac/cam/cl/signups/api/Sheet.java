@@ -7,6 +7,8 @@ package uk.ac.cam.cl.signups.api;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
@@ -17,7 +19,7 @@ import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
  */
 public class Sheet implements DatabaseItem {
     
-    private Map<String, Column> columns;
+    private List<Column> columns;
     private String authCode;
     private String sheetID;
     private String groupID;
@@ -32,10 +34,7 @@ public class Sheet implements DatabaseItem {
         this.title = title;
         this.description = description;
         this.location = location;
-        columns = new HashMap<String, Column>();
-        for (Column col : columnCollection) {
-            columns.put(col.getName(), col);
-        }
+        columns = new LinkedList<Column>(columnCollection);
         this.groupID = groupID;
         /*
          * TODO: generate URL and authCode
@@ -43,11 +42,20 @@ public class Sheet implements DatabaseItem {
     }
     
     public void addColumn(Column column) {
-        columns.put(column.getName(), column);
+        columns.add(column);
     }
     
-    public Column getColumn(String columnName) {
-        return columns.get(columnName);
+    public Column getColumn(String columnName) throws ItemNotFoundException {
+        for (Column col : columns) {
+            if (col.getName().equals(columnName)) {
+                return col;
+            }
+        }
+        throw new ItemNotFoundException("The column was not found in the sheet");
+    }
+    
+    public List<Column> listColumns() {
+        return columns;
     }
     
     public void removeColumn(String columnName) {
@@ -86,7 +94,5 @@ public class Sheet implements DatabaseItem {
     public String getLocation() {
         return location;
     }
-    
-    
-
+ 
 }

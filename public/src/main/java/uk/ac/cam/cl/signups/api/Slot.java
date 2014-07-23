@@ -11,7 +11,7 @@ import java.util.Date;
  * @author ird28
  *
  */
-public class Slot {
+public class Slot implements Comparable<Slot> {
     
     private Date startTime;
     private long duration; /* in milliseconds! */
@@ -62,6 +62,17 @@ public class Slot {
         comment = null;
     }
     
-    
+    @Override
+    public int compareTo(Slot other) {
+        if (this.getStartTime().before(other.getStartTime())) {
+            return -1;
+        }
+        else if (this.getStartTime().after(other.getStartTime())) {
+            return +1;
+        }
+        else {
+            return 0;
+        }
+    }
 
 }

@@ -146,29 +146,35 @@ public interface WebInterface {
      * @param details Contains the CRSID of the user to unbook, and the
      * sheet, column and time of the slot they want to unbook.
      * @param authCode
+     * @throws NotAllowedException 
+     * @throws ItemNotFoundException 
      */
     @POST
     @Path("/unassign")
     public void unassignSlot(SlotBookingBean details,
-            @CookieParam("authCode") String authCode);
+            @CookieParam("authCode") String authCode)
+                    throws ItemNotFoundException, NotAllowedException;
 
     /**
      * @param sheetID
      * @param column
      * @return A list of the slots in the specified column.
+     * @throws ItemNotFoundException 
      */
     @GET
     @Path("/sheets/{sheetID}/{column}")
     public List<Slot> listSlots(@PathParam("sheetID") String sheetID,
-            @PathParam("column") String column);
+            @PathParam("column") String column) throws ItemNotFoundException;
     
     /**
      * @param sheet
      * @return A list of all columns in the sheet
+     * @throws ItemNotFoundException 
      */
     @GET
     @Path("/sheets/{sheetID}")
-    public List<String> listColumns(@PathParam("sheetID") String sheetID);
+    public List<Column> listColumns(@PathParam("sheetID") String sheetID)
+            throws ItemNotFoundException;
 
     /**
      * Allows the user to user to sign up using the specified column
