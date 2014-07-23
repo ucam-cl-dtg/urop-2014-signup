@@ -11,7 +11,7 @@ import uk.ac.cam.cl.git.api.RepositoryNotFoundException;
 
 import com.mongodb.BasicDBObject;
 
-public class MongoCollection<T> implements DatabaseCollection<T> {
+public class MongoCollection<T extends DatabaseItem> implements DatabaseCollection<T> {
     
     @Inject private static JacksonDBCollection<T, String> collection;
 
@@ -20,12 +20,12 @@ public class MongoCollection<T> implements DatabaseCollection<T> {
             collection.ensureIndex(new BasicDBObject("name", 1), null, true); // each repo name must be unique
             collection.insert(item);
         } catch(com.mongodb.MongoException dupKey) {
-            throw new DuplicateNameException(item.toString());
+            throw new DuplicateNameException(item.getName());
         }
     }
 
     public void updateItem(T item) throws ItemNotFoundException {
-        if (!contains(item.toString()))
+        if (!contains(item.getName()))
             throw new ItemNotFoundException();
         collection.updateById(item.get_id(), item);
     }

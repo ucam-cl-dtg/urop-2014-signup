@@ -11,7 +11,7 @@ import java.util.List;
  * @author ird28
  *
  */
-public interface DatabaseCollection<T> {
+public interface DatabaseCollection<T extends /*ie implements*/ DatabaseItem> {
 
     /**
      * Adds a new item to the database collection.
