@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * @author ird28
+ * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  *
  */
 public class Column {

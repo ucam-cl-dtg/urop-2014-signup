@@ -14,7 +14,7 @@ import java.util.Map;
 import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
 
 /**
- * @author ird28
+ * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  *
  */
 public class Sheet implements DatabaseItem {

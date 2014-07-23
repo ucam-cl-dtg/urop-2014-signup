@@ -8,7 +8,7 @@ package uk.ac.cam.cl.signups.api;
 import java.util.Date;
 
 /**
- * @author ird28
+ * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  *
  */
 public class Slot implements Comparable<Slot> {

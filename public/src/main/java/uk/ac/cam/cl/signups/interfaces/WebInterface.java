@@ -16,10 +16,23 @@ import uk.ac.cam.cl.signups.api.*;
 import uk.ac.cam.cl.signups.api.NotAllowedException;
 
 /**
- * @author ird28
+ * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  *
  */
 public interface WebInterface {
+    
+    /* 
+     * TODO: Redo all other classes to match this interface. In particular, 
+     * the SignupsService and all the beans (probably from scratch).
+     */
+    
+    /* TODO: Change authCode from a CookieParam to be included in the body of the request */
+    /* TODO: Double check paths - check they make sense and check there are no conflicts */
+    /* TODO: Check (and probably redo most) method prototypes */
+    
+    /* TODO: Write addGroup method */
+    /* TODO: Write removeGroup method*/
+    /* TODO: Write listGroups and listSheets methods (even if just for testing) */
 
     /**
      * Creates a sheet object, stores it in the database, and returns
@@ -30,22 +43,25 @@ public interface WebInterface {
      * @throws DuplicateNameException 
      */
     @PUT
-    @Path("/sheets")
-    public SheetInfo addSheet(Sheet sheet) throws DuplicateNameException;
+    @Path("/groups/{groupName}/sheets")
+    public SheetInfo addSheet(@PathParam("group") String groupName,
+            Sheet sheet) throws DuplicateNameException;
 
     /* Listing sheets is not needed - we only want people to sign up if they have the URL */
 
     /**
      * Adds a column to the specified sheet, initially filled with the
      * given slots.
+     * @param groupName
      * @param sheetID The ID of the sheet to add a column to
      * @param authCode Authentication code returned by createSheet
      * @param initalSlots
      * @throws ItemNotFoundException, NotAllowedException 
      */
     @PUT
-    @Path("/sheets/{sheet}")
-    public void addColumn(@PathParam("sheet") String sheetID,
+    @Path("/groups/{groupName}/sheets/{sheetID}")
+    public void addColumn(@PathParam("group") String groupName,
+            @PathParam("sheetID") String sheetID,
             @CookieParam("authCode") String authCode, Column column)
                     throws ItemNotFoundException, NotAllowedException;
 
@@ -60,8 +76,9 @@ public interface WebInterface {
      * @throws NotAllowedException 
      */
     @PUT
-    @Path("/sheets/{sheetID}/{columnName}")
-    public void addSlot(@PathParam("sheetID") String sheetID,
+    @Path("/groups/{groupName}/sheets/{sheetID}/{columnName}")
+    public void addSlot(@PathParam("group") String groupName,
+            @PathParam("sheetID") String sheetID,
             @CookieParam("authCode") String authCode,
             @PathParam("columnName") String columnName, Slot slot)
                     throws ItemNotFoundException, NotAllowedException;
@@ -75,8 +92,9 @@ public interface WebInterface {
      * @throws NotAllowedException 
      */
     @DELETE
-    @Path("/sheets/{sheetID}/{column}")
-    public void deleteColumn(@PathParam("sheetID") String sheetID,
+    @Path("/groups/{groupName}/sheets/{sheetID}/{column}")
+    public void deleteColumn(@PathParam("group") String groupName,
+            @PathParam("sheetID") String sheetID,
             @CookieParam("authCode") String authCode,
             @PathParam("column") String column)
                     throws NotAllowedException, ItemNotFoundException;
@@ -91,8 +109,9 @@ public interface WebInterface {
      * @throws NotAllowedException 
      */
     @DELETE
-    @Path("/sheets/{sheetID}/{column}/{time}")
+    @Path("/groups/{groupName}/sheets/{sheetID}/{column}/{time}")
     public void deleteSlot(
+            @PathParam("group") String groupName,
             @PathParam("sheetID") String sheetID, 
             @CookieParam("authCode") String authCode,
             @PathParam("column") String column,
@@ -108,9 +127,15 @@ public interface WebInterface {
      * @throws ItemNotFoundException 
      */
     @POST
-    @Path("/book")
+    @Path("/groups/{groupName}/sheets/{sheetID}/{columnName}/{time}")
     public void bookSlot(SlotBookingBean details)
             throws NotAllowedException, ItemNotFoundException;
+    
+    /*
+     * TODO: Merge bookSlot and assignSlot. First, check if an authcode is provided. If it isn't,
+     * make sure to check the slot is empty and the user is whitelisted to make the booking. If
+     * it is, make sure to check it is valid.
+     */
 
     /**
      * Books the specified slot for the given user no matter what - admin privileges.
@@ -121,7 +146,7 @@ public interface WebInterface {
      * @throws ItemNotFoundException 
      */
     @POST
-    @Path("/assign")
+    @Path("/groups/{groupName}/sheets/{sheetID}/{columnName}/{time}")
     public void assignSlot(SlotBookingBean details,
             @CookieParam("authCode") String authCode)
                     throws ItemNotFoundException, NotAllowedException;
@@ -135,10 +160,15 @@ public interface WebInterface {
      * @throws NotAllowedException The unbooking failed.
      * @throws ItemNotFoundException 
      */
-    @POST
-    @Path("/unbook")
+    @DELETE
+    @Path("/groups/{groupName}/sheets/{sheetID}/{columnName}/{time}")
     public void unbookSlot(SlotBookingBean details)
             throws NotAllowedException, ItemNotFoundException;
+    
+    /*
+     * TODO: Merge unbookSlot and unassignSlot. First check if authcode is provided.
+     * If it isn't, check that the unbook is allowed. If it is, check that it is valid.
+     */
 
     /**
      * Unbooks the specified slot for the given user no matter what -
@@ -150,7 +180,7 @@ public interface WebInterface {
      * @throws ItemNotFoundException 
      */
     @POST
-    @Path("/unassign")
+    @Path("/groups/{groupName}/sheets/{sheetID}/{columnName}/{time}")
     public void unassignSlot(SlotBookingBean details,
             @CookieParam("authCode") String authCode)
                     throws ItemNotFoundException, NotAllowedException;
@@ -162,8 +192,9 @@ public interface WebInterface {
      * @throws ItemNotFoundException 
      */
     @GET
-    @Path("/sheets/{sheetID}/{column}")
-    public List<Slot> listSlots(@PathParam("sheetID") String sheetID,
+    @Path("/groups/{groupName}/sheets/{sheetID}/{column}")
+    public List<Slot> listSlots(@PathParam("group") String groupName, 
+            @PathParam("sheetID") String sheetID,
             @PathParam("column") String column) throws ItemNotFoundException;
     
     /**
@@ -172,8 +203,9 @@ public interface WebInterface {
      * @throws ItemNotFoundException 
      */
     @GET
-    @Path("/sheets/{sheetID}")
-    public List<Column> listColumns(@PathParam("sheetID") String sheetID)
+    @Path("/groups/{groupName}/sheets/{sheetID}")
+    public List<Column> listColumns(@PathParam("group") String groupName,
+            @PathParam("sheetID") String sheetID)
             throws ItemNotFoundException;
 
     /**
@@ -189,9 +221,9 @@ public interface WebInterface {
      * @param authCode
      */
     @POST
-    @Path("/whitelist/{user}/{groupID:.*}")
+    @Path("/groups/{groupName}/whitelist/{user}")
     public void addToWhitelist(@PathParam("user") String user,
-            @PathParam("groupID") String groupID,
+            @PathParam("groupName") String groupName,
             Map<String, String> commentColumnMap,
             @CookieParam("authCode") String authCode);
 
@@ -205,9 +237,9 @@ public interface WebInterface {
      * @param authCode
      */
     @DELETE
-    @Path("/whitelist/{user}/{groupID:.*}")
+    @Path("/groups/{groupName}/whitelist/{user}")
     public void removeFromWhitelist(@PathParam("user") String user,
-            @PathParam("groupID") String groupID,
+            @PathParam("groupName") String groupName,
             Collection<String> comments,
             @CookieParam("authCode") String authCode);
 
