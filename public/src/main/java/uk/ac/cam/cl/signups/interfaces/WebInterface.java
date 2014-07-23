@@ -5,9 +5,14 @@
  */
 package uk.ac.cam.cl.signups.interfaces;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.*;
+
+import uk.ac.cam.cl.signups.api.*;
 
 /**
  * @author ird28
@@ -24,7 +29,7 @@ public interface WebInterface {
      */
     @PUT
     @Path("/sheets")
-    public Object createSheet(SheetBean details);
+    public Object createSheet(Sheet sheet);
 
     /* Listing sheets is not needed - we only want people to sign up if they have the URL */
 
@@ -37,7 +42,8 @@ public interface WebInterface {
      */
     @PUT
     @Path("/sheets/{sheet}")
-    public void addColumn(@PathParam("sheet") String sheet, String authCode, Collection<Slot> initalSlots);
+    public void addColumn(@PathParam("sheet") String sheet,
+            @CookieParam("authCode") String authCode, Column column);
 
     /**
      * Adds the slot to the column in the sheet.
@@ -49,8 +55,8 @@ public interface WebInterface {
      */
     @PUT
     @Path("/sheets/{sheet}/{column}")
-    public void addSlot(@PathParam("sheet") String sheet, String authCode,
-            @PathParam("column") String column, Date startTime, int duration);
+    public void addSlot(@PathParam("sheet") String sheet, @CookieParam("authCode") String authCode,
+            @PathParam("column") String column, Slot slot);
 
     /**
      * Deletes the specified column from the sheet.
@@ -60,8 +66,10 @@ public interface WebInterface {
      */
     @DELETE
     @Path("/sheets/{sheet}/{column}")
-    public void deleteColumn(@PathParam("sheet") String sheet, String authCode,
+    public void deleteColumn(@PathParam("sheet") String sheet,
+            @CookieParam("authCode") String authCode,
             @PathParam("column") String column);
+    
     /**
      * Deletes the specified slot.
      * @param sheet
@@ -71,7 +79,8 @@ public interface WebInterface {
      */
     @DELETE
     @Path("/sheets/{sheet}/{column}/{time}")
-    public void deleteSlot(@PathParam("sheet") String sheet, String authCode,
+    public void deleteSlot(@PathParam("sheet") String sheet, 
+            @CookieParam("authCode") String authCode,
             @PathParam("column") String column, @PathParam("time") Date startTime);
 
     /**
@@ -93,7 +102,8 @@ public interface WebInterface {
      */
     @POST
     @Path("/assign")
-    public void assignSlot(SlotBookingBean details, String authCode);
+    public void assignSlot(SlotBookingBean details,
+            @CookieParam("authCode") String authCode);
 
     /**
      * Unbooks the specified slot for the given user, but only if the passed CRSID
@@ -116,7 +126,8 @@ public interface WebInterface {
      */
     @POST
     @Path("/unassign")
-    public void unbookSlot(SlotBookingBean details, String authCode);
+    public void unbookSlot(SlotBookingBean details,
+            @CookieParam("authCode") String authCode);
 
     /**
      * @param sheet
@@ -140,7 +151,7 @@ public interface WebInterface {
      * Allows the user to user to sign up using the specified column
      * for each given comment. If an entry for a comment already exists,
      * the relevant column is overwritten.
-     * @param sheet
+     * @param groupID
      * @param CRSID
      * @param commentColumnMap A mapping that specifies the column
      * that the user must use to sign up for a specific comment.
@@ -149,22 +160,26 @@ public interface WebInterface {
      * @param authCode
      */
     @POST
-    @Path("/whitelist")
-    public void addToWhitelist(String sheet, String CRSID,
-            Map<String, String> commentColumnMap, String authCode);
+    @Path("/whitelist/{CRSID}/{groupID:.*}")
+    public void addToWhitelist(@PathParam("CRSID") String CRSID,
+            @PathParam("groupID") String groupID,
+            Map<String, String> commentColumnMap,
+            @CookieParam("authCode") String authCode);
 
 
     /**
      * Forbids the user from signing up using any of the given
      * comments.
-     * @param sheet
+     * @param groupID
      * @param CRSID
      * @param comments The comments to be forbidden.
      * @param authCode
      */
     @DELETE
-    @Path("/whitelist")
-    public void removeFromWhitelist(String sheet, String CRSID,
-            Collection<String> comments, String authCode);
+    @Path("/whitelist/{CRSID}/{groupID:.*}")
+    public void removeFromWhitelist(@PathParam("CRSID") String CRSID,
+            @PathParam("groupID") String groupID,
+            Collection<String> comments,
+            @CookieParam("authCode") String authCode);
 
 }
