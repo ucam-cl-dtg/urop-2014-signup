@@ -7,6 +7,10 @@ package uk.ac.cam.cl.signups.database;
 
 import java.util.List;
 
+import uk.ac.cam.cl.signups.api.DuplicateNameException;
+import uk.ac.cam.cl.signups.api.ItemNotFoundException;
+import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
+
 /**
  * @author ird28
  *
@@ -24,7 +28,7 @@ public interface DatabaseCollection<T extends /*ie implements*/ DatabaseItem> {
     /**
      * Updates the given item.
      *
-     * @param repo The updated item (there must also be a
+     * @param item The updated item (there must also be a
      * item with this name in the collection already).
      */
     public void updateItem(T item) throws ItemNotFoundException;

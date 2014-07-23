@@ -3,7 +3,7 @@
 /**
  * 
  */
-package uk.ac.cam.cl.signups.database;
+package uk.ac.cam.cl.signups.interfaces;
 
 import org.mongojack.Id;
 import org.mongojack.ObjectId;

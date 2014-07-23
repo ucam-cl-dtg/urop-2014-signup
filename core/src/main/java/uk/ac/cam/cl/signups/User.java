@@ -10,24 +10,23 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.HashMap;
 
+import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
+
 /**
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  *
  */
-public class User {
+public class User implements DatabaseItem {
     
-    private String CRSID;
+    private String name;
     private Map<String, String> groupToColumnMap;
     private Collection<String> allowedComments;
+    private String _id;
     
-    public User(String CRSID) {
-        this.CRSID = CRSID;
+    public User(String name) {
+        this.name = name;
         groupToColumnMap = new HashMap<String, String>();
         allowedComments = new LinkedList<String>();
-    }
-    
-    public String getCRSID() {
-        return CRSID;
     }
     
     public String allowedColumnOf(String groupID) {
@@ -36,6 +35,14 @@ public class User {
     
     public boolean isAllowedcomment(String comment) {
         return allowedComments.contains(comment);
+    }
+    
+    public String getName() {
+        return name;
+    }
+
+    public String get_id() {
+        return _id;
     }
 
 }

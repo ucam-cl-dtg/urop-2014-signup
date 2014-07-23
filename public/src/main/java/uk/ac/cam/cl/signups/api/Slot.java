@@ -47,6 +47,20 @@ public class Slot {
     public String getComment() {
         return comment;
     }
+
+    public boolean isBooked() {
+        return bookedUser != null;
+    }
+
+    public void book(String user, String comment) {
+        this.bookedUser = user;
+        this.comment = comment;
+    }
+
+    public void unbook() {
+        bookedUser = null;
+        comment = null;
+    }
     
     
 

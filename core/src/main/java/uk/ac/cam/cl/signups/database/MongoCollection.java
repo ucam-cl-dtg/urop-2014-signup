@@ -6,6 +6,10 @@ import java.util.List;
 
 import org.mongojack.JacksonDBCollection;
 
+import uk.ac.cam.cl.signups.api.DuplicateNameException;
+import uk.ac.cam.cl.signups.api.ItemNotFoundException;
+import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
+
 import com.google.inject.Inject;
 import com.mongodb.BasicDBObject;
 
@@ -24,7 +28,8 @@ public class MongoCollection<T extends DatabaseItem> implements DatabaseCollecti
 
     public void updateItem(T item) throws ItemNotFoundException {
         if (!contains(item.getName()))
-            throw new ItemNotFoundException();
+            throw new ItemNotFoundException("The item " + item.getName()
+                    + " of type " + item.getClass() + " was not found in the database");
         collection.updateById(item.get_id(), item);
     }
 
@@ -44,7 +49,8 @@ public class MongoCollection<T extends DatabaseItem> implements DatabaseCollecti
 
     public T getItem(String name) throws ItemNotFoundException {
         if (!contains(name))
-            throw new ItemNotFoundException();
+            throw new ItemNotFoundException("The item " + name +
+                    " was not found in the database");
         return collection.findOne(new BasicDBObject("name", name));
     }
 
@@ -54,7 +60,8 @@ public class MongoCollection<T extends DatabaseItem> implements DatabaseCollecti
 
     public void removeItem(String name) throws ItemNotFoundException {
         if (!contains(name))
-            throw new ItemNotFoundException();
+            throw new ItemNotFoundException("The item " + name +
+                    " was not found in the database");
         collection.remove(new BasicDBObject("name", name)); //TODO: check the name thing, maybe replace T with some interface?
     }
 
