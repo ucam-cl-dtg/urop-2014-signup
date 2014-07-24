@@ -30,6 +30,8 @@ public class Sheet implements DatabaseItem {
     private String description;
     private String location;
     
+    private List<Group> groups;
+    
     public Sheet(String title, String description, String location,
             Collection<Column> columnCollection, String groupID) {
         this.title = title;
@@ -69,6 +71,14 @@ public class Sheet implements DatabaseItem {
     
     protected String getAuthCode() {
         return authCode;
+    }
+    
+    public void addGroup(Group group) {
+        groups.add(group);
+    }
+    
+    public void removeGroup(Group group) {
+        groups.remove(group);
     }
     
     public String getURL() {

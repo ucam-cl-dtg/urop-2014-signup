@@ -8,6 +8,7 @@ package uk.ac.cam.cl.signups.database;
 import org.mongojack.JacksonDBCollection;
 
 import uk.ac.cam.cl.signups.User;
+import uk.ac.cam.cl.signups.api.Group;
 import uk.ac.cam.cl.signups.api.Sheet;
 import uk.ac.cam.cl.signups.database.Mongo;
 
@@ -38,6 +39,14 @@ public class DatabaseModule extends AbstractModule {
         return JacksonDBCollection.wrap
                 ( Mongo.getDB().getCollection("users")
                         , User.class
+                        , String.class);
+    }
+    
+    @Provides
+    public JacksonDBCollection<Group, String> provideGroupCollection() {
+        return JacksonDBCollection.wrap
+                ( Mongo.getDB().getCollection("groups")
+                        , Group.class
                         , String.class);
     }
 

@@ -19,24 +19,18 @@ import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
 public class User implements DatabaseItem {
     
     private String name;
-    private Map<String, String> groupToColumnMap;
-    private Collection<String> allowedComments;
+    private Map<String, HashMap<String, String>> groupToCommentToColumnMap;
     private String _id;
     
     public User(String name) {
         this.name = name;
-        groupToColumnMap = new HashMap<String, String>();
-        allowedComments = new LinkedList<String>();
+        groupToCommentToColumnMap = new HashMap<String, HashMap<String, String>>();
     }
     
-    public String allowedColumnOf(String groupID) {
-        return groupToColumnMap.get(groupID);
+    public Map<String, String> getCommentColumnMap(String groupName) {
+        return groupToCommentToColumnMap.get(groupName);
     }
-    
-    public boolean isAllowedcomment(String comment) {
-        return allowedComments.contains(comment);
-    }
-    
+        
     public String getName() {
         return name;
     }

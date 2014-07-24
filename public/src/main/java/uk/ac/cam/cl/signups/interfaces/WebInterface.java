@@ -12,11 +12,7 @@ import java.util.Map;
 import javax.ws.rs.*;
 
 import uk.ac.cam.cl.signups.api.*;
-import uk.ac.cam.cl.signups.api.beans.ColumnBean;
-import uk.ac.cam.cl.signups.api.beans.GroupSheetBean;
-import uk.ac.cam.cl.signups.api.beans.PermissionsBean;
-import uk.ac.cam.cl.signups.api.beans.SlotBean;
-import uk.ac.cam.cl.signups.api.beans.SlotBookingBean;
+import uk.ac.cam.cl.signups.api.beans.*;
 import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
@@ -78,7 +74,7 @@ public interface WebInterface {
     @GET
     @Path("/sheets/{sheetID}/{columnName}")
     public List<Slot> listSlots(@PathParam("sheetID") String sheetID,
-            @PathParam("column") String column) throws ItemNotFoundException;
+            @PathParam("columnName") String columnName) throws ItemNotFoundException;
     
     @POST
     @Path("/sheets/{sheetID}/{columnName}")
@@ -98,7 +94,7 @@ public interface WebInterface {
     
     @GET
     @Path("/sheets/{sheetID}/{columnName}/{time}")
-    public String showBooking(@PathParam("sheetID") String sheetID,
+    public BookingInfo showBooking(@PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName,
             @PathParam("time") Date startTime)
                     throws ItemNotFoundException;
@@ -135,7 +131,8 @@ public interface WebInterface {
     
     @POST
     @Path("/groups")
-    public void addGroup(/* some arguments */);
+    /* TODO: decide on return type - have to return groupAuthCode somehow - do we want to return anything else? */
+    public void addGroup(Group group) throws DuplicateNameException;
     
     @GET
     @Path("/groups")
@@ -152,38 +149,50 @@ public interface WebInterface {
     @Path("/groups/{groupName}/whitelist/{user}")
     public Map<String, String> /* comments --> columns */ getPermissions(
             @PathParam("groupName") String groupName,
-            @PathParam("user") String user);
+            @PathParam("user") String user)
+                    throws ItemNotFoundException;
     
+    /**
+     * Allows the user to user to sign up using the specified column
+     * for each given comment. If an entry for a comment already exists,
+     * the relevant column is overwritten.
+     */
     @POST
     @Path("/groups/{groupName}/whitelist/{user}")
     public void addPermissions(
             @PathParam("groupName") String groupName,
             @PathParam("user") String user,
             PermissionsBean bean /* contains comment-column map and group authCode*/)
-                    throws NotAllowedException;
+                    throws NotAllowedException, ItemNotFoundException;
     
+    /**
+     * Forbids the user from signing up using any of the given comments.
+     */
     @DELETE
     @Path("/groups/{groupName}/whitelist/{user}")
     public void removePermissions(
             @PathParam("groupName") String groupName,
             @PathParam("user") String user,
             PermissionsBean bean /* contains comment-column map and group authCode*/)
-                    throws NotAllowedException;
+/* we actually only need a collection of comments and authCode - consider new type of bean? */
+                    throws NotAllowedException, ItemNotFoundException;
     
     @POST
     @Path("/groups/{groupName}/sheets")
     public void addSheet(@PathParam("groupName") String groupName,
-            GroupSheetBean bean /* contains group and sheet authCodes and sheetID*/);
+            GroupSheetBean bean /* contains group and sheet authCodes and sheetID*/)
+                    throws ItemNotFoundException, NotAllowedException;
     
     @GET
     @Path("/groups/{groupName}/sheets")
-    public List<String> listSheetIDs(@PathParam("groupName") String groupName);
+    public List<String> listSheetIDs(@PathParam("groupName") String groupName)
+            throws ItemNotFoundException;
     
     @DELETE
     @Path("/groups/{groupName}/sheets/{sheetID}")
     public void removeSheetFromGroup(
             @PathParam("groupName") String groupName,
             @PathParam("sheetID") String sheetID,
-            String groupAuthCode);
+            String groupAuthCode) throws ItemNotFoundException, NotAllowedException;
     
 }
