@@ -81,6 +81,10 @@ public class Sheet implements DatabaseItem {
         groups.remove(group);
     }
     
+    public List<Group> getGroups() {
+        return groups;
+    }
+    
     public String getURL() {
         /* TODO: implement */
         return "Needs to be implemented";

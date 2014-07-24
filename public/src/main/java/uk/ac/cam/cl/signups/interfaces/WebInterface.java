@@ -123,7 +123,7 @@ public interface WebInterface {
      */
     @POST
     @Path("/sheets/{sheetID}/{columnName}/{time}")
-    public void modifyBooking(@PathParam("sheetID") String sheetID,
+    public void book(@PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName,
             @PathParam("time") Date startTime,
             SlotBookingBean bookingBean)

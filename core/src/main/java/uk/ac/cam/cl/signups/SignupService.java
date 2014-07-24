@@ -92,7 +92,7 @@ public class SignupService implements WebInterface {
                 .getSlot(startTime));
     }
 
-    public void modifyBooking(String sheetID, String columnName,
+    public void book(String sheetID, String columnName,
             Date startTime, SlotBookingBean bookingBean)
             throws ItemNotFoundException, NotAllowedException {
         Sheet sheet = sheets.getItem(sheetID);
@@ -111,6 +111,16 @@ public class SignupService implements WebInterface {
                 }
                 if (slot.getStartTime().before(new Date())) {
                     throw new NotAllowedException("The start time of the slot has passed");
+                }
+                if (!userHasPermission(users.getItem(bookingBean.getUserToBook()), sheet,
+                        bookingBean.getComment(), columnName)) {
+                    throw new NotAllowedException("This user does not have permission to make "
+                            + "a booking using this comment on this column");
+                    /* 
+                     * TODO: we can give more information about exactly what is not allowed -
+                     * we can say if the comment is not allowed at all or whether a different
+                     * column must be used.
+                     */
                 }
                 slot.book(bookingBean.getUserToBook(), bookingBean.getComment());
             }
@@ -195,6 +205,23 @@ public class SignupService implements WebInterface {
         Sheet sheet = sheets.getItem(sheetID);
         sheet.removeGroup(group);
         group.removeSheet(sheet);
+    }
+    
+    /**
+     * Returns true iff there exists a group in the sheet's list of groups such that
+     * comment maps to either null or columnName in the entry in the user's map
+     * corresponding to that group.
+     */
+    private boolean userHasPermission(User user, Sheet sheet, String comment, String columnName) {
+        for (Group group : sheet.getGroups()) {
+            boolean commentFound = user.getCommentColumnMap(group.getName()).containsKey(comment);
+            String allowedColumn = user.getCommentColumnMap(group.getName()).get(comment);
+            boolean columnAllowed = allowedColumn == null || allowedColumn == columnName; 
+            if (commentFound && columnAllowed) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
