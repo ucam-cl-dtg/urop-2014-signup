@@ -7,10 +7,12 @@ package uk.ac.cam.cl.signups.database;
 
 import org.mongojack.JacksonDBCollection;
 
+import uk.ac.cam.cl.signups.SignupService;
 import uk.ac.cam.cl.signups.User;
 import uk.ac.cam.cl.signups.api.Group;
 import uk.ac.cam.cl.signups.api.Sheet;
 import uk.ac.cam.cl.signups.database.Mongo;
+import uk.ac.cam.cl.signups.interfaces.WebInterface;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -21,9 +23,15 @@ import com.google.inject.Provides;
  */
 public class DatabaseModule extends AbstractModule {
     
+    /*
+     * FIXME: Guice doesn't work with Generics the way I assumed it would.
+     *  TODO: Make it work, somehow. Look into the TypeLiteral class.
+     */
+    
     @Override
     protected void configure() {
         bind(DatabaseCollection.class).to(MongoCollection.class);
+        bind(WebInterface.class).to(SignupService.class);
     }
     
     @Provides

@@ -23,7 +23,6 @@ public class Sheet implements DatabaseItem {
     private List<Column> columns;
     private String authCode;
     private String sheetID;
-    private String groupID;
     private String _id;
     
     private String title;
@@ -33,12 +32,11 @@ public class Sheet implements DatabaseItem {
     private List<Group> groups;
     
     public Sheet(String title, String description, String location,
-            Collection<Column> columnCollection, String groupID) {
+            Collection<Column> columnCollection) {
         this.title = title;
         this.description = description;
         this.location = location;
         columns = new LinkedList<Column>(columnCollection);
-        this.groupID = groupID;
         /*
          * TODO: generate URL and authCode
          */

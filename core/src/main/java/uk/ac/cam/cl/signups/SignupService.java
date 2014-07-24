@@ -1,6 +1,8 @@
 package uk.ac.cam.cl.signups;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -239,6 +241,14 @@ public class SignupService implements WebInterface {
             }
         }
         return false;
+    }
+
+    public static void main(String[] args) throws DuplicateNameException {
+        WebInterface service = Guice.createInjector(new DatabaseModule()).getInstance(WebInterface.class);
+        Sheet sheet1 = new Sheet("My First Signup", "The first ever signup",
+                "right here", (Collection<Column>) new LinkedList<Column>());
+        service.addSheet(sheet1);
+        System.out.println(service.listSheets());
     }
 
 }
