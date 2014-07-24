@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.google.inject.Guice;
 import com.google.inject.Inject;
 
 import uk.ac.cam.cl.signups.api.*;
@@ -12,13 +13,29 @@ import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
 import uk.ac.cam.cl.signups.database.DatabaseCollection;
+import uk.ac.cam.cl.signups.database.DatabaseModule;
 import uk.ac.cam.cl.signups.interfaces.WebInterface;
 
 public class SignupService implements WebInterface {
     
-    @Inject private static DatabaseCollection<Sheet> sheets;
-    @Inject private static DatabaseCollection<User> users;
-    @Inject private static DatabaseCollection<Group> groups;
+    private static DatabaseCollection<Sheet> sheets;
+    private static DatabaseCollection<User> users;
+    private static DatabaseCollection<Group> groups;
+
+    @Inject
+    public static void setSheets(DatabaseCollection<Sheet> sheets) {
+        SignupService.sheets = sheets;
+    }
+
+    @Inject
+    public static void setUsers(DatabaseCollection<User> users) {
+        SignupService.users = users;
+    }
+
+    @Inject
+    public static void setGroups(DatabaseCollection<Group> groups) {
+        SignupService.groups = groups;
+    }
 
     public SheetInfo addSheet(Sheet sheet) throws DuplicateNameException {
         sheets.insertItem(sheet);
