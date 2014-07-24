@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.mongojack.JacksonDBCollection;
 
-import uk.ac.cam.cl.signups.api.DuplicateNameException;
-import uk.ac.cam.cl.signups.api.ItemNotFoundException;
+import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
+import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
 
 import com.google.inject.Inject;

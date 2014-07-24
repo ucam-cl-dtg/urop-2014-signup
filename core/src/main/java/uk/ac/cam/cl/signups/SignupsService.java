@@ -8,13 +8,13 @@ import java.util.Map;
 import com.google.inject.Inject;
 
 import uk.ac.cam.cl.signups.api.Column;
-import uk.ac.cam.cl.signups.api.DuplicateNameException;
-import uk.ac.cam.cl.signups.api.ItemNotFoundException;
-import uk.ac.cam.cl.signups.api.NotAllowedException;
 import uk.ac.cam.cl.signups.api.Sheet;
 import uk.ac.cam.cl.signups.api.SheetInfo;
 import uk.ac.cam.cl.signups.api.Slot;
-import uk.ac.cam.cl.signups.api.SlotBookingBean;
+import uk.ac.cam.cl.signups.api.beans.SlotBookingBean;
+import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
+import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
+import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
 import uk.ac.cam.cl.signups.database.DatabaseCollection;
 import uk.ac.cam.cl.signups.interfaces.WebInterface;
 

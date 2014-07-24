@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
+
 /**
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  *

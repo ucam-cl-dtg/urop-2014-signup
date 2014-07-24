@@ -7,8 +7,8 @@ package uk.ac.cam.cl.signups.database;
 
 import java.util.List;
 
-import uk.ac.cam.cl.signups.api.DuplicateNameException;
-import uk.ac.cam.cl.signups.api.ItemNotFoundException;
+import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
+import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
 
 /**

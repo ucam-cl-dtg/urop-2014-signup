@@ -3,7 +3,7 @@
 /**
  * 
  */
-package uk.ac.cam.cl.signups.api;
+package uk.ac.cam.cl.signups.api.exceptions;
 
 /**
  * @author ird28
