@@ -15,7 +15,12 @@ import com.mongodb.BasicDBObject;
 
 public class MongoCollection<T extends DatabaseItem> implements DatabaseCollection<T> {
     
-    @Inject private JacksonDBCollection<T, String> collection;
+    private JacksonDBCollection<T, String> collection;
+    
+    @Inject /* We are not actually injecting using Guice, we do it manually */
+    protected void setCollection(JacksonDBCollection<T, String> collection) {
+        this.collection = collection;
+    }
 
     public void insertItem(T item) throws DuplicateNameException {
         try {

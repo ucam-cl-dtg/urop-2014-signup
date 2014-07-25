@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 import uk.ac.cam.cl.signups.api.*;
 import uk.ac.cam.cl.signups.api.beans.*;
@@ -20,23 +21,23 @@ import uk.ac.cam.cl.signups.interfaces.WebInterface;
 
 public class SignupService implements WebInterface {
     
-    private static DatabaseCollection<Sheet> sheets;
-    private static DatabaseCollection<User> users;
-    private static DatabaseCollection<Group> groups;
+    private DatabaseCollection<Sheet> sheets;
+    private DatabaseCollection<User> users;
+    private DatabaseCollection<Group> groups;
 
     @Inject
-    public static void setSheets(DatabaseCollection<Sheet> sheets) {
-        SignupService.sheets = sheets;
+    public void setSheets(DatabaseCollection<Sheet> sheets) {
+        this.sheets = sheets;
     }
 
     @Inject
-    public static void setUsers(DatabaseCollection<User> users) {
-        SignupService.users = users;
+    public void setUsers(DatabaseCollection<User> users) {
+        this.users = users;
     }
 
     @Inject
-    public static void setGroups(DatabaseCollection<Group> groups) {
-        SignupService.groups = groups;
+    public void setGroups(DatabaseCollection<Group> groups) {
+        this.groups = groups;
     }
 
     public SheetInfo addSheet(Sheet sheet) throws DuplicateNameException {
@@ -244,7 +245,8 @@ public class SignupService implements WebInterface {
     }
 
     public static void main(String[] args) throws DuplicateNameException {
-        WebInterface service = Guice.createInjector(new DatabaseModule()).getInstance(WebInterface.class);
+        Injector injector = Guice.createInjector(new DatabaseModule());
+        WebInterface service = injector.getInstance(WebInterface.class);
         Sheet sheet1 = new Sheet("My First Signup", "The first ever signup",
                 "right here", (Collection<Column>) new LinkedList<Column>());
         service.addSheet(sheet1);

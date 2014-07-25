@@ -22,40 +22,43 @@ import com.google.inject.Provides;
  *
  */
 public class DatabaseModule extends AbstractModule {
-    
-    /*
-     * FIXME: Guice doesn't work with Generics the way I assumed it would.
-     *  TODO: Make it work, somehow. Look into the TypeLiteral class.
-     */
-    
+        
     @Override
     protected void configure() {
-        bind(DatabaseCollection.class).to(MongoCollection.class);
         bind(WebInterface.class).to(SignupService.class);
     }
     
     @Provides
-    public JacksonDBCollection<Sheet, String> provideSheetCollection() {
-        return JacksonDBCollection.wrap
-                ( Mongo.getDB().getCollection("sheets")
+    public DatabaseCollection<Sheet> provideSheetCollection() {
+        MongoCollection<Sheet> toReturn = new MongoCollection<Sheet>();
+        toReturn.setCollection(
+                JacksonDBCollection.wrap(
+                        Mongo.getDB().getCollection("sheets")
                         , Sheet.class
-                        , String.class);
+                        , String.class));
+        return toReturn;
     }
     
     @Provides
-    public JacksonDBCollection<User, String> provideUserCollection() {
-        return JacksonDBCollection.wrap
-                ( Mongo.getDB().getCollection("users")
+    public DatabaseCollection<User> provideUserCollection() {
+        MongoCollection<User> toReturn = new MongoCollection<User>();
+        toReturn.setCollection(
+                JacksonDBCollection.wrap(
+                        Mongo.getDB().getCollection("users")
                         , User.class
-                        , String.class);
+                        , String.class));
+        return toReturn;
     }
     
     @Provides
-    public JacksonDBCollection<Group, String> provideGroupCollection() {
-        return JacksonDBCollection.wrap
-                ( Mongo.getDB().getCollection("groups")
+    public DatabaseCollection<Group> provideGroupCollection() {
+        MongoCollection<Group> toReturn = new MongoCollection<Group>();
+        toReturn.setCollection(
+                JacksonDBCollection.wrap(
+                        Mongo.getDB().getCollection("groups")
                         , Group.class
-                        , String.class);
+                        , String.class));
+        return toReturn;
     }
 
 }
