@@ -156,8 +156,9 @@ public class SignupService implements WebInterface {
         }
     }
 
-    public void addGroup(Group group) throws DuplicateNameException {
+    public GroupInfo addGroup(Group group) throws DuplicateNameException {
         groups.insertItem(group);
+        return new GroupInfo(group);
     }
 
     public List<Group> listGroups() {
@@ -208,7 +209,11 @@ public class SignupService implements WebInterface {
             throw new NotAllowedException("Incorrect sheet authorisation code");
         }
         group.addSheet(sheet);
+        groups.updateItem(group); /* FIXME - infinite recursion */
         sheet.addGroup(group);
+        sheets.updateItem(sheet); /* FIXME - infinite recursion*/
+        
+        /* TODO: we cant have groups with lists of sheets and sheets with lists of groups in the database! */
     }
 
     public List<String> listSheetIDs(String groupName) throws ItemNotFoundException {
@@ -247,17 +252,6 @@ public class SignupService implements WebInterface {
     public static void main(String[] args) throws DuplicateNameException {
         Injector injector = Guice.createInjector(new DatabaseModule());
         SignupService service = injector.getInstance(SignupService.class);
-        Sheet sheet1 = new Sheet("My First Signup", "The first ever signup",
-                "right here", (Collection<Column>) new LinkedList<Column>());
-        Column col1 = new Column("ticker1", new LinkedList<Slot>());
-        Slot slot1 = new Slot(new Date(), 360000, "ird28", "tick1");
-        Slot slot2 = new Slot(new Date(), 400000, "ird28", "tick2");
-        col1.addSlot(slot1);
-        col1.addSlot(slot2);
-        sheet1.addColumn(col1);
-        service.sheets.removeAll();
-        service.addSheet(sheet1);
-        System.out.println(service.listSheets());
     }
 
 }

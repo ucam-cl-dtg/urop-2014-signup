@@ -13,7 +13,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
 @RunWith(Suite.class)
-@SuiteClasses({ AddingColumns.class, AddingSlots.class })
-public class AllTests {
+@SuiteClasses({ AddingColumns.class, AddingSlots.class, BookingSlots.class, GroupingSheets.class })
+public class ServiceTests {
 
 }

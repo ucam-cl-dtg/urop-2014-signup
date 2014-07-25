@@ -33,7 +33,7 @@ public class BookingSlots {
     private Slot bookedSlot;
     private String id;
     private String auth;
-
+    
     @Before
     public void setUp() throws DuplicateNameException {
         sheet = Get.sheet();

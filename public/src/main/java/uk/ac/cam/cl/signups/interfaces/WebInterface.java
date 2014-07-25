@@ -131,8 +131,7 @@ public interface WebInterface {
     
     @POST
     @Path("/groups")
-    /* TODO: decide on return type - have to return groupAuthCode somehow - do we want to return anything else? */
-    public void addGroup(Group group) throws DuplicateNameException;
+    public GroupInfo addGroup(Group group) throws DuplicateNameException;
     
     @GET
     @Path("/groups")
