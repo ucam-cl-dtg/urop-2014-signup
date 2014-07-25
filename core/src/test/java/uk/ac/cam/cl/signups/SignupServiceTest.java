@@ -10,39 +10,35 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.easymock.EasyMock;
 
-import uk.ac.cam.cl.signups.api.Group;
-import uk.ac.cam.cl.signups.api.Sheet;
-import uk.ac.cam.cl.signups.database.DatabaseCollection;
-import uk.ac.cam.cl.signups.database.HashMapCollection;
+import com.google.inject.Guice;
+
+import uk.ac.cam.cl.signups.api.*;
+import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
+import uk.ac.cam.cl.signups.interfaces.WebInterface;
 
 /**
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
 public class SignupServiceTest {
     
-    private SignupService service = new SignupService();
+    private WebInterface service =
+            Guice.createInjector(new TestDatabaseModule())
+            .getInstance(WebInterface.class);
     
-    @SuppressWarnings("unchecked")
-    private DatabaseCollection<Sheet> sheets = EasyMock.createMock(DatabaseCollection.class);
-    @SuppressWarnings("unchecked")
-    private DatabaseCollection<User> users = EasyMock.createMock(DatabaseCollection.class);
-    @SuppressWarnings("unchecked")
-    private DatabaseCollection<Group> groups = EasyMock.createMock(DatabaseCollection.class);
-    
-    {
-        SignupService.setSheets(sheets);
-        SignupService.setUsers(users);
-        SignupService.setGroups(groups);
-    }
-
     @Test
-    public void test() {
-        /* The below method calls are expected */
-        
-        EasyMock.replay(sheets, users, groups);
-        /* The actual test begins here */
-        
-        EasyMock.verify(sheets, users, groups);        
+    public void addAndRemoveSlotToColumn() {
+        Column c1 = Get.column();
+        Slot slot = Get.slot();
+        c1.addSlot(slot); // add slot to column
+        assertTrue(c1.getSlots().contains(slot)); // check has been added
+        try {
+            assertEquals(slot, c1.getSlot(slot.getStartTime()));
+        } catch (ItemNotFoundException e) {
+            fail("This should never be reached as if it wasn't contained "
+                    + "it would have failed at the previous assertion");
+        }
+        c1.removeSlot(slot.getStartTime()); // remove slot
+        assertFalse(c1.getSlots().contains(slot)); // check has been removed
     }
-
+    
 }

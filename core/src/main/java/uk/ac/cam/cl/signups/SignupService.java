@@ -60,7 +60,7 @@ public class SignupService implements WebInterface {
 
     public List<Column> listColumns(String sheetID)
             throws ItemNotFoundException {
-        return sheets.getItem(sheetID).listColumns();
+        return sheets.getItem(sheetID).getColumns();
     }
 
     public void addColumn(String sheetID, ColumnBean bean)
@@ -246,9 +246,16 @@ public class SignupService implements WebInterface {
 
     public static void main(String[] args) throws DuplicateNameException {
         Injector injector = Guice.createInjector(new DatabaseModule());
-        WebInterface service = injector.getInstance(WebInterface.class);
+        SignupService service = injector.getInstance(SignupService.class);
         Sheet sheet1 = new Sheet("My First Signup", "The first ever signup",
                 "right here", (Collection<Column>) new LinkedList<Column>());
+        Column col1 = new Column("ticker1", new LinkedList<Slot>());
+        Slot slot1 = new Slot(new Date(), 360000, "ird28", "tick1");
+        Slot slot2 = new Slot(new Date(), 400000, "ird28", "tick2");
+        col1.addSlot(slot1);
+        col1.addSlot(slot2);
+        sheet1.addColumn(col1);
+        service.sheets.removeAll();
         service.addSheet(sheet1);
         System.out.println(service.listSheets());
     }
