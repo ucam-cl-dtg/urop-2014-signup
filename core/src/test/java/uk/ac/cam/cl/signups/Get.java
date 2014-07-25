@@ -36,9 +36,9 @@ public class Get {
     
     public static Slot slot() {
         if (random.nextBoolean())
-            return new Slot(new Date(random.nextLong()), random.nextInt(60));
+            return new Slot(new Date((long) random.nextInt()), random.nextInt(60));
         else
-            return new Slot(new Date(random.nextLong()), random.nextInt(60), name(), name());
+            return new Slot(new Date((long) random.nextInt()), random.nextInt(60), name(), name());
     }
     
     public static Collection<Column> columnCollection() {
@@ -60,7 +60,7 @@ public class Get {
     private static String name() {
         String out = "";
         while (generated.contains(out)) {
-            out = Integer.toString(random.nextInt());
+            out = Integer.toString(Math.abs(random.nextInt()));
         }
         return out;
     }

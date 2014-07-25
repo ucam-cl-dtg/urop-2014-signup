@@ -70,7 +70,7 @@ public class Sheet implements DatabaseItem {
     public Sheet
         ( @JsonProperty("columns")      List<Column> columns
         , @JsonProperty("authCode")     String authCode
-        , @JsonProperty("sheetID")      String sheetID
+        , @JsonProperty("name")         String sheetID
         , @JsonProperty("title")        String title
         , @JsonProperty("description")  String description
         , @JsonProperty("location")     String location
@@ -144,7 +144,7 @@ public class Sheet implements DatabaseItem {
         return "Needs to be implemented";
     }
     
-    @JsonProperty("sheetID")
+    @JsonProperty("name")
     public String getName() { /* Used to ensure uniqueness in database */
         return sheetID;
     }

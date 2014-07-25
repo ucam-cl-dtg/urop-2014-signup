@@ -5,6 +5,7 @@
  */
 package uk.ac.cam.cl.signups.api;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -93,11 +94,43 @@ public class Column {
         this._id = _id;
     }
 
-    @Override
+    @Override @JsonIgnore
     public String toString() {
         return "Name: " + name + " Slots: " + slots;
     }
+
+    @Override @JsonIgnore
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((slots == null) ? 0 : slots.hashCode());
+        return result;
+    }
+
+    @Override @JsonIgnore
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Column other = (Column) obj;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        if (slots == null) {
+            if (other.slots != null)
+                return false;
+        } else if (! ((Collection<Slot>) slots).equals((Collection<Slot>) other.slots))
+            return false;
+        return true;
+    }
     
+       
     
     
 }

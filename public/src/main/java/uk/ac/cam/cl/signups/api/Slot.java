@@ -128,4 +128,48 @@ public class Slot implements Comparable<Slot> {
                 + " Status: " + status;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((bookedUser == null) ? 0 : bookedUser.hashCode());
+        result = prime * result + ((comment == null) ? 0 : comment.hashCode());
+        result = prime * result + (int) (duration ^ (duration >>> 32));
+        result = prime * result
+                + ((startTime == null) ? 0 : startTime.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Slot other = (Slot) obj;
+        if (bookedUser == null) {
+            if (other.bookedUser != null)
+                return false;
+        } else if (!bookedUser.equals(other.bookedUser))
+            return false;
+        if (comment == null) {
+            if (other.comment != null)
+                return false;
+        } else if (!comment.equals(other.comment))
+            return false;
+        if (duration != other.duration)
+            return false;
+        if (startTime == null) {
+            if (other.startTime != null)
+                return false;
+        } else if (!startTime.equals(other.startTime))
+            return false;
+        return true;
+    }
+    
+    
+
 }

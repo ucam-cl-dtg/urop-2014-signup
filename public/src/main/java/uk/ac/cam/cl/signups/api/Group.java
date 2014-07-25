@@ -5,6 +5,8 @@
  */
 package uk.ac.cam.cl.signups.api;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,14 +29,10 @@ public class Group implements DatabaseItem {
     private String _id;
     
     @JsonIgnore
-    public Group (
-            List<Sheet> sheets,
-            String name,
-            String groupAuthCode
-            ) {
-        this.sheets = sheets;
+    public Group(String name) {
         this.name = name;
-        this.groupAuthCode = "TODO: generate";
+        this.sheets = new ArrayList<Sheet>();
+        this.groupAuthCode = generateAuthCode();
     }
     
     @JsonCreator
@@ -49,16 +47,7 @@ public class Group implements DatabaseItem {
         this.groupAuthCode = groupAuthCode;
         this._id = _id;
     }
-    
-    @JsonIgnore
-    public Group(String name) {
-        this.name = name;
-        this.sheets = new ArrayList<Sheet>();
-        this.groupAuthCode = "TODO: generate";
-    }
-    
-    /* TODO: generate groupAuthCode */
-    
+        
     @JsonIgnore
     public void addSheet(Sheet sheet) {
         sheets.add(sheet);
@@ -106,6 +95,11 @@ public class Group implements DatabaseItem {
     @JsonProperty("sheets")
     public List<Sheet> getSheets() {
         return this.sheets;
+    }
+    
+    @JsonIgnore
+    private String generateAuthCode() {
+        return new BigInteger(130, new SecureRandom()).toString(32);
     }
 
 }

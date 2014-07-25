@@ -14,10 +14,12 @@ public class SheetInfo {
     
     private String URL;
     private String authCode;
+    private String sheetID;
     
     public SheetInfo(Sheet sheet) {
         URL = sheet.getURL();
         authCode = sheet.getAuthCode();
+        sheetID = sheet.getName();
     }
 
     public String getURL() {
@@ -26,5 +28,9 @@ public class SheetInfo {
 
     public String getAuthCode() {
         return authCode;
+    }
+    
+    public String getSheetID() {
+        return sheetID;
     }
 }
