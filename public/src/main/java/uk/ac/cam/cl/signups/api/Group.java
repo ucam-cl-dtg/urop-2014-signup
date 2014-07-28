@@ -23,7 +23,6 @@ import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
  */
 public class Group implements DatabaseItem {
     
-    private List<Sheet> sheets;
     private String name;
     private String groupAuthCode;
     private String _id;
@@ -31,7 +30,6 @@ public class Group implements DatabaseItem {
     @JsonIgnore
     public Group(String name) {
         this.name = name;
-        this.sheets = new ArrayList<Sheet>();
         this.groupAuthCode = generateAuthCode();
     }
     
@@ -42,20 +40,9 @@ public class Group implements DatabaseItem {
             @JsonProperty("groupAuthCode")  String groupAuthCode,
             @JsonProperty("_id")            String _id
             ) {
-        this.sheets = sheets;
         this.name = name;
         this.groupAuthCode = groupAuthCode;
         this._id = _id;
-    }
-        
-    @JsonIgnore
-    public void addSheet(Sheet sheet) {
-        sheets.add(sheet);
-    }
-    
-    @JsonIgnore
-    public void removeSheet(Sheet sheet) {
-        sheets.remove(sheet);
     }
     
     @JsonProperty("groupAuthCode")
@@ -68,14 +55,6 @@ public class Group implements DatabaseItem {
         return code.equals(groupAuthCode);
     }
     
-    @JsonIgnore
-    public List<String> getSheetIDs() {
-        List<String> toReturn = new ArrayList<String>();
-        for (Sheet sheet : sheets) {
-            toReturn.add(sheet.getName());
-        }
-        return toReturn;
-    }
 
     @Override @JsonProperty("name")
     public String getName() {
@@ -91,15 +70,15 @@ public class Group implements DatabaseItem {
     public void set_id(String _id) {
         this._id = _id;
     }
-    
-    @JsonProperty("sheets")
-    public List<Sheet> getSheets() {
-        return this.sheets;
-    }
-    
+        
     @JsonIgnore
     private String generateAuthCode() {
         return new BigInteger(130, new SecureRandom()).toString(32);
+    }
+    
+    @Override
+    public String toString() {
+        return "Name: " + name + " authCode: " + groupAuthCode;
     }
 
 }

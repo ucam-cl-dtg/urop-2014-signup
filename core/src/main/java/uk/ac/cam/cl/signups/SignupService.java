@@ -218,17 +218,18 @@ public class SignupService implements WebInterface {
         if (!sheet.isAuthCode(bean.getSheetAuthCode())) {
             throw new NotAllowedException("Incorrect sheet authorisation code");
         }
-        group.addSheet(sheet);
-        groups.updateItem(group); /* FIXME - infinite recursion */
         sheet.addGroup(group);
-        sheets.updateItem(sheet); /* FIXME - infinite recursion*/
-        
-        /* TODO: we cant have groups with lists of sheets and sheets with lists of groups in the database! */
+        sheets.updateItem(sheet);
     }
 
     public List<String> listSheetIDs(String groupName) throws ItemNotFoundException {
-        Group group = groups.getItem(groupName);
-        return group.getSheetIDs();
+        List<String> toReturn = (List<String>) new LinkedList<String>();
+        for (Sheet sheet : listSheets()) {
+            if (sheet.isPartOfGroup(groupName)) {
+                toReturn.add(sheet.getName());
+            }
+        }
+        return toReturn;
     }
 
     public void removeSheetFromGroup(String groupName, String sheetID,
@@ -240,8 +241,6 @@ public class SignupService implements WebInterface {
         Sheet sheet = sheets.getItem(sheetID);
         sheet.removeGroup(group);
         sheets.updateItem(sheet);
-        group.removeSheet(sheet);
-        groups.updateItem(group);
     }
     
     /**

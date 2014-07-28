@@ -57,7 +57,7 @@ public class Sheet implements DatabaseItem {
         this.description = description;
         this.location = location;
         columns = new LinkedList<Column>(columnCollection);
-        groups = new LinkedList<Group>();        
+        groups = new LinkedList<Group>();
         sheetID = generateSheetID();
         authCode = generateAuthCode();
         
@@ -132,6 +132,16 @@ public class Sheet implements DatabaseItem {
     @JsonIgnore
     public void removeGroup(Group group) {
         groups.remove(group);
+    }
+    
+    @JsonIgnore
+    public boolean isPartOfGroup(String groupName) {
+        for (Group g : groups) {
+            if (g.getName().equals(groupName)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     @JsonProperty("groups")

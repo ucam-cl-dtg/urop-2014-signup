@@ -61,12 +61,14 @@ public class GroupingSheets {
     @Test
     public void groupSheets() {
         try {
-            service.addSheet("test-group-1", /* FIXME: adding sheets to groups does not work */
+            service.addSheet("test-group-1",
                     new GroupSheetBean(sheet1.getName(), gAuthCode1, sAuthCode1));
             service.addSheet("test-group-1",
                     new GroupSheetBean(sheet2.getName(), gAuthCode1, sAuthCode2));
             service.addSheet("test-group-2",
                     new GroupSheetBean(sheet1.getName(), gAuthCode2, sAuthCode1));
+            System.out.println(sheet1.getName());
+            System.out.println(service.listSheetIDs("test-group-1"));
             assertTrue(service.listSheetIDs("test-group-1").contains(sheet1.getName()));
             assertTrue(service.listSheetIDs("test-group-1").contains(sheet2.getName()));
             assertTrue(service.listSheetIDs("test-group-1").contains(sheet1.getName()));
