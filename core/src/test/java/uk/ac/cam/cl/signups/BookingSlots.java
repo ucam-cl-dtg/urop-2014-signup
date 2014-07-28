@@ -61,7 +61,7 @@ public class BookingSlots {
                     /* FIXME: need to give user abc123 permission to book this slot! */
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
-            fail("Sheet, column and slot should all have been found");
+            fail("Sheet, column, slot and user should all have been found");
         } catch (NotAllowedException e) {
             e.printStackTrace();
             fail("The booking should be allowed");
@@ -85,8 +85,14 @@ public class BookingSlots {
     @Test
     public void ForceBookEmptySlotTest() {
         try {
+            System.out.println("Slots before: ");
+            System.out.println(service.listSlots(id, column.getName()));
             service.book(id, column.getName(), emptySlot.getStartTime(),
-                    new SlotBookingBean(null, "prv36", "tick89", auth));
+                    new SlotBookingBean(null, "user who wants to book empty slot", "tick they want to do", auth));
+            System.out.println("Slots after (empty slot should now be booked): ");
+            System.out.println(service.listSlots(id, column.getName()));
+            System.out.println();
+            System.out.println();
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
             fail("Sheet, column and slot should all have been found");
@@ -99,8 +105,14 @@ public class BookingSlots {
     @Test
     public void ForceBookFullSlotTest() {
         try {
+            System.out.println("Slots before: ");
+            System.out.println(service.listSlots(id, column.getName()));
             service.book(id, column.getName(), bookedSlot.getStartTime(),
-                    new SlotBookingBean(null, "prv36", "tick89", auth));
+                    new SlotBookingBean(null, "user who wants to book full slot", "tick they want to do", auth));
+            System.out.println("Slots after (slot booked by ird28 slot should now be rebooked): ");
+            System.out.println(service.listSlots(id, column.getName()));
+            System.out.println();
+            System.out.println();
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
             fail("Sheet, column and slot should all have been found");

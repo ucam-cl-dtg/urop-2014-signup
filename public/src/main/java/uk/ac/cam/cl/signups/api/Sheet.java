@@ -62,7 +62,7 @@ public class Sheet implements DatabaseItem {
         authCode = generateAuthCode();
         
         /*
-         * TODO: generate URL and authCode
+         * TODO: generate URL
          */
     }
     
@@ -109,8 +109,9 @@ public class Sheet implements DatabaseItem {
     }
     
     @JsonIgnore
-    public void removeColumn(String columnName) {
-        columns.remove(columnName);
+    public void removeColumn(String columnName) throws ItemNotFoundException {
+        Column toRemove = getColumn(columnName);
+        columns.remove(toRemove);
     }
     
     @JsonIgnore

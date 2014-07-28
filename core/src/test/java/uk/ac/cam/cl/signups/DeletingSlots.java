@@ -21,7 +21,7 @@ import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
 import uk.ac.cam.cl.signups.database.DatabaseModule;
 import uk.ac.cam.cl.signups.interfaces.WebInterface;
 
-public class AddingSlots {
+public class DeletingSlots {
     
     private WebInterface service =
             Guice.createInjector(new DatabaseModule())
@@ -37,8 +37,10 @@ public class AddingSlots {
     public void setUp() throws DuplicateNameException {
         sheet = Get.sheet();
         column = Get.column();
-        sheet.addColumn(column);
-        slot = new Slot(new Date(), 60000, "test-user", "this slot has been added in the test");
+        
+        slot = new Slot(new Date(), 60000, "test-user", "slot to remove in the test");
+        column.addSlot(slot);
+        sheet.addColumn(column);        
         SheetInfo info = service.addSheet(sheet); // We assume this function is fine
         id = info.getSheetID();
         auth = info.getAuthCode();
@@ -50,12 +52,12 @@ public class AddingSlots {
     }
 
     @Test
-    public void addSlotTest() {
+    public void deleteSlotTest() {
         try {
             System.out.println("Slots before:");
             System.out.println(service.listSlots(id, column.getName()));
-            service.addSlot(id, column.getName(), new SlotBean(slot, auth));
-            System.out.println("Slots after (should now contain test-user booked slot):");
+            service.deleteSlot(id, column.getName(), slot.getStartTime(), auth);
+            System.out.println("Slots after (should now not contain test-user booked slot):");
             System.out.println(service.listSlots(id, column.getName()));
         } catch (ItemNotFoundException e) {
             fail("The sheet and column should be found");
@@ -67,7 +69,7 @@ public class AddingSlots {
     @Test
     public void nonExistentSheetTest() {
         try {
-            service.addSlot("not existing", column.getName(), new SlotBean(slot, auth));
+            service.deleteSlot("non existent sheet", column.getName(), slot.getStartTime(), auth);
             fail("Sheet should not be found");
         } catch (ItemNotFoundException e) {
             /* Sheet should not be found */
@@ -79,7 +81,7 @@ public class AddingSlots {
     @Test
     public void nonExistentColumnTest() {
         try {
-            service.addSlot(id, "daniel", new SlotBean(slot, auth));
+            service.deleteSlot(id, "non existent column", slot.getStartTime(), auth);
             fail("Column should not be found");
         } catch (ItemNotFoundException e) {
             /* Column should not be found */
@@ -91,7 +93,7 @@ public class AddingSlots {
     @Test
     public void incorrectAuthCodeTest() {
         try {
-            service.addSlot(id, column.getName(), new SlotBean(slot, "password"));
+            service.deleteSlot(id, column.getName(), slot.getStartTime(), "incorrect auth code");
             fail("The authCode should almost certainly incorrect");
         } catch (ItemNotFoundException e) {
             fail("The authCode should almost certainly incorrect");

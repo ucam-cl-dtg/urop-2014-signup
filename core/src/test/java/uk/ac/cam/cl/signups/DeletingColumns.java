@@ -27,7 +27,7 @@ import uk.ac.cam.cl.signups.interfaces.WebInterface;
 /**
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
-public class AddingColumns {
+public class DeletingColumns {
     
     private WebInterface service =
             Guice.createInjector(new DatabaseModule())
@@ -42,6 +42,7 @@ public class AddingColumns {
     public void setUp() throws DuplicateNameException {
         sheet = Get.sheet();
         column = new Column("test-column", Get.slotList());
+        sheet.addColumn(column);
         SheetInfo info = service.addSheet(sheet); // We assume this function is fine
         id = info.getSheetID();
         auth = info.getAuthCode();
@@ -55,7 +56,7 @@ public class AddingColumns {
     @Test
     public void nonExistentSheetTest() {
         try {
-            service.addColumn("don't find me", new ColumnBean(column, auth));
+            service.deleteColumn("don't find me", column.getName(), auth);
             fail("The sheet should not exist");
         } catch (ItemNotFoundException e) {
             /* The given sheet should not be found */
@@ -67,7 +68,7 @@ public class AddingColumns {
     @Test
     public void incorrectAuthCodeTest() throws DuplicateNameException {    
         try {
-            service.addColumn(id, new ColumnBean(column, "wrong auth code"));
+            service.deleteColumn(id, column.getName(), "wrong auth code");
             fail("The authCode should almost certainly incorrect");
         } catch (ItemNotFoundException e) {
             fail("The sheet should be found");
@@ -77,14 +78,14 @@ public class AddingColumns {
     }
     
     @Test
-    public void addColumn() {        
+    public void deleteColumn() {
         try {
             System.out.println("Columns before:");
             System.out.println(service.listColumns(id));
-            service.addColumn(id, new ColumnBean(column, auth));
-            System.out.println("Columns after (should now contain a column called \"test-column\"):");
+            service.deleteColumn(id, column.getName(), auth);
+            System.out.println("Columns after (should now not contain a column called \"test-column\"):");
             System.out.println(service.listColumns(id));
-            //assertTrue(service.listColumns(id).contains(column)); TODO: change List<Slot> to Set<Slot> in Column so that we can properly check for equality of the set of slots
+            //assertFalse(service.listColumns(id).contains(column)); TODO: change List<Slot> to Set<Slot> in Column so that we can properly check for equality of the set of slots
         } catch (ItemNotFoundException e) {
             fail("The sheet should be found");
         } catch (NotAllowedException e) {

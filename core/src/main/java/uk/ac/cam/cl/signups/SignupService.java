@@ -2,6 +2,7 @@ package uk.ac.cam.cl.signups;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ public class SignupService implements WebInterface {
     private DatabaseCollection<Sheet> sheets;
     private DatabaseCollection<User> users;
     private DatabaseCollection<Group> groups;
-
+    
     @Inject
     public void setSheets(DatabaseCollection<Sheet> sheets) {
         this.sheets = sheets;
@@ -70,6 +71,7 @@ public class SignupService implements WebInterface {
             throw new NotAllowedException("Incorrect authorisation code");
         }
         sheet.addColumn(bean.getColumn());
+        sheets.updateItem(sheet);
     }
 
     public void deleteColumn(String sheetID, String columnName, String authCode)
@@ -79,6 +81,7 @@ public class SignupService implements WebInterface {
             throw new NotAllowedException("Incorrect authorisation code");
         }
         sheet.removeColumn(columnName);
+        sheets.updateItem(sheet);
     }
 
     public List<Slot> listSlots(String sheetID, String columnName)
@@ -93,6 +96,7 @@ public class SignupService implements WebInterface {
             throw new NotAllowedException("Incorrect authorisation code");
         }
         sheet.getColumn(columnName).addSlot(bean.getSlot());
+        sheets.updateItem(sheet);
     }
 
     public void deleteSlot(String sheetID, String columnName, Date startTime,
@@ -102,6 +106,7 @@ public class SignupService implements WebInterface {
             throw new NotAllowedException("Incorrect authorisation code");
         }
         sheet.getColumn(columnName).removeSlot(startTime);
+        sheets.updateItem(sheet);
     }
 
     public BookingInfo showBooking(String sheetID, String columnName, Date startTime)
@@ -154,6 +159,7 @@ public class SignupService implements WebInterface {
                 slot.unbook();
             }
         }
+        sheets.updateItem(sheet);
     }
 
     public GroupInfo addGroup(Group group) throws DuplicateNameException {
@@ -184,7 +190,9 @@ public class SignupService implements WebInterface {
          if (!groups.getItem(groupName).isGroupAuthCode(bean.getGroupAuthCode())) {
              throw new NotAllowedException("Incorrect group authorisation code");
          }
-        users.getItem(user).getCommentColumnMap(groupName).putAll(bean.getCommentColumnMap());
+        User userObj = users.getItem(user);
+        userObj.getCommentColumnMap(groupName).putAll(bean.getCommentColumnMap());
+        users.updateItem(userObj);
     }
 
     public void removePermissions(String groupName, String user,
@@ -192,10 +200,12 @@ public class SignupService implements WebInterface {
         if (!groups.getItem(groupName).isGroupAuthCode(bean.getGroupAuthCode())) {
             throw new NotAllowedException("Incorrect group authorisation code");
         }
-        Map<String, String> userMap = users.getItem(user).getCommentColumnMap(groupName);
+        User userObj = users.getItem(user);
+        Map<String, String> userMap = userObj.getCommentColumnMap(groupName);
         for (String comment : bean.getCommentColumnMap().keySet()) {
             userMap.remove(comment);
         }
+        users.updateItem(userObj);
     }
 
     public void addSheet(String groupName, GroupSheetBean bean)
@@ -229,7 +239,9 @@ public class SignupService implements WebInterface {
         }
         Sheet sheet = sheets.getItem(sheetID);
         sheet.removeGroup(group);
+        sheets.updateItem(sheet);
         group.removeSheet(sheet);
+        groups.updateItem(group);
     }
     
     /**
@@ -241,7 +253,7 @@ public class SignupService implements WebInterface {
         for (Group group : sheet.getGroups()) {
             boolean commentFound = user.getCommentColumnMap(group.getName()).containsKey(comment);
             String allowedColumn = user.getCommentColumnMap(group.getName()).get(comment);
-            boolean columnAllowed = allowedColumn == null || allowedColumn == columnName; 
+            boolean columnAllowed = allowedColumn == null || allowedColumn == columnName;
             if (commentFound && columnAllowed) {
                 return true;
             }
@@ -249,9 +261,13 @@ public class SignupService implements WebInterface {
         return false;
     }
 
-    public static void main(String[] args) throws DuplicateNameException {
+    public static void main(String[] args) throws DuplicateNameException, NotAllowedException, ItemNotFoundException {
         Injector injector = Guice.createInjector(new DatabaseModule());
         SignupService service = injector.getInstance(SignupService.class);
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("tick789", null);
+        service.addPermissions("group-name", "abc123", new PermissionsBean(
+               map, "groupAuthCode"));
     }
 
 }

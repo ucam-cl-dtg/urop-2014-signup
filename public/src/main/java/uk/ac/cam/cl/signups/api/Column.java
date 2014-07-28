@@ -69,7 +69,7 @@ public class Column {
         while (it.hasNext()) {
             Slot slot = it.next();
             if (startTime.equals(slot.getStartTime())) {
-                slots.remove(slot);
+                it.remove();
             }
         }
     }
