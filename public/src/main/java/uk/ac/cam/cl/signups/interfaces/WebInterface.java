@@ -155,6 +155,7 @@ public interface WebInterface {
      * Allows the user to user to sign up using the specified column
      * for each given comment. If an entry for a comment already exists,
      * the relevant column is overwritten.
+     * @throws DuplicateNameException 
      */
     @POST
     @Path("/groups/{groupName}/whitelist/{user}")
@@ -162,7 +163,7 @@ public interface WebInterface {
             @PathParam("groupName") String groupName,
             @PathParam("user") String user,
             PermissionsBean bean /* contains comment-column map and group authCode*/)
-                    throws NotAllowedException, ItemNotFoundException;
+                    throws NotAllowedException, ItemNotFoundException, DuplicateNameException;
     
     /**
      * Forbids the user from signing up using any of the given comments.

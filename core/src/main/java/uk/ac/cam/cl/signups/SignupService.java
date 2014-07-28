@@ -137,15 +137,20 @@ public class SignupService implements WebInterface {
                 if (slot.getStartTime().before(new Date())) {
                     throw new NotAllowedException("The start time of the slot has passed");
                 }
-                if (!userHasPermission(users.getItem(bookingBean.getUserToBook()), sheet,
-                        bookingBean.getComment(), columnName)) {
-                    throw new NotAllowedException("This user does not have permission to make "
-                            + "a booking using this comment on this column");
-                    /* 
-                     * TODO: we can give more information about exactly what is not allowed -
-                     * we can say if the comment is not allowed at all or whether a different
-                     * column must be used.
-                     */
+                try {
+                    if (!userHasPermission(users.getItem(bookingBean.getUserToBook()), sheet,
+                            bookingBean.getComment(), columnName)) {
+                        throw new NotAllowedException("The user does not have permission to make "
+                                + "a booking using this comment on this column");
+                        /* 
+                         * TODO: we can give more information about exactly what is not allowed -
+                         * we can say if the comment is not allowed at all or whether a different
+                         * column must be used.
+                         */
+                    }
+                } catch (ItemNotFoundException e) {
+                    throw new NotAllowedException("The user was not found on the database and "
+                            + "so was assumed to not have permission to make the booking");
                 }
                 slot.book(bookingBean.getUserToBook(), bookingBean.getComment());
             }
@@ -186,13 +191,20 @@ public class SignupService implements WebInterface {
     }
 
     public void addPermissions(String groupName, String user, PermissionsBean bean)
-            throws NotAllowedException, ItemNotFoundException {
-         if (!groups.getItem(groupName).isGroupAuthCode(bean.getGroupAuthCode())) {
-             throw new NotAllowedException("Incorrect group authorisation code");
-         }
-        User userObj = users.getItem(user);
-        userObj.getCommentColumnMap(groupName).putAll(bean.getCommentColumnMap());
-        users.updateItem(userObj);
+            throws NotAllowedException, ItemNotFoundException, DuplicateNameException {
+        if (!groups.getItem(groupName).isGroupAuthCode(bean.getGroupAuthCode())) {
+            throw new NotAllowedException("Incorrect group authorisation code");
+        }
+        User userObj;
+        try {
+            userObj = users.getItem(user);
+            userObj.getCommentColumnMap(groupName).putAll(bean.getCommentColumnMap());
+            users.updateItem(userObj);
+        } catch (ItemNotFoundException e) { // user not in database - add user to database
+            userObj = new User(user);
+            userObj.getCommentColumnMap(groupName).putAll(bean.getCommentColumnMap());
+            users.insertItem(userObj);
+        }
     }
 
     public void removePermissions(String groupName, String user,

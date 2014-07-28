@@ -42,14 +42,24 @@ public class User implements DatabaseItem {
         this._id = _id;
     }
     
-    @JsonProperty("map")
+    @JsonIgnore
     public Map<String, String> getCommentColumnMap(String groupName) {
-        return groupToCommentToColumnMap.get(groupName);
+        HashMap<String, String> commentToColumnMap = groupToCommentToColumnMap.get(groupName);
+        if (commentToColumnMap == null) {
+            commentToColumnMap = new HashMap<String, String>();
+            groupToCommentToColumnMap.put(groupName, commentToColumnMap);
+        }
+        return commentToColumnMap;
     }
     
     @JsonProperty("name")
     public String getName() {
         return name;
+    }
+    
+    @JsonProperty("map")
+    public Map<String, HashMap<String, String>> getGroupToCommentToColumnMap() {
+        return groupToCommentToColumnMap;
     }
 
     @Id @ObjectId
