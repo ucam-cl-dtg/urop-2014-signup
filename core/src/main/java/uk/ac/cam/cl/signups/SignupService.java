@@ -1,6 +1,5 @@
 package uk.ac.cam.cl.signups;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -183,6 +182,7 @@ public class SignupService implements WebInterface {
             throw new NotAllowedException("Incorrect group authorisation code");
         }
         groups.removeItem(groupName);
+        //TODO: remove group from all sheets' lists of groups
     }
 
     public Map<String, String> getPermissions(String groupName, String user)
@@ -251,7 +251,7 @@ public class SignupService implements WebInterface {
             throw new NotAllowedException("Incorrect group authorisation code");
         }
         Sheet sheet = sheets.getItem(sheetID);
-        sheet.removeGroup(group);
+        sheet.removeGroup(groupName);
         sheets.updateItem(sheet);
     }
     
@@ -264,21 +264,12 @@ public class SignupService implements WebInterface {
         for (Group group : sheet.getGroups()) {
             boolean commentFound = user.getCommentColumnMap(group.getName()).containsKey(comment);
             String allowedColumn = user.getCommentColumnMap(group.getName()).get(comment);
-            boolean columnAllowed = allowedColumn == null || allowedColumn == columnName;
+            boolean columnAllowed = allowedColumn == null || allowedColumn.equals(columnName);
             if (commentFound && columnAllowed) {
                 return true;
             }
         }
         return false;
-    }
-
-    public static void main(String[] args) throws DuplicateNameException, NotAllowedException, ItemNotFoundException {
-        Injector injector = Guice.createInjector(new DatabaseModule());
-        SignupService service = injector.getInstance(SignupService.class);
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("tick789", null);
-        service.addPermissions("group-name", "abc123", new PermissionsBean(
-               map, "groupAuthCode"));
     }
 
 }

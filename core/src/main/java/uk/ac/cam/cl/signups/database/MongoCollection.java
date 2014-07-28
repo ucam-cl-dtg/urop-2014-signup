@@ -47,7 +47,7 @@ public class MongoCollection<T extends DatabaseItem> implements DatabaseCollecti
     }
 
     public boolean contains(String name) {
-        int matchingItems = collection.find(new BasicDBObject("name", name)).count(); //TODO: check that using "name" here is okay
+        int matchingItems = collection.find(new BasicDBObject("name", name)).count();
         assert (matchingItems == 0 || matchingItems == 1);
         return (matchingItems == 1);
     }
@@ -67,7 +67,7 @@ public class MongoCollection<T extends DatabaseItem> implements DatabaseCollecti
         if (!contains(name))
             throw new ItemNotFoundException("The item " + name +
                     " was not found in the database");
-        collection.remove(new BasicDBObject("name", name)); //TODO: check the name thing, maybe replace T with some interface?
+        collection.remove(new BasicDBObject("name", name));
     }
 
 }

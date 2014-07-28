@@ -67,12 +67,12 @@ public class GroupingSheets {
                     new GroupSheetBean(sheet2.getName(), gAuthCode1, sAuthCode2));
             service.addSheet("test-group-2",
                     new GroupSheetBean(sheet1.getName(), gAuthCode2, sAuthCode1));
-            System.out.println(sheet1.getName());
-            System.out.println(service.listSheetIDs("test-group-1"));
             assertTrue(service.listSheetIDs("test-group-1").contains(sheet1.getName()));
             assertTrue(service.listSheetIDs("test-group-1").contains(sheet2.getName()));
-            assertTrue(service.listSheetIDs("test-group-1").contains(sheet1.getName()));
+            assertTrue(service.listSheetIDs("test-group-2").contains(sheet1.getName()));
             assertFalse(service.listSheetIDs("test-group-2").contains(sheet2.getName()));
+            service.removeSheetFromGroup("test-group-1", sheet1.getName(), gAuthCode1);
+            assertFalse(service.listSheetIDs("test-group-1").contains(sheet1.getName()));
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
             fail("The groups and sheets should all be found");

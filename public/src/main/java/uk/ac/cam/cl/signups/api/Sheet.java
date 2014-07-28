@@ -130,8 +130,14 @@ public class Sheet implements DatabaseItem {
     }
     
     @JsonIgnore
-    public void removeGroup(Group group) {
-        groups.remove(group);
+    public void removeGroup(String groupName) {
+        Group toRemove = groups.get(0); // to stop compiler moaning
+        for (Group g : groups) {
+            if (g.getName().equals(groupName)) {
+                toRemove = g;
+            }
+        }
+        groups.remove(toRemove);
     }
     
     @JsonIgnore
@@ -210,15 +216,6 @@ public class Sheet implements DatabaseItem {
     @JsonIgnore
     private String generateAuthCode() {
         return new BigInteger(130, random).toString(32);
-    }
-    
-    public static void main(String[] args) throws InterruptedException {
-        Sheet sheet1 = new Sheet("My First Signup", "The first ever signup",
-                "right here", (Collection<Column>) new LinkedList<Column>());
-        for (int i = 0; i<15; i++) {
-            System.out.println(sheet1.generateSheetID());
-            System.out.println(sheet1.generateAuthCode());
-        }
     }
      
 }

@@ -52,11 +52,13 @@ public class AddingSlots {
     @Test
     public void addSlotTest() {
         try {
+            System.out.println("Testing adding a slot to a column");
             System.out.println("Slots before:");
             System.out.println(service.listSlots(id, column.getName()));
             service.addSlot(id, column.getName(), new SlotBean(slot, auth));
             System.out.println("Slots after (should now contain test-user booked slot):");
             System.out.println(service.listSlots(id, column.getName()));
+            System.out.println();
         } catch (ItemNotFoundException e) {
             fail("The sheet and column should be found");
         } catch (NotAllowedException e) {

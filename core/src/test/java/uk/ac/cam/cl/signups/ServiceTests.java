@@ -15,7 +15,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({ AddingColumns.class, AddingSlots.class,
     BookingSlots.class, DeletingColumns.class,
-    DeletingSlots.class, GroupingSheets.class })
+    DeletingSlots.class, GroupingSheets.class,
+    AddingAndRemovingSheets.class })
 public class ServiceTests {
 
 }

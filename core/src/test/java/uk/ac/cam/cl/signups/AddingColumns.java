@@ -79,12 +79,14 @@ public class AddingColumns {
     @Test
     public void addColumn() {        
         try {
+            System.out.println("Testing adding a column to a sheet");
             System.out.println("Columns before:");
             System.out.println(service.listColumns(id));
             service.addColumn(id, new ColumnBean(column, auth));
             System.out.println("Columns after (should now contain a column called \"test-column\"):");
             System.out.println(service.listColumns(id));
             //assertTrue(service.listColumns(id).contains(column)); TODO: change List<Slot> to Set<Slot> in Column so that we can properly check for equality of the set of slots
+            System.out.println();
         } catch (ItemNotFoundException e) {
             fail("The sheet should be found");
         } catch (NotAllowedException e) {

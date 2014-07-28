@@ -23,28 +23,33 @@ import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
  */
 public interface WebInterface {
     
+    /* TODO: javadocs! */
+    
     /**
-     * Stores the given group object in the database, and returns
-     * both a URL giving sign-up only access to the sheet and an
-     * authentication code granting admin access to it.
-     * @param sheet
-     * @return URL and authentication code TODO: and sheetID?
+     * @param sheet The sheet to be added to the database
+     * @return A SheetInfo object containing the SheetID and
+     * admin authorisation code of the sheet, and the URL which
+     * can be used to access the sheet (for signing up only)
      * @throws DuplicateNameException
      */
     @POST
     @Path("/sheets")
     public SheetInfo addSheet(Sheet sheet) throws DuplicateNameException;
     
+    /**
+     * @return A list of all the sheet objects currently stored in the
+     * database.
+     */
     @GET
     @Path("/sheets")
     public List<Sheet> listSheets();
     
     /**
-     * Deletes sheet from database. Needs sheet admin permission.
-     * @param sheetID
-     * @param authCode
-     * @throws ItemNotFoundException
-     * @throws NotAllowedException
+     * Deletes the specified sheet from database.
+     * @param sheetID The ID of the sheet to be deleted
+     * @param authCode The admin authorisation code for the sheet specified
+     * @throws ItemNotFoundException The sheet was not found in the database
+     * @throws NotAllowedException The admin authorisation code was incorrect
      */
     @DELETE
     @Path("/sheets/{sheetID}")
@@ -53,17 +58,41 @@ public interface WebInterface {
             String authCode /* in body of request */)
                     throws ItemNotFoundException, NotAllowedException;
     
+    /**
+     * @param sheetID The ID of a sheet whose columns are to be listed
+     * @return A list of the Column objects for the specified sheet
+     * @throws ItemNotFoundException The sheet was not found in the database
+     */
     @GET
     @Path("/sheets/{sheetID}")
     public List<Column> listColumns(@PathParam("sheetID") String sheetID)
             throws ItemNotFoundException;
     
+    /**
+     * Updates the database so that the given column is added to the
+     * specified sheet. TODO: Check column name is unique - DuplicateNameException? 
+     * @param sheetID The ID of the sheet to add the Column to
+     * @param bean Contains the Column object to be added and the admin authorisation
+     * code of the sheet
+     * @throws ItemNotFoundException The sheet was not found in the database
+     * @throws NotAllowedException The admin authorisation code was incorrect
+     */
     @POST
     @Path("/sheets/{sheetID}")
     public void addColumn(@PathParam("sheetID") String sheetID,
             ColumnBean bean /* contains Column to add and sheet authCode */)
                     throws ItemNotFoundException, NotAllowedException;
     
+    /**
+     * Updates the database so that the specified sheet no longer contains
+     * the specified column. Also deletes all slots, booked or unbooked, contained
+     * in the deleted column. TODO: inform people if their slot was deleted?
+     * @param sheetID The ID of the sheet to delete the column from
+     * @param columnName The name of the column to delete
+     * @param authCode The admin authorisation code for the sheet
+     * @throws NotAllowedException The admin authorisation code was incorrect
+     * @throws ItemNotFoundException The sheet or column specified was not found
+     */
     @DELETE
     @Path("/sheets/{sheetID}/{columnName}")
     public void deleteColumn(@PathParam("sheetID") String sheetID,
@@ -71,11 +100,28 @@ public interface WebInterface {
             String authCode /* in request body*/)
                     throws NotAllowedException, ItemNotFoundException;
     
+    /**
+     * Lists the slots in a specified column in a specified sheet.
+     * @param sheetID
+     * @param columnName
+     * @return A list of the slot objects in the specified column
+     * @throws ItemNotFoundException The sheet or column was not found
+     */
     @GET
     @Path("/sheets/{sheetID}/{columnName}")
     public List<Slot> listSlots(@PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName) throws ItemNotFoundException;
     
+    /**
+     * Adds the given slot to the specified column in the specified sheet in the
+     * database.
+     * @param sheetID
+     * @param columnName
+     * @param bean Contains the Slot object and the admin authorisation
+     * code for the sheet
+     * @throws ItemNotFoundException
+     * @throws NotAllowedException
+     */
     @POST
     @Path("/sheets/{sheetID}/{columnName}")
     public void addSlot(@PathParam("sheetID") String sheetID,
@@ -83,6 +129,16 @@ public interface WebInterface {
             SlotBean bean /* contains Slot to add and sheet authCode */)
                     throws ItemNotFoundException, NotAllowedException;
     
+    /**
+     * Deletes the specified slot from the specified column in the specified
+     * sheet in the database. TODO: notify user booked?
+     * @param sheetID
+     * @param columnName
+     * @param startTime Date object used to identify the slot
+     * @param authCode
+     * @throws ItemNotFoundException Sheet, column, or slot not found
+     * @throws NotAllowedException The admin authorisation code was incorrect
+     */
     @DELETE
     @Path("/sheets/{sheetID}/{columnName}/{time}")
     public void deleteSlot(
@@ -92,6 +148,16 @@ public interface WebInterface {
             String authCode /* in request body */)
                     throws ItemNotFoundException, NotAllowedException;
     
+    /**
+     * Gives information about the current booking status of the slot.
+     * @param sheetID
+     * @param columnName
+     * @param startTime Identifies the slot
+     * @return A BookingInfo object which contains the user currently
+     * booked into the slot (null if unbooked) and the comment they are
+     * booked with.
+     * @throws ItemNotFoundException
+     */
     @GET
     @Path("/sheets/{sheetID}/{columnName}/{time}")
     public BookingInfo showBooking(@PathParam("sheetID") String sheetID,
@@ -103,9 +169,9 @@ public interface WebInterface {
      * Method that allows both normal and admin booking and unbooking
      * of slots.
      * <p>
-     * If a sheet authCode is provided, and is correct, then
+     * If a sheet admin authorisation code is provided, and is correct, then
      * the specified booking is always modified to the given user and
-     * comment. If a sheet authCode is provided, but is incorrect, then
+     * comment. If a sheet admin authorisation code is provided, but is incorrect, then
      * a NotAllowedException is raised.
      * <p>
      * If no sheet authCode is provided, then the call is treated as a
@@ -129,14 +195,33 @@ public interface WebInterface {
             SlotBookingBean bookingBean)
                     throws ItemNotFoundException, NotAllowedException;
     
+    /**
+     * Adds the given group object to the database.
+     * @param group
+     * @return A GroupInfo object which currently only contains the admin
+     * authorisation code for the group.
+     * @throws DuplicateNameException A group with that name already exists
+     * in the database
+     */
     @POST
     @Path("/groups")
     public GroupInfo addGroup(Group group) throws DuplicateNameException;
     
+    /**
+     * @return A list of all group objects currently stored in the database
+     */
     @GET
     @Path("/groups")
     public List<Group> listGroups();
     
+    /**
+     * Deletes the given group object from the database. All sheets corresponding to
+     * the deleted group remain in the database.
+     * @param groupName
+     * @param groupAuthCode
+     * @throws ItemNotFoundException
+     * @throws NotAllowedException The group admin authorisation code was incorrect
+     */
     @DELETE
     @Path("/groups/{groupName}")
     public void deleteGroup(
@@ -144,18 +229,35 @@ public interface WebInterface {
             String groupAuthCode)
                     throws ItemNotFoundException, NotAllowedException;
     
+    /**
+     * Returns the "whitelist" map from comments to columns for the
+     * given group of sheets and the given user. A user is allowed to
+     * sign up for a slot in a sheet in the given group only using the
+     * column their desired comment maps to (any column if it maps to null,
+     * no column if the comment doesn't appear in the map).
+     * @param groupName
+     * @param user
+     * @return
+     * @throws ItemNotFoundException
+     */
     @GET
     @Path("/groups/{groupName}/whitelist/{user}")
-    public Map<String, String> /* comments --> columns */ getPermissions(
+    public Map<String, String> getPermissions(
             @PathParam("groupName") String groupName,
             @PathParam("user") String user)
                     throws ItemNotFoundException;
     
     /**
-     * Allows the user to user to sign up using the specified column
+     * Allows the user to sign up using the specified column
      * for each given comment. If an entry for a comment already exists,
      * the relevant column is overwritten.
-     * @throws DuplicateNameException 
+     * @param groupName
+     * @param user
+     * @param bean Contains the comment to column map and the group admin
+     * authorisation code
+     * @throws NotAllowedException
+     * @throws ItemNotFoundException
+     * @throws DuplicateNameException
      */
     @POST
     @Path("/groups/{groupName}/whitelist/{user}")
@@ -164,30 +266,55 @@ public interface WebInterface {
             @PathParam("user") String user,
             PermissionsBean bean /* contains comment-column map and group authCode*/)
                     throws NotAllowedException, ItemNotFoundException, DuplicateNameException;
-    
     /**
-     * Forbids the user from signing up using any of the given comments.
+     * Forbids the user from signing up using any of the given comments (the keys in
+     * the map).
+     * @param groupName
+     * @param user
+     * @param bean Contains comment-column map and group authCode
+     * @throws NotAllowedException
+     * @throws ItemNotFoundException
      */
     @DELETE
     @Path("/groups/{groupName}/whitelist/{user}")
     public void removePermissions(
             @PathParam("groupName") String groupName,
             @PathParam("user") String user,
-            PermissionsBean bean /* contains comment-column map and group authCode*/)
+            PermissionsBean bean)
 /* we actually only need a collection of comments and authCode - consider new type of bean? */
                     throws NotAllowedException, ItemNotFoundException;
     
+    /**
+     * Adds the specified sheet to the specified group.
+     * @param groupName
+     * @param bean Contains the sheet ID and both sheet and group admin authorisation codes
+     * @throws ItemNotFoundException
+     * @throws NotAllowedException
+     */
     @POST
     @Path("/groups/{groupName}/sheets")
     public void addSheet(@PathParam("groupName") String groupName,
             GroupSheetBean bean /* contains group and sheet authCodes and sheetID*/)
                     throws ItemNotFoundException, NotAllowedException;
     
+    /**
+     * @param groupName
+     * @return A list of the sheet IDs for all the sheets in the specified group.
+     * @throws ItemNotFoundException
+     */
     @GET
     @Path("/groups/{groupName}/sheets")
     public List<String> listSheetIDs(@PathParam("groupName") String groupName)
             throws ItemNotFoundException;
     
+    /**
+     * Removes the specified sheet from the specified group.
+     * @param groupName
+     * @param sheetID
+     * @param groupAuthCode
+     * @throws ItemNotFoundException
+     * @throws NotAllowedException
+     */
     @DELETE
     @Path("/groups/{groupName}/sheets/{sheetID}")
     public void removeSheetFromGroup(
