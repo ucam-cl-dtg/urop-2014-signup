@@ -22,9 +22,7 @@ import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
  *
  */
 public interface WebInterface {
-    
-    /* TODO: javadocs! */
-    
+        
     /**
      * @param sheet The sheet to be added to the database
      * @return A SheetInfo object containing the SheetID and
@@ -113,6 +111,13 @@ public interface WebInterface {
             @PathParam("columnName") String columnName) throws ItemNotFoundException;
     
     /**
+     * @param sheetID
+     * @return If a slot is free, its start time appears in this list.
+     * @throws ItemNotFoundException 
+     */
+    public List<Date> listAllFreeStartTimes(String sheetID) throws ItemNotFoundException;
+    
+    /**
      * Adds the given slot to the specified column in the specified sheet in the
      * database.
      * @param sheetID
@@ -194,6 +199,18 @@ public interface WebInterface {
             @PathParam("time") Date startTime,
             SlotBookingBean bookingBean)
                     throws ItemNotFoundException, NotAllowedException;
+    
+    /**
+     * Unbooks the given user from all future slots they have booked on the
+     * given sheet.
+     * @param sheetID 
+     * @param user
+     * @param authCode
+     * @throws NotAllowedException
+     * @throws ItemNotFoundException
+     */
+    public void removeAllUserBookings(String sheetID, String user, String authCode)
+            throws NotAllowedException, ItemNotFoundException;
     
     /**
      * Adds the given group object to the database.
@@ -321,5 +338,7 @@ public interface WebInterface {
             @PathParam("groupName") String groupName,
             @PathParam("sheetID") String sheetID,
             String groupAuthCode) throws ItemNotFoundException, NotAllowedException;
+
+    
     
 }

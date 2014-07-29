@@ -69,6 +69,19 @@ public class Column {
         slots.remove(getSlot(startTime));
     }
 
+    /**
+     * @return true if and only if there are no free slots in the future for the column.
+     */
+    @JsonIgnore
+    public boolean isFullyBooked() {
+        for (Slot slot : slots) {
+            if ((!slot.isBooked()) && slot.getStartTime().after(new Date())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @JsonProperty("name")
     public String getName() {
         return name;

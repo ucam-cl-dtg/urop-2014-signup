@@ -1,5 +1,6 @@
 package uk.ac.cam.cl.signups;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -87,6 +88,19 @@ public class SignupService implements WebInterface {
             throws ItemNotFoundException {
         return sheets.getItem(sheetID).getColumn(columnName).getSlots();
     }
+    
+    public List<Date> listAllFreeStartTimes(String sheetID) throws ItemNotFoundException {
+        List<Date> toReturn = new ArrayList<Date>();
+        Sheet sheet = sheets.getItem(sheetID);
+        for (Column col : sheet.getColumns()) {
+            for (Slot slot : col.getSlots()) {
+                if (!slot.isBooked()) {
+                    toReturn.add(slot.getStartTime());
+                }
+            }
+        }
+        return toReturn;
+    }
 
     public void addSlot(String sheetID, String columnName, SlotBean bean)
             throws ItemNotFoundException, NotAllowedException {
@@ -159,6 +173,22 @@ public class SignupService implements WebInterface {
                     throw new NotAllowedException("The start time of the slot has passed");
                 }
                 slot.unbook();
+            }
+        }
+        sheets.updateItem(sheet);
+    }
+    
+    public void removeAllUserBookings(String sheetID, String user, String authCode)
+            throws NotAllowedException, ItemNotFoundException {
+        Sheet sheet = sheets.getItem(sheetID);
+        if (!sheet.isAuthCode(authCode)) {
+            throw new NotAllowedException("Incorrect authorisation code");
+        }
+        for (Column col : sheet.getColumns()) {
+            for (Slot slot : col.getSlots()) {
+                if (slot.getBookedUser().equals(user) && slot.getStartTime().after(new Date())) {
+                    slot.unbook();
+                }
             }
         }
         sheets.updateItem(sheet);
@@ -258,12 +288,13 @@ public class SignupService implements WebInterface {
      * comment maps to either null or columnName in the entry in the user's map
      * corresponding to that group.
      */
-    private boolean userHasPermission(User user, Sheet sheet, String comment, String columnName) {
+    private boolean userHasPermission(User user, Sheet sheet, String comment, String columnName) throws ItemNotFoundException {
         for (Group group : sheet.getGroups()) {
             boolean commentFound = user.getCommentColumnMap(group.getName()).containsKey(comment);
             String allowedColumn = user.getCommentColumnMap(group.getName()).get(comment);
             boolean columnAllowed = allowedColumn == null || allowedColumn.equals(columnName);
-            if (commentFound && columnAllowed) {
+            boolean allowedColumnIsFullyBooked = sheet.getColumn(columnName).isFullyBooked();
+            if (commentFound && (columnAllowed || allowedColumnIsFullyBooked)) {
                 return true;
             }
         }
