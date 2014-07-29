@@ -8,6 +8,10 @@ import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
 
+/**
+ * This class can be used to replace a MongoCollection for testing purposes.
+ * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
+ */
 public class HashMapCollection<T extends DatabaseItem> implements DatabaseCollection<T> {
 
     private HashMap<String, T> collection = new HashMap<String, T>(); 

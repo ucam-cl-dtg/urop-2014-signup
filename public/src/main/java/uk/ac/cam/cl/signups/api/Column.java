@@ -19,8 +19,9 @@ import com.fasterxml.jackson.annotation.*;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 
 /**
+ * Represents one "column" of a sheet. In the context of ticks, each
+ * column would correspond to a ticker.
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
- *
  */
 public class Column {
     
@@ -64,14 +65,8 @@ public class Column {
     }
     
     @JsonIgnore
-    public void removeSlot(Date startTime) {
-        Iterator<Slot> it = slots.iterator();
-        while (it.hasNext()) {
-            Slot slot = it.next();
-            if (startTime.equals(slot.getStartTime())) {
-                it.remove();
-            }
-        }
+    public void removeSlot(Date startTime) throws ItemNotFoundException {
+        slots.remove(getSlot(startTime));
     }
 
     @JsonProperty("name")

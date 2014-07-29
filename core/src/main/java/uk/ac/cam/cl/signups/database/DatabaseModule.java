@@ -22,6 +22,10 @@ import com.google.inject.Provides;
  *
  */
 public class DatabaseModule extends AbstractModule {
+    
+    private static final String SHEETCOLLECTION = "sheets";
+    private static final String USERCOLLECTION = "users";
+    private static final String GROUPCOLLECTION = "groups";
         
     @Override
     protected void configure() {
@@ -33,7 +37,7 @@ public class DatabaseModule extends AbstractModule {
         MongoCollection<Sheet> toReturn = new MongoCollection<Sheet>();
         toReturn.setCollection(
                 JacksonDBCollection.wrap(
-                        Mongo.getDB().getCollection("sheets")
+                        Mongo.getDB().getCollection(SHEETCOLLECTION)
                         , Sheet.class
                         , String.class));
         return toReturn;
@@ -44,7 +48,7 @@ public class DatabaseModule extends AbstractModule {
         MongoCollection<User> toReturn = new MongoCollection<User>();
         toReturn.setCollection(
                 JacksonDBCollection.wrap(
-                        Mongo.getDB().getCollection("users")
+                        Mongo.getDB().getCollection(USERCOLLECTION)
                         , User.class
                         , String.class));
         return toReturn;
@@ -55,7 +59,7 @@ public class DatabaseModule extends AbstractModule {
         MongoCollection<Group> toReturn = new MongoCollection<Group>();
         toReturn.setCollection(
                 JacksonDBCollection.wrap(
-                        Mongo.getDB().getCollection("groups")
+                        Mongo.getDB().getCollection(GROUPCOLLECTION)
                         , Group.class
                         , String.class));
         return toReturn;

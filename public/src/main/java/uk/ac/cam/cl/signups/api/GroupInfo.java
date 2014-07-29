@@ -6,6 +6,10 @@
 package uk.ac.cam.cl.signups.api;
 
 /**
+ * Kind of pointless class - used to contain
+ * more information than this. Used to return
+ * the group authorisation code from a method
+ * call.
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
 public class GroupInfo {

@@ -18,8 +18,12 @@ import com.fasterxml.jackson.annotation.*;
 import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
 
 /**
+ * Represents a "group" of sheets. Access to sheets is done
+ * by group. For example, all the ticking session sheets for
+ * one course should be grouped so that if a student has permission
+ * to sign up for a tick one week, they have the same permission for
+ * all other weeks.
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
- *
  */
 public class Group implements DatabaseItem {
     

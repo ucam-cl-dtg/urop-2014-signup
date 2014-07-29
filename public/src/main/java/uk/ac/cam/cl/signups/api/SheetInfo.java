@@ -7,8 +7,8 @@ package uk.ac.cam.cl.signups.api;
 
 
 /**
+ * Used to return the three Strings from a method call.
  * @author ird28
- *
  */
 public class SheetInfo {
     

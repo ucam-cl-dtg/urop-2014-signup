@@ -13,8 +13,11 @@ import org.mongojack.ObjectId;
 import com.fasterxml.jackson.annotation.*;
 
 /**
+ * This is what a user signs up for - a specific period
+ * in time in a certain column, with a comment of their
+ * choosing. In the context of ticking, the comment
+ * refers to the tick to be marked.
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
- *
  */
 public class Slot implements Comparable<Slot> {
     
@@ -24,8 +27,13 @@ public class Slot implements Comparable<Slot> {
     private String comment;
     private String _id;
     
+    /**
+     * Creates a new unbooked slot.
+     * @param startTime The time the slot starts
+     * @param duration The length of the slot - in milliseconds!
+     */
     @JsonIgnore
-    public Slot(Date startTime, int duration) {
+    public Slot(Date startTime, long duration) {
         this.startTime = startTime;
         this.duration = duration;
         this.bookedUser = null;
@@ -33,7 +41,7 @@ public class Slot implements Comparable<Slot> {
     }
     
     @JsonIgnore
-    public Slot(Date startTime, int duration, String user, String comment) {
+    public Slot(Date startTime, long duration, String user, String comment) {
         this.startTime = startTime;
         this.duration = duration;
         this.bookedUser = user;
@@ -43,7 +51,7 @@ public class Slot implements Comparable<Slot> {
     @JsonCreator
     public Slot(
             @JsonProperty("startTime")  Date startTime,
-            @JsonProperty("duration")   int duration,
+            @JsonProperty("duration")   long duration,
             @JsonProperty("bookedUser")       String user,
             @JsonProperty("comment")    String comment,
             @JsonProperty("_id")        String _id

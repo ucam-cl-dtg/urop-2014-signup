@@ -23,8 +23,8 @@ import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
 
 /**
+ * Represents one signup "session".
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
- *
  */
 public class Sheet implements DatabaseItem {
     
@@ -130,12 +130,15 @@ public class Sheet implements DatabaseItem {
     }
     
     @JsonIgnore
-    public void removeGroup(String groupName) {
-        Group toRemove = groups.get(0); // to stop compiler moaning
+    public void removeGroup(String groupName) throws ItemNotFoundException {
+        Group toRemove = null;
         for (Group g : groups) {
             if (g.getName().equals(groupName)) {
                 toRemove = g;
             }
+        }
+        if (toRemove == null) {
+            throw new ItemNotFoundException("No group with the given name was found");
         }
         groups.remove(toRemove);
     }

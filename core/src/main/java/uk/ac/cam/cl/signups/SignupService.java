@@ -127,8 +127,7 @@ public class SignupService implements WebInterface {
             } else {
                 throw new NotAllowedException("Incorrect authorisation code");
             }
-        }
-        else /* a non-admin request */{
+        } else /* a non-admin request */{
             if (bookingBean.getUserToBook() != null) /* a book request */ {
                 if (slot.isBooked()) {
                     throw new NotAllowedException("The slot has already been booked by someone");
@@ -152,8 +151,7 @@ public class SignupService implements WebInterface {
                             + "so was assumed to not have permission to make the booking");
                 }
                 slot.book(bookingBean.getUserToBook(), bookingBean.getComment());
-            }
-            else /* an unbook request */ {
+            } else /* an unbook request */ {
                 if (slot.getBookedUser() != bookingBean.getCurrentlyBookedUser()) {
                     throw new NotAllowedException("The user given was not booked to this slot");
                 }

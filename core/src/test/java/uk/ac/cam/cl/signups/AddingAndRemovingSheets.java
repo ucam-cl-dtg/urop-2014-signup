@@ -38,34 +38,42 @@ public class AddingAndRemovingSheets {
         sheet2 = Get.sheet();
     }
 
-    @After
-    public void tearDown() throws Exception {
-    }
-
     @Test
     public void addRemoveSheetTest() {
         try {
+            /* add sheets */
             SheetInfo info1 = service.addSheet(sheet1);
             id1 = info1.getSheetID();
             auth1 = info1.getAuthCode();
             SheetInfo info2 = service.addSheet(sheet2);
             id2 = info2.getSheetID();
             auth2 = info2.getAuthCode();
+            
+            /* check that the sheets were added */
             List<Sheet> list = service.listSheets();
             assertEquals(2, list.size());
             assertTrue(list.contains(sheet1));
             assertTrue(list.contains(sheet2));
+            
+            /* delete one sheet */
             service.deleteSheet(id1, auth1);
+            
+            /* check that the sheet was deleted */
             list = service.listSheets();
             assertEquals(1, list.size());
             assertFalse(list.contains(sheet1));
             assertTrue(list.contains(sheet2));
+            
+            /* delete the other sheet */
             service.deleteSheet(id2, auth2);
+            
+            /* check that the sheet was deleted */
             list = service.listSheets();
             assertEquals(0, list.size());
             assertFalse(list.contains(sheet1));
             assertFalse(list.contains(sheet2));
         } catch (DuplicateNameException e) {
+            /* really this should never happen - we are using a fresh "database" */
             e.printStackTrace();
             fail("The sheets should not already be in the database");
         } catch (ItemNotFoundException e) {

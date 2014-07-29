@@ -7,6 +7,7 @@ package uk.ac.cam.cl.signups.api;
 
 
 /**
+ * Used to return these two strings from method calls requesting them.
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
 public class BookingInfo {
