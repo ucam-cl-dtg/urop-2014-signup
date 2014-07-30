@@ -43,4 +43,12 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>dtg-code</id>
+			<name>RepositoryProxy</name>
+			<url>http://maven.dtg.cl.cam.ac.uk/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
