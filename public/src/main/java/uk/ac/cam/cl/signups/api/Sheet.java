@@ -19,6 +19,7 @@ import org.mongojack.ObjectId;
 
 import com.fasterxml.jackson.annotation.*;
 
+import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
 
@@ -89,7 +90,12 @@ public class Sheet implements DatabaseItem {
     }
     
     @JsonIgnore
-    public void addColumn(Column column) {
+    public void addColumn(Column column) throws DuplicateNameException {
+        for (Column col : columns) {
+            if (col.getName().equals(column.getName())) {
+                throw new DuplicateNameException(column.getName());
+            }
+        }
         columns.add(column);
     }
     

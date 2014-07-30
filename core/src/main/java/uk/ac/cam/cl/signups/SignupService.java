@@ -69,7 +69,7 @@ public class SignupService implements WebInterface {
     }
 
     public void addColumn(String sheetID, ColumnBean bean)
-            throws ItemNotFoundException, NotAllowedException {
+            throws ItemNotFoundException, NotAllowedException, DuplicateNameException {
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(bean.getAuthCode())) {
             throw new NotAllowedException("Incorrect authorisation code");
@@ -107,7 +107,7 @@ public class SignupService implements WebInterface {
     }
 
     public void addSlot(String sheetID, String columnName, SlotBean bean)
-            throws ItemNotFoundException, NotAllowedException {
+            throws ItemNotFoundException, NotAllowedException, DuplicateNameException {
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(bean.getAuthCode())) {
             throw new NotAllowedException("Incorrect authorisation code");
@@ -190,7 +190,7 @@ public class SignupService implements WebInterface {
         }
         for (Column col : sheet.getColumns()) {
             for (Slot slot : col.getSlots()) {
-                if (slot.getBookedUser().equals(user) && slot.getStartTime().after(new Date())) {
+                if (slot.isBooked() && slot.getBookedUser().equals(user) && slot.getStartTime().after(new Date())) {
                     slot.unbook();
                 }
             }

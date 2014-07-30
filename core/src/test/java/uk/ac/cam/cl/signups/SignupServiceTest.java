@@ -13,10 +13,11 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
 @RunWith(Suite.class)
-@SuiteClasses({ AddingColumns.class, AddingSlots.class,
-    BookingSlots.class, DeletingColumns.class,
-    DeletingSlots.class, GroupingSheets.class,
-    AddingAndRemovingSheets.class })
-public class ServiceTests {
+@SuiteClasses({ AddingColumns.class, AddingGroups.class, AddingSheets.class,
+        AddingSlots.class, DeletingColumns.class,
+        DeletingGroups.class, DeletingSheets.class, DeletingSlots.class,
+        GroupingSheets.class, ListingFreeTimes.class,
+        RemovingAllUserBookings.class })
+public class SignupServiceTest {
 
 }

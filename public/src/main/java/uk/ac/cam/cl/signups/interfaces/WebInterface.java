@@ -80,13 +80,14 @@ public interface WebInterface {
      * code of the sheet
      * @throws ItemNotFoundException The sheet was not found in the database
      * @throws NotAllowedException The admin authorisation code was incorrect
+     * @throws DuplicateNameException 
      */
     @POST
     @Path("/sheets/{sheetID}")
     @Consumes("application/json")
     public void addColumn(@PathParam("sheetID") String sheetID,
             ColumnBean bean /* contains Column to add and sheet authCode */)
-                    throws ItemNotFoundException, NotAllowedException;
+                    throws ItemNotFoundException, NotAllowedException, DuplicateNameException;
     
     /**
      * Updates the database so that the specified sheet no longer contains
@@ -136,6 +137,7 @@ public interface WebInterface {
      * code for the sheet
      * @throws ItemNotFoundException
      * @throws NotAllowedException
+     * @throws DuplicateNameException 
      */
     @POST
     @Path("/sheets/{sheetID}/{columnName}")
@@ -143,7 +145,7 @@ public interface WebInterface {
     public void addSlot(@PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName,
             SlotBean bean /* contains Slot to add and sheet authCode */)
-                    throws ItemNotFoundException, NotAllowedException;
+                    throws ItemNotFoundException, NotAllowedException, DuplicateNameException;
     
     /**
      * Deletes the specified slot from the specified column in the specified

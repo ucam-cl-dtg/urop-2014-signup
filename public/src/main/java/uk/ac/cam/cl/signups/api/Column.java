@@ -16,6 +16,7 @@ import org.mongojack.ObjectId;
 
 import com.fasterxml.jackson.annotation.*;
 
+import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 
 /**
@@ -47,7 +48,12 @@ public class Column {
     }
     
     @JsonIgnore
-    public void addSlot(Slot slot) {
+    public void addSlot(Slot slot) throws DuplicateNameException {
+        for (Slot s : slots) {
+            if (s.getStartTime().equals(slot.getStartTime())) {
+                throw new DuplicateNameException(slot.getStartTime().toString());
+            }
+        }
         slots.add(slot);
         Collections.sort(slots);
     }

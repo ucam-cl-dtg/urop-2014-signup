@@ -7,9 +7,6 @@ package uk.ac.cam.cl.signups;
 
 import static org.junit.Assert.*;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,11 +14,9 @@ import org.junit.Test;
 import com.google.inject.Guice;
 
 import uk.ac.cam.cl.signups.api.*;
-import uk.ac.cam.cl.signups.api.beans.ColumnBean;
 import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
-import uk.ac.cam.cl.signups.database.DatabaseModule;
 import uk.ac.cam.cl.signups.interfaces.WebInterface;
 
 /**
@@ -30,7 +25,7 @@ import uk.ac.cam.cl.signups.interfaces.WebInterface;
 public class DeletingColumns {
     
     private WebInterface service =
-            Guice.createInjector(new DatabaseModule())
+            Guice.createInjector(new TestDatabaseModule()) // hashmap not mongo
             .getInstance(WebInterface.class);
     
     private Sheet sheet;
@@ -48,29 +43,39 @@ public class DeletingColumns {
         auth = info.getAuthCode();
     }
     
-    @After
-    public void removeDatabaseEntry() throws ItemNotFoundException, NotAllowedException {
-        service.deleteSheet(id, auth); // We assume this function is fine
-    }
-    
     @Test
-    public void nonExistentSheetTest() {
+    public void deleteColumn_exception_sheetNotFound() {
         try {
-            service.deleteColumn("don't find me", column.getName(), auth);
+            service.deleteColumn("wrong sheetID", column.getName(), auth);
             fail("The sheet should not exist");
         } catch (ItemNotFoundException e) {
             /* The given sheet should not be found */
         } catch (NotAllowedException e) {
+            e.printStackTrace();
             fail("The sheet should not have been found");
         }
     }
     
     @Test
-    public void incorrectAuthCodeTest() throws DuplicateNameException {    
+    public void deleteColumn_exception_columnNotFound() {
+        try {
+            service.deleteColumn(id, "wrong column name", auth);
+            fail("The column should not exist");
+        } catch (ItemNotFoundException e) {
+            /* The given column should not be found */
+        } catch (NotAllowedException e) {
+            e.printStackTrace();
+            fail("The given column should not have been found");
+        }
+    }
+    
+    @Test
+    public void deleteColumn_exception_wrongAuthCode() throws DuplicateNameException {    
         try {
             service.deleteColumn(id, column.getName(), "wrong auth code");
-            fail("The authCode should almost certainly incorrect");
+            fail("The authCode should be incorrect");
         } catch (ItemNotFoundException e) {
+            e.printStackTrace();
             fail("The sheet should be found");
         } catch (NotAllowedException e) {
             /* This should happen - the authCode should be incorrect */
@@ -78,7 +83,7 @@ public class DeletingColumns {
     }
     
     @Test
-    public void deleteColumn() {
+    public void deleteColumn_success() {
         try {
             System.out.println("Testing deleting column from sheet");
             System.out.println("Columns before:");
@@ -89,8 +94,10 @@ public class DeletingColumns {
             //assertFalse(service.listColumns(id).contains(column)); TODO: change List<Slot> to Set<Slot> in Column so that we can properly check for equality of the set of slots
             System.out.println();
         } catch (ItemNotFoundException e) {
+            e.printStackTrace();
             fail("The sheet should be found");
         } catch (NotAllowedException e) {
+            e.printStackTrace();
             fail("The authCode should be correct");
         }
     }

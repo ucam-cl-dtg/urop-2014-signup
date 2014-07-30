@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.util.Date;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,17 +13,15 @@ import uk.ac.cam.cl.signups.api.Column;
 import uk.ac.cam.cl.signups.api.Sheet;
 import uk.ac.cam.cl.signups.api.SheetInfo;
 import uk.ac.cam.cl.signups.api.Slot;
-import uk.ac.cam.cl.signups.api.beans.SlotBean;
 import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
-import uk.ac.cam.cl.signups.database.DatabaseModule;
 import uk.ac.cam.cl.signups.interfaces.WebInterface;
 
 public class DeletingSlots {
     
     private WebInterface service =
-            Guice.createInjector(new DatabaseModule())
+            Guice.createInjector(new TestDatabaseModule())
             .getInstance(WebInterface.class);
     
     private Sheet sheet;
@@ -34,7 +31,7 @@ public class DeletingSlots {
     private String auth;
 
     @Before
-    public void setUp() throws DuplicateNameException {
+    public void setUp() throws Exception {
         sheet = Get.sheet();
         column = Get.column();
         
@@ -45,14 +42,9 @@ public class DeletingSlots {
         id = info.getSheetID();
         auth = info.getAuthCode();
     }
-    
-    @After
-    public void removeDatabaseEntry() throws ItemNotFoundException, NotAllowedException {
-        service.deleteSheet(id, auth); // We assume this function is fine
-    }
 
     @Test
-    public void deleteSlotTest() {
+    public void deleteSlot_success() {
         try {
             System.out.println("Testing deleting a slot from a column");
             System.out.println("Slots before:");
@@ -69,7 +61,7 @@ public class DeletingSlots {
     }
     
     @Test
-    public void nonExistentSheetTest() {
+    public void deleteSlot_exception_sheetNotFound() {
         try {
             service.deleteSlot("non existent sheet", column.getName(), slot.getStartTime(), auth);
             fail("Sheet should not be found");
@@ -81,7 +73,7 @@ public class DeletingSlots {
     }
     
     @Test
-    public void nonExistentColumnTest() {
+    public void deleteSlot_exception_columnNotFound() {
         try {
             service.deleteSlot(id, "non existent column", slot.getStartTime(), auth);
             fail("Column should not be found");
@@ -93,14 +85,26 @@ public class DeletingSlots {
     }
     
     @Test
-    public void incorrectAuthCodeTest() {
+    public void deleteSlot_exception_slotNotFound() {
+        try {
+            service.deleteSlot(id, column.getName(), Get.slot().getStartTime(), auth);
+            fail("Slot should not be found");
+        } catch (ItemNotFoundException e) {
+            /* Slot should not be found */
+        } catch (NotAllowedException e) {
+            fail("Slot should not be found");
+        }
+    }
+    
+    @Test
+    public void deleteSlot_exception_wrongAuthCode() {
         try {
             service.deleteSlot(id, column.getName(), slot.getStartTime(), "incorrect auth code");
-            fail("The authCode should almost certainly incorrect");
+            fail("The authCode should be incorrect");
         } catch (ItemNotFoundException e) {
-            fail("The authCode should almost certainly incorrect");
+            fail("The authCode should be incorrect");
         } catch (NotAllowedException e) {
-            /* The authCode should almost certainly incorrect" */
+            /* The authCode should be incorrect" */
         }
     }
 

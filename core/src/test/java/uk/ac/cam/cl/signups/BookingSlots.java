@@ -22,10 +22,12 @@ import com.google.inject.Guice;
 
 public class BookingSlots {
     
+    // TODO
+    
     /* Also testing adding and removing permissions */
     
     private WebInterface service =
-            Guice.createInjector(new DatabaseModule())
+            Guice.createInjector(new TestDatabaseModule())
             .getInstance(WebInterface.class);
     
     private Group group;

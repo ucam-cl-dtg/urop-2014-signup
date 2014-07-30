@@ -28,11 +28,11 @@ import com.google.inject.Guice;
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
 public class GroupingSheets {
-    
+
     private WebInterface service =
-            Guice.createInjector(new DatabaseModule())
+            Guice.createInjector(new TestDatabaseModule())
             .getInstance(WebInterface.class);
-    
+
     private Sheet sheet1;
     private Sheet sheet2;
     private Group group1 = new Group("test-group-1");
@@ -51,15 +51,15 @@ public class GroupingSheets {
         sAuthCode1 = service.addSheet(sheet1).getAuthCode();
         sAuthCode2 = service.addSheet(sheet2).getAuthCode();
     }
-    
+
     @After
     public void tearDown() throws ItemNotFoundException, NotAllowedException {
         service.deleteGroup("test-group-1", gAuthCode1);
         service.deleteGroup("test-group-2", gAuthCode2);
     }
-    
+
     @Test
-    public void groupSheets() {
+    public void addSheet_success() {
         try {
             service.addSheet("test-group-1",
                     new GroupSheetBean(sheet1.getName(), gAuthCode1, sAuthCode1));
@@ -80,9 +80,154 @@ public class GroupingSheets {
             e.printStackTrace();
             fail("All operations should be allowed");
         }
-        
-        
     }
     
+    @Test
+    public void addSheet_exception_sheetNotFound() {
+        try {
+            service.addSheet("test-group-1",
+                    new GroupSheetBean("sheet not found", gAuthCode1, sAuthCode1));
+            fail("Sheet should not be found");
+        } catch (ItemNotFoundException e) {
+            /* Sheet should not be found */
+        } catch (NotAllowedException e) {
+            e.printStackTrace();
+            fail("Sheet should not be found");
+        }
+    }
+    
+    @Test
+    public void addSheet_exception_groupNotFound() {
+        try {
+            service.addSheet("no such group",
+                    new GroupSheetBean(sheet1.getName(), gAuthCode1, sAuthCode1));
+            fail("Group should not be found");
+        } catch (ItemNotFoundException e) {
+            /* Group should not be found */
+        } catch (NotAllowedException e) {
+            e.printStackTrace();
+            fail("Group should not be found");
+        }
+    }
+    
+    @Test
+    public void addSheet_exception_wrongSheetAuthCode() {
+        try {
+            service.addSheet("test-group-1",
+                    new GroupSheetBean(sheet1.getName(), gAuthCode1, "wrong code"));
+            fail("The sheet auth code is wrong");
+        } catch (ItemNotFoundException e) {
+            e.printStackTrace();
+            fail("Everything should be found");
+        } catch (NotAllowedException e) {
+            /* The sheet auth code is wrong */
+        }
+    }
+    
+    @Test
+    public void addSheet_exception_wrongGroupAuthCode() {
+        try {
+            service.addSheet("test-group-1",
+                    new GroupSheetBean(sheet1.getName(), "wrong code", sAuthCode1));
+            fail("The group auth code is wrong");
+        } catch (ItemNotFoundException e) {
+            e.printStackTrace();
+            fail("Everything should be found");
+        } catch (NotAllowedException e) {
+            /* The group auth code is wrong */
+        }
+    }
+    
+    
+
+    @Test
+    public void removeSheet_success() {
+        try {
+            /* add sheets to be removed - assumed to work - tested elsewhere */
+            service.addSheet("test-group-1",
+                    new GroupSheetBean(sheet1.getName(), gAuthCode1, sAuthCode1));
+            service.addSheet("test-group-1",
+                    new GroupSheetBean(sheet2.getName(), gAuthCode1, sAuthCode2));
+            service.addSheet("test-group-2",
+                    new GroupSheetBean(sheet1.getName(), gAuthCode2, sAuthCode1));
+            /* alternately remove sheets and check they have been removed */
+            service.removeSheetFromGroup("test-group-1", sheet1.getName(), gAuthCode1);
+            assertFalse(service.listSheetIDs("test-group-1").contains(sheet1.getName()));
+            service.removeSheetFromGroup("test-group-1", sheet2.getName(), gAuthCode1);
+            assertFalse(service.listSheetIDs("test-group-1").contains(sheet2.getName()));
+            service.removeSheetFromGroup("test-group-2", sheet1.getName(), gAuthCode2);
+            assertFalse(service.listSheetIDs("test-group-2").contains(sheet2.getName()));
+        } catch (ItemNotFoundException e) {
+            e.printStackTrace();
+            fail("The groups and sheets should all be found");
+        } catch (NotAllowedException e) {
+            e.printStackTrace();
+            fail("All operations should be allowed");
+        }
+
+    }
+    
+    @Test
+    public void removeSheet_exception_sheetNotFound() {
+        try {
+            service.removeSheetFromGroup("test-group-1", "no such sheet", gAuthCode1);
+            fail("Sheet should not be found");
+        } catch (ItemNotFoundException e) {
+            /* Sheet should not be found */
+        } catch (NotAllowedException e) {
+            e.printStackTrace();
+            fail("Sheet should not be found");
+        }
+    }
+    
+    @Test
+    public void removeSheet_exception_groupNotFound() {
+        try {
+            service.removeSheetFromGroup("no such group", sheet1.getName(), gAuthCode1);
+            fail("Group should not be found");
+        } catch (ItemNotFoundException e) {
+            /* Group should not be found */
+        } catch (NotAllowedException e) {
+            e.printStackTrace();
+            fail("Group should not be found");
+        }
+    }
+    
+    @Test
+    public void removeSheet_exception_wrongGroupAuthCode() {
+        try { /* add a sheet to remove */
+            service.addSheet("test-group-1",
+                    new GroupSheetBean(sheet1.getName(), gAuthCode1, sAuthCode1));
+        } catch (ItemNotFoundException e) {
+            e.printStackTrace();
+            fail("The groups and sheets should all be found");
+        } catch (NotAllowedException e) {
+            e.printStackTrace();
+            fail("All operations should be allowed");
+        }
+        try {
+            service.removeSheetFromGroup("test-group-1", sheet1.getName(), "wrong code");
+            fail("The group auth code is wrong");
+        } catch (ItemNotFoundException e) {
+            e.printStackTrace();
+            fail("Everything should be found");
+        } catch (NotAllowedException e) {
+            /* The group auth code is wrong */
+        }
+    }
+    
+    @Test
+    public void removeSheet_exception_sheetNotInGroup() {
+        try {
+            service.removeSheetFromGroup("test-group-1", sheet1.getName(), gAuthCode1);
+            fail("The sheet was not in the group to begin with");
+        } catch (ItemNotFoundException e) {
+            /* The sheet was not in the group to begin with */
+        } catch (NotAllowedException e) {
+            e.printStackTrace();
+            fail("The sheet was not in the group to begin with");
+        }
+    }
+
 
 }

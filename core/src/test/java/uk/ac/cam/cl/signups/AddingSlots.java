@@ -24,7 +24,7 @@ import uk.ac.cam.cl.signups.interfaces.WebInterface;
 public class AddingSlots {
     
     private WebInterface service =
-            Guice.createInjector(new DatabaseModule())
+            Guice.createInjector(new TestDatabaseModule())
             .getInstance(WebInterface.class);
     
     private Sheet sheet;
@@ -43,14 +43,9 @@ public class AddingSlots {
         id = info.getSheetID();
         auth = info.getAuthCode();
     }
-    
-    @After
-    public void removeDatabaseEntry() throws ItemNotFoundException, NotAllowedException {
-        service.deleteSheet(id, auth); // We assume this function is fine
-    }
 
     @Test
-    public void addSlotTest() {
+    public void addSlot_success() {
         try {
             System.out.println("Testing adding a slot to a column");
             System.out.println("Slots before:");
@@ -59,15 +54,20 @@ public class AddingSlots {
             System.out.println("Slots after (should now contain test-user booked slot):");
             System.out.println(service.listSlots(id, column.getName()));
             System.out.println();
+            assertTrue("Column should now contain slot",
+                    service.listSlots(id, column.getName()).contains(slot));
         } catch (ItemNotFoundException e) {
             fail("The sheet and column should be found");
         } catch (NotAllowedException e) {
             fail("The authCode should be correct");
+        } catch (DuplicateNameException e) {
+            e.printStackTrace();
+            fail("The slot should not already exist");
         }
     }
     
     @Test
-    public void nonExistentSheetTest() {
+    public void addSlot_exception_sheetNotFound() {
         try {
             service.addSlot("not existing", column.getName(), new SlotBean(slot, auth));
             fail("Sheet should not be found");
@@ -75,30 +75,81 @@ public class AddingSlots {
             /* Sheet should not be found */
         } catch (NotAllowedException e) {
             fail("Sheet should not be found");
+        } catch (DuplicateNameException e) {
+            e.printStackTrace();
+            fail("The slot should not already exist");
         }
     }
     
     @Test
-    public void nonExistentColumnTest() {
+    public void addSlot_exception_columnNotFound() {
         try {
-            service.addSlot(id, "daniel", new SlotBean(slot, auth));
+            service.addSlot(id, "some unknown column", new SlotBean(slot, auth));
             fail("Column should not be found");
         } catch (ItemNotFoundException e) {
             /* Column should not be found */
         } catch (NotAllowedException e) {
             fail("Column should not be found");
+        } catch (DuplicateNameException e) {
+            e.printStackTrace();
+            fail("The slot should not already exist");
         }
     }
     
     @Test
-    public void incorrectAuthCodeTest() {
+    public void addSlot_exception_slotAlreadyExists() {
         try {
-            service.addSlot(id, column.getName(), new SlotBean(slot, "password"));
-            fail("The authCode should almost certainly incorrect");
+            /* Add a slot */
+            service.addSlot(id, column.getName(), new SlotBean(slot, auth));
+            assertTrue("Column should now contain slot",
+                    service.listSlots(id, column.getName()).contains(slot));
         } catch (ItemNotFoundException e) {
-            fail("The authCode should almost certainly incorrect");
+            fail("The sheet and column should be found");
         } catch (NotAllowedException e) {
-            /* The authCode should almost certainly incorrect" */
+            fail("The authCode should be correct");
+        } catch (DuplicateNameException e) {
+            e.printStackTrace();
+            fail("The slot should not already exist");
+        }
+        try {
+            /* Add the same slot again */
+            service.addSlot(id, column.getName(), new SlotBean(slot, auth));
+            fail("Slot already exists");
+        } catch (ItemNotFoundException e) {
+            e.printStackTrace();
+            fail("Sheet and column should be found");
+        } catch (NotAllowedException e) {
+            fail("Auth code should be correct");
+        } catch (DuplicateNameException e) {
+            /* The slot should already exist */
+        }
+        try {
+            /* Add a slot with the same start time again */
+            service.addSlot(id, column.getName(),
+                    new SlotBean(new Slot(slot.getStartTime(), 50000L), auth));
+            fail("Slot already exists");
+        } catch (ItemNotFoundException e) {
+            e.printStackTrace();
+            fail("Sheet and column should be found");
+        } catch (NotAllowedException e) {
+            fail("Auth code should be correct");
+        } catch (DuplicateNameException e) {
+            /* The slot should already exist */
+        }
+    }
+    
+    @Test
+    public void addSlot_exception_wrongAuthCode() {
+        try {
+            service.addSlot(id, column.getName(), new SlotBean(slot, "wrong auth code"));
+            fail("The authCode should be incorrect");
+        } catch (ItemNotFoundException e) {
+            fail("The authCode should be incorrect");
+        } catch (NotAllowedException e) {
+            /* The authCode should be incorrect" */
+        } catch (DuplicateNameException e) {
+            e.printStackTrace();
+            fail("The slot should not already exist");
         }
     }
 
