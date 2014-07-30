@@ -21,6 +21,7 @@ import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  *
  */
+@Path("/")
 public interface WebInterface {
         
     /**
@@ -32,6 +33,8 @@ public interface WebInterface {
      */
     @POST
     @Path("/sheets")
+    @Consumes("application/json")
+    @Produces("application/json")
     public SheetInfo addSheet(Sheet sheet) throws DuplicateNameException;
     
     /**
@@ -40,6 +43,7 @@ public interface WebInterface {
      */
     @GET
     @Path("/sheets")
+    @Produces("application/json")
     public List<Sheet> listSheets();
     
     /**
@@ -51,6 +55,7 @@ public interface WebInterface {
      */
     @DELETE
     @Path("/sheets/{sheetID}")
+    @Consumes("text/plain")
     public void deleteSheet(
             @PathParam("sheetID") String sheetID,
             String authCode /* in body of request */)
@@ -63,6 +68,7 @@ public interface WebInterface {
      */
     @GET
     @Path("/sheets/{sheetID}")
+    @Produces("application/json")
     public List<Column> listColumns(@PathParam("sheetID") String sheetID)
             throws ItemNotFoundException;
     
@@ -77,6 +83,7 @@ public interface WebInterface {
      */
     @POST
     @Path("/sheets/{sheetID}")
+    @Consumes("application/json")
     public void addColumn(@PathParam("sheetID") String sheetID,
             ColumnBean bean /* contains Column to add and sheet authCode */)
                     throws ItemNotFoundException, NotAllowedException;
@@ -93,6 +100,7 @@ public interface WebInterface {
      */
     @DELETE
     @Path("/sheets/{sheetID}/{columnName}")
+    @Consumes("text/plain")
     public void deleteColumn(@PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName,
             String authCode /* in request body*/)
@@ -107,6 +115,7 @@ public interface WebInterface {
      */
     @GET
     @Path("/sheets/{sheetID}/{columnName}")
+    @Produces("application/json")
     public List<Slot> listSlots(@PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName) throws ItemNotFoundException;
     
@@ -115,6 +124,7 @@ public interface WebInterface {
      * @return If a slot is free, its start time appears in this list.
      * @throws ItemNotFoundException 
      */
+    // TODO: path etc.
     public List<Date> listAllFreeStartTimes(String sheetID) throws ItemNotFoundException;
     
     /**
@@ -129,6 +139,7 @@ public interface WebInterface {
      */
     @POST
     @Path("/sheets/{sheetID}/{columnName}")
+    @Consumes("application/json")
     public void addSlot(@PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName,
             SlotBean bean /* contains Slot to add and sheet authCode */)
@@ -146,6 +157,7 @@ public interface WebInterface {
      */
     @DELETE
     @Path("/sheets/{sheetID}/{columnName}/{time}")
+    @Consumes("text/plain")
     public void deleteSlot(
             @PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName,
@@ -165,6 +177,7 @@ public interface WebInterface {
      */
     @GET
     @Path("/sheets/{sheetID}/{columnName}/{time}")
+    @Produces("application/json")
     public BookingInfo showBooking(@PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName,
             @PathParam("time") Date startTime)
@@ -194,6 +207,7 @@ public interface WebInterface {
      */
     @POST
     @Path("/sheets/{sheetID}/{columnName}/{time}")
+    @Consumes("application/json")
     public void book(@PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName,
             @PathParam("time") Date startTime,
@@ -222,6 +236,8 @@ public interface WebInterface {
      */
     @POST
     @Path("/groups")
+    @Consumes("application/json")
+    @Produces("application/json")
     public GroupInfo addGroup(Group group) throws DuplicateNameException;
     
     /**
@@ -229,6 +245,7 @@ public interface WebInterface {
      */
     @GET
     @Path("/groups")
+    @Produces("application/json")
     public List<Group> listGroups();
     
     /**
@@ -241,6 +258,7 @@ public interface WebInterface {
      */
     @DELETE
     @Path("/groups/{groupName}")
+    @Consumes("text/plain")
     public void deleteGroup(
             @PathParam("groupName") String groupName,
             String groupAuthCode)
@@ -259,6 +277,7 @@ public interface WebInterface {
      */
     @GET
     @Path("/groups/{groupName}/whitelist/{user}")
+    @Produces("application/json")
     public Map<String, String> getPermissions(
             @PathParam("groupName") String groupName,
             @PathParam("user") String user)
@@ -278,6 +297,7 @@ public interface WebInterface {
      */
     @POST
     @Path("/groups/{groupName}/whitelist/{user}")
+    @Consumes("application/json")
     public void addPermissions(
             @PathParam("groupName") String groupName,
             @PathParam("user") String user,
@@ -294,6 +314,7 @@ public interface WebInterface {
      */
     @DELETE
     @Path("/groups/{groupName}/whitelist/{user}")
+    @Consumes("application/json")
     public void removePermissions(
             @PathParam("groupName") String groupName,
             @PathParam("user") String user,
@@ -310,6 +331,7 @@ public interface WebInterface {
      */
     @POST
     @Path("/groups/{groupName}/sheets")
+    @Consumes("application/json")
     public void addSheet(@PathParam("groupName") String groupName,
             GroupSheetBean bean /* contains group and sheet authCodes and sheetID*/)
                     throws ItemNotFoundException, NotAllowedException;
@@ -321,6 +343,7 @@ public interface WebInterface {
      */
     @GET
     @Path("/groups/{groupName}/sheets")
+    @Produces("application/json")
     public List<String> listSheetIDs(@PathParam("groupName") String groupName)
             throws ItemNotFoundException;
     
@@ -334,6 +357,7 @@ public interface WebInterface {
      */
     @DELETE
     @Path("/groups/{groupName}/sheets/{sheetID}")
+    @Consumes("text/plain")
     public void removeSheetFromGroup(
             @PathParam("groupName") String groupName,
             @PathParam("sheetID") String sheetID,

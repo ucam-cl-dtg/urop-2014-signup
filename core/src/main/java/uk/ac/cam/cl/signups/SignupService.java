@@ -26,6 +26,10 @@ public class SignupService implements WebInterface {
     private DatabaseCollection<User> users;
     private DatabaseCollection<Group> groups;
     
+    {
+        Guice.createInjector(new DatabaseModule()).injectMembers(this);
+    }
+    
     @Inject
     public void setSheets(DatabaseCollection<Sheet> sheets) {
         this.sheets = sheets;

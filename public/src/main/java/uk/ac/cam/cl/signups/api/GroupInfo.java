@@ -5,6 +5,9 @@
  */
 package uk.ac.cam.cl.signups.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Kind of pointless class - used to contain
  * more information than this. Used to return
@@ -16,10 +19,12 @@ public class GroupInfo {
     
     private String groupAuthCode;
     
-    public GroupInfo(Group g) {
+    @JsonCreator
+    public GroupInfo(@JsonProperty("code") Group g) {
         groupAuthCode = g.getGroupAuthCode();
     }
     
+    @JsonProperty("code")
     public String getAuthCode() {
         return groupAuthCode;
     }

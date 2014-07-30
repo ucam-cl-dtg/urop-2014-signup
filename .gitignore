@@ -4,6 +4,9 @@
 **/bin/
 .*.swp
 **/doc/
+**/META-INF
+**/WEB-INF/classes
+**/WEB-INF/lib
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
