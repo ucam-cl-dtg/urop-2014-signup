@@ -9,6 +9,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import uk.ac.cam.cl.signups.tests.*;
+
 /**
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */

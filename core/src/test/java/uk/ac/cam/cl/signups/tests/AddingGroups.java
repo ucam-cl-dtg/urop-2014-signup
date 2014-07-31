@@ -3,7 +3,7 @@
 /**
  * 
  */
-package uk.ac.cam.cl.signups;
+package uk.ac.cam.cl.signups.tests;
 
 import static org.junit.Assert.*;
 
@@ -11,6 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.Group;
 import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;

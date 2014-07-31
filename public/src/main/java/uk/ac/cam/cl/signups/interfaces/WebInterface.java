@@ -74,7 +74,7 @@ public interface WebInterface {
     
     /**
      * Updates the database so that the given column is added to the
-     * specified sheet. TODO: Check column name is unique - DuplicateNameException? 
+     * specified sheet.
      * @param sheetID The ID of the sheet to add the Column to
      * @param bean Contains the Column object to be added and the admin authorisation
      * code of the sheet
@@ -127,6 +127,15 @@ public interface WebInterface {
      */
     // TODO: path etc.
     public List<Date> listAllFreeStartTimes(String sheetID) throws ItemNotFoundException;
+    
+    /**
+     * @param startTime
+     * @return A list of the names of the columns with a free slot that starts
+     * at the given time
+     */
+    //TODO: path etc.
+    public List<String> listColumnsWithFreeSlotsAt(String SheetID, Date startTime)
+            throws ItemNotFoundException;
     
     /**
      * Adds the given slot to the specified column in the specified sheet in the
@@ -282,8 +291,7 @@ public interface WebInterface {
     @Produces("application/json")
     public Map<String, String> getPermissions(
             @PathParam("groupName") String groupName,
-            @PathParam("user") String user)
-                    throws ItemNotFoundException;
+            @PathParam("user") String user);
     
     /**
      * Allows the user to sign up using the specified column
@@ -364,7 +372,5 @@ public interface WebInterface {
             @PathParam("groupName") String groupName,
             @PathParam("sheetID") String sheetID,
             String groupAuthCode) throws ItemNotFoundException, NotAllowedException;
-
-    
     
 }

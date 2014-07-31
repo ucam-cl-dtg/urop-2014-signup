@@ -1,4 +1,4 @@
-package uk.ac.cam.cl.signups;
+package uk.ac.cam.cl.signups.tests;
 
 import static org.junit.Assert.*;
 
@@ -10,6 +10,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.cam.cl.signups.Get;
+import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.*;
 import uk.ac.cam.cl.signups.api.beans.GroupSheetBean;
 import uk.ac.cam.cl.signups.api.beans.PermissionsBean;

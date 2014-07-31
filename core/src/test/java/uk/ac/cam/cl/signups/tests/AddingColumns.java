@@ -3,7 +3,7 @@
 /**
  * 
  */
-package uk.ac.cam.cl.signups;
+package uk.ac.cam.cl.signups.tests;
 
 import static org.junit.Assert.*;
 
@@ -12,6 +12,8 @@ import org.junit.Test;
 
 import com.google.inject.Guice;
 
+import uk.ac.cam.cl.signups.Get;
+import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.*;
 import uk.ac.cam.cl.signups.api.beans.ColumnBean;
 import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
@@ -126,7 +128,7 @@ public class AddingColumns {
             service.addColumn(id1, new ColumnBean(column1, auth1));
             System.out.println("Columns after (should now contain a column called \"test-column\"):");
             System.out.println(service.listColumns(id1));
-            //assertTrue(service.listColumns(id).contains(column)); TODO: change List<Slot> to Set<Slot> in Column so that we can properly check for equality of the set of slots
+            assertTrue(service.listColumns(id1).contains(column1));
             System.out.println();
         } catch (ItemNotFoundException e) {
             e.printStackTrace();

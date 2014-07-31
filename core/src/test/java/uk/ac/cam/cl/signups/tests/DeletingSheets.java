@@ -3,7 +3,7 @@
 /**
  * 
  */
-package uk.ac.cam.cl.signups;
+package uk.ac.cam.cl.signups.tests;
 
 import static org.junit.Assert.*;
 
@@ -12,6 +12,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.cam.cl.signups.Get;
+import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.Sheet;
 import uk.ac.cam.cl.signups.api.SheetInfo;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;

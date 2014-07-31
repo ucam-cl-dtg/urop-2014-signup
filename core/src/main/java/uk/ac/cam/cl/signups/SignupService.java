@@ -3,6 +3,7 @@ package uk.ac.cam.cl.signups;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -103,6 +104,24 @@ public class SignupService implements WebInterface {
             }
         }
         Collections.sort(toReturn);
+        return toReturn;
+    }
+    
+    public List<String> listColumnsWithFreeSlotsAt(String sheetID, Date startTime)
+            throws ItemNotFoundException {
+        Sheet sheet = sheets.getItem(sheetID);
+        List<String> toReturn = new ArrayList<String>();
+        for (Column col : sheet.getColumns()) {
+            for (Slot slot : col.getSlots()) {
+                if (!slot.isBooked() && slot.getStartTime().equals(startTime)) {
+                    toReturn.add(col.getName());
+                    break;
+                }
+                if (slot.getStartTime().after(startTime)) {
+                    break;
+                }
+            }
+        }
         return toReturn;
     }
 
@@ -222,9 +241,12 @@ public class SignupService implements WebInterface {
         }
     }
 
-    public Map<String, String> getPermissions(String groupName, String user)
-            throws ItemNotFoundException {
-        return users.getItem(user).getCommentColumnMap(groupName);
+    public Map<String, String> getPermissions(String groupName, String user) {
+        try {
+            return users.getItem(user).getCommentColumnMap(groupName);
+        } catch (ItemNotFoundException e) {
+            return new HashMap<String, String>();
+        }
     }
 
     public void addPermissions(String groupName, String user, PermissionsBean bean)

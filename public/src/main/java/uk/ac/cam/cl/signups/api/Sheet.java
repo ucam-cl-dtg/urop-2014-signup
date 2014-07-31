@@ -10,6 +10,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +29,8 @@ import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
 public class Sheet implements DatabaseItem {
+    
+    // TODO: we don't need 2 ids - get rid of one.
     
     private List<Column> columns;
     private String authCode;
@@ -48,6 +51,17 @@ public class Sheet implements DatabaseItem {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+    }
+    
+    @JsonIgnore
+    public Sheet(String title, String description, String location) {
+        this.title = title;
+        this.description = description;
+        this.location = location;
+        columns = new LinkedList<Column>();
+        groups = new LinkedList<Group>();
+        sheetID = generateSheetID();
+        authCode = generateAuthCode();
     }
     
     @JsonIgnore
@@ -97,6 +111,7 @@ public class Sheet implements DatabaseItem {
             }
         }
         columns.add(column);
+        Collections.sort(columns);
     }
     
     @JsonIgnore

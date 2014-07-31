@@ -24,7 +24,7 @@ import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
  * column would correspond to a ticker.
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
-public class Column {
+public class Column implements Comparable<Column>{
     
     private String name;
     private List<Slot> slots;
@@ -139,9 +139,15 @@ public class Column {
         if (slots == null) {
             if (other.slots != null)
                 return false;
-        } else if (! ((Collection<Slot>) slots).equals((Collection<Slot>) other.slots))
+        } else if (!slots.equals(other.slots))
             return false;
         return true;
+    }
+
+    @Override
+    public int compareTo(Column arg0) {
+        // TODO Auto-generated method stub
+        return this.name.compareTo(arg0.name);
     }
     
        
