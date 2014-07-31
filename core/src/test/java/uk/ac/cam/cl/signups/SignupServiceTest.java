@@ -14,7 +14,7 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses({ AddingColumns.class, AddingGroups.class, AddingSheets.class,
-        AddingSlots.class, DeletingColumns.class,
+        AddingSlots.class, BookingSlots.class, DeletingColumns.class,
         DeletingGroups.class, DeletingSheets.class, DeletingSlots.class,
         GroupingSheets.class, ListingFreeTimes.class,
         RemovingAllUserBookings.class })

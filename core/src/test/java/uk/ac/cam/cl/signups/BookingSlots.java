@@ -22,9 +22,7 @@ import com.google.inject.Guice;
 
 public class BookingSlots {
     
-    // TODO
-    
-    /* Also testing adding and removing permissions */
+    // TODO: test adding and removing permissions
     
     private WebInterface service =
             Guice.createInjector(new TestDatabaseModule())
@@ -36,10 +34,12 @@ public class BookingSlots {
     private Column otherColumn;
     private Slot emptySlot;
     private Slot bookedSlot;
+    private Slot pastSlot;
     private String id;
     private String sauth;
     private String gauth;
-    private PermissionsBean permBean;
+    private PermissionsBean specificColumnPermBean;
+    private PermissionsBean anyColumnPermBean;
     
     @Before
     public void setUp() throws Exception {
@@ -48,12 +48,16 @@ public class BookingSlots {
         sheet = Get.sheet();
         column = Get.column();
         otherColumn = Get.column();
-        emptySlot = new Slot(new Date(1806302413000L), 60000);
-        bookedSlot = new Slot(new Date(2806302413000L), 789000, "ird28", "tick6");
-        column.addSlot(emptySlot);
-        column.addSlot(bookedSlot);
-        otherColumn.addSlot(emptySlot);
-        otherColumn.addSlot(bookedSlot);
+        emptySlot = new Slot(new Date(1806302413000L), 60000L);
+        bookedSlot = new Slot(new Date(2806302413000L), 789000L, "ird28", "tick6");
+        pastSlot = new Slot(new Date(new Date().getTime()-2000), 60000L);
+        
+        column.addSlot(new Slot(new Date(1806302413000L), 60000)); // emptySlot
+        column.addSlot(new Slot(new Date(2806302413000L), 789000, "ird28", "tick6")); // bookedSlot
+        column.addSlot(pastSlot);
+        otherColumn.addSlot(new Slot(new Date(1806302413000L), 60000)); // emptrySlot
+        otherColumn.addSlot(new Slot(new Date(2806302413000L), 789000, "ird28", "tick6")); // bookedSlot
+        
         sheet.addColumn(column);
         sheet.addColumn(otherColumn);
         SheetInfo info = service.addSheet(sheet);
@@ -62,20 +66,22 @@ public class BookingSlots {
         service.addSheet("test-group", new GroupSheetBean(id, gauth, sauth));
         Map<String,String> map = new HashMap<String,String>();
         map.put("tick789", column.getName());
-        permBean = new PermissionsBean(map, gauth);
+        specificColumnPermBean = new PermissionsBean(map, gauth);
+        map = new HashMap<String,String>();
+        map.put("tick789", null);
+        anyColumnPermBean = new PermissionsBean(map, gauth);
     }
     
     @After
     public void removeDatabaseEntry() throws ItemNotFoundException, NotAllowedException {
         service.deleteSheet(id, sauth);
-        service.removePermissions("test-group", "abc123", permBean);
         service.deleteGroup("test-group", gauth);
     }
     
     @Test
-    public void bookEmptySlotTest() {
+    public void userBookEmptySlotSpecificColumn_success() {
         try {
-            service.addPermissions("test-group", "abc123", permBean); // allow user permission to make booking
+            service.addPermissions("test-group", "abc123", specificColumnPermBean); // allow user permission to make booking
             System.out.println("Testing booking a slot");
             System.out.println("Slots before:");
             System.out.println(service.listSlots(id, column.getName()));
@@ -84,23 +90,22 @@ public class BookingSlots {
             System.out.println("Slots after (empty slot should be booked by abc123 for tick789):");
             System.out.println(service.listSlots(id, column.getName()));
             System.out.println();
-            
+            assertEquals("The user should have booked the slot",
+                    "abc123", service.showBooking(id, column.getName(), emptySlot.getStartTime()).getUser());
+            assertEquals("The user should have booked the slot with this comment",
+                    "tick789", service.showBooking(id, column.getName(), emptySlot.getStartTime()).getComment());
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
             fail("Sheet, column, and slot should all have been found");
         } catch (NotAllowedException e) {
             e.printStackTrace();
             fail("The booking should be allowed");
-        } catch (DuplicateNameException e) {
-            e.printStackTrace();
-            fail("Something went wrong with the test - see stack trace");
         }
     }
     
     @Test
-    public void permissionDeniedTest() {
+    public void userBookEmptySlot_exception_notWhitelisted() {
         try {
-            service.removePermissions("test-group", "abc123", permBean); // makes sure no permission
             service.book(id, column.getName(), emptySlot.getStartTime(),
                     new SlotBookingBean(null, "abc123", "tick789"));
             fail("The user should not have permission to make the booking");
@@ -113,7 +118,7 @@ public class BookingSlots {
     }
     
     @Test
-    public void unknownUserPermissionDeniedTest() {
+    public void userBookEmptySlot_exception_unknownUser() {
         try {
             service.book(id, column.getName(), emptySlot.getStartTime(),
                     new SlotBookingBean(null, "unknown user", "some comment"));
@@ -128,9 +133,9 @@ public class BookingSlots {
     }
     
     @Test
-    public void wrongColumnPermissionDeniedTest() {
+    public void userBookEmptySlot_exception_wrongColumn() {
         try {
-            service.addPermissions("test-group", "abc123", permBean); // allow "column" booking only
+            service.addPermissions("test-group", "abc123", specificColumnPermBean); // allow "column" booking only
             service.book(id, otherColumn.getName(), emptySlot.getStartTime(), // wrong column, permission denied
                     new SlotBookingBean(null, "abc123", "tick789"));
             fail("The user should not have permission to make the booking");
@@ -139,39 +144,109 @@ public class BookingSlots {
             fail("Sheet, column, and slot should all have been found");
         } catch (NotAllowedException e) {
             /* The booking should not be allowed */
-        } catch (DuplicateNameException e) {
-            e.printStackTrace();
-            fail("Something went wrong with the test - see stack trace");
         }
     }
     
     @Test
-    public void anyColumnPermissionTest() {
-        Map<String,String> map = new HashMap<String,String>();
-        map.put("tick789", null); // allow any column
+    public void userBookEmptySlot_exception_startTimePassed() {
         try {
-            service.addPermissions("test-group", "abc123", new PermissionsBean(map, gauth));
-            service.book(id, column.getName(), emptySlot.getStartTime(),
+            service.addPermissions("test-group", "abc123", anyColumnPermBean);
+            service.book(id, column.getName(), pastSlot.getStartTime(),
                     new SlotBookingBean(null, "abc123", "tick789"));
+            fail("The start time has passed so permission should be denied");
+        } catch (ItemNotFoundException e) {
+            e.printStackTrace();
+            fail("Sheet, column, and slot should all have been found");
+        } catch (NotAllowedException e) {
+            /* The start time has passed so permission should be denied */
+        }
+    }
+    
+    @Test
+    public void userBookEmptySlotAnyColumn_success() {
+        try {
+            service.addPermissions("test-group", "abc123", anyColumnPermBean);
+            
+            service.book(id, column.getName(), emptySlot.getStartTime(),
+                   new SlotBookingBean(null, "abc123", "tick789"));
             service.book(id, otherColumn.getName(), emptySlot.getStartTime(),
                     new SlotBookingBean(null, "abc123", "tick789"));
+            
+            assertEquals("The user should have booked the slot",
+                    "abc123", service.showBooking(id, column.getName(), emptySlot.getStartTime()).getUser());
+            assertEquals("The user should have booked the slot with this comment",
+                    "tick789", service.showBooking(id, column.getName(), emptySlot.getStartTime()).getComment());
+            assertEquals("The user should have booked the slot",
+                    "abc123", service.showBooking(id, otherColumn.getName(), emptySlot.getStartTime()).getUser());
+            assertEquals("The user should have booked the slot with this comment",
+                    "tick789", service.showBooking(id, otherColumn.getName(), emptySlot.getStartTime()).getComment());
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
             fail("Sheet, column, and slot should all have been found");
         } catch (NotAllowedException e) {
             e.printStackTrace();
-            fail("The booking should be allowed");
-        } catch (DuplicateNameException e) {
-            e.printStackTrace();
-            fail("Something went wrong with the test - see stack trace");
+            fail("The bookings should be allowed");
         }
     }
     
     @Test
-    public void bookFullSlotTest() {
+    public void userUnbookFullSlot_success() {
         try {
             service.book(id, column.getName(), bookedSlot.getStartTime(),
-                    new SlotBookingBean(null, "prv36", "tick89"));
+                    new SlotBookingBean(bookedSlot.getBookedUser(), null, null));
+        } catch (ItemNotFoundException e) {
+            e.printStackTrace();
+            fail("The sheet, column and slot should all be found");
+        } catch (NotAllowedException e) {
+            e.printStackTrace();
+            fail("The unbooking should be allowed");
+        }
+    }
+    
+    @Test
+    public void userUnbookFullSlot_exception_wrongCurrentUser() {
+        try {
+            service.book(id, column.getName(), bookedSlot.getStartTime(),
+                    new SlotBookingBean("not the currently booked user", null, null));
+            fail("Permission should be denied - given user incorrect");
+        } catch (ItemNotFoundException e) {
+            e.printStackTrace();
+            fail("The sheet, column and slot should all be found");
+        } catch (NotAllowedException e) {
+            /* Permission should be denied - given user incorrect */
+        }
+        try {
+            service.book(id, column.getName(), bookedSlot.getStartTime(),
+                    new SlotBookingBean(null, null, null));
+            fail("Permission should be denied - given user incorrect");
+        } catch (ItemNotFoundException e) {
+            e.printStackTrace();
+            fail("The sheet, column and slot should all be found");
+        } catch (NotAllowedException e) {
+            /* Permission should be denied - given user incorrect */
+        }
+    }
+    
+    @Test
+    public void userUnbookFullSlot_exception_startTimePassed() {
+        try {
+            service.book(id, column.getName(), pastSlot.getStartTime(),
+                    new SlotBookingBean(pastSlot.getBookedUser(), null, null));
+            fail("Permission should be denied - the start time of the slot has passed");
+        } catch (ItemNotFoundException e) {
+            e.printStackTrace();
+            fail("The sheet, column and slot should all be found");
+        } catch (NotAllowedException e) {
+            /* Permission should be denied - the start time of the slot has passed */
+        }
+    }
+    
+    @Test
+    public void userBookFullSlot_exception_slotAlreadyBooked() {
+        try {
+            service.addPermissions("test-group", "abc123", anyColumnPermBean);
+            service.book(id, column.getName(), bookedSlot.getStartTime(),
+                    new SlotBookingBean(null, "abc123", "tick789"));
             fail("The booking should not be allowed because the slot is already booked");
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
@@ -182,16 +257,23 @@ public class BookingSlots {
     }
     
     @Test
-    public void forceBookEmptySlotTest() {
+    public void adminBookEmptySlot_success() {
         try {
             System.out.println("Testing admin slot booking");
             System.out.println("Slots before: ");
             System.out.println(service.listSlots(id, column.getName()));
             service.book(id, column.getName(), emptySlot.getStartTime(),
-                    new SlotBookingBean(null, "user who wants to book empty slot", "tick they want to do", sauth));
+                    new SlotBookingBean(null, "user who wants to book empty slot",
+                            "tick they want to do", sauth));
             System.out.println("Slots after (empty slot should now be booked): ");
             System.out.println(service.listSlots(id, column.getName()));
             System.out.println();
+            assertEquals("The user should have been booked the to slot",
+                    "user who wants to book empty slot",
+                    service.showBooking(id, column.getName(), emptySlot.getStartTime()).getUser());
+            assertEquals("The user should have been booked to the slot with this comment",
+                    "tick they want to do",
+                    service.showBooking(id, column.getName(), emptySlot.getStartTime()).getComment());
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
             fail("Sheet, column and slot should all have been found");
@@ -202,7 +284,7 @@ public class BookingSlots {
     }
     
     @Test
-    public void forceBookFullSlotTest() {
+    public void adminBookFullSlot_success() {
         try {
             System.out.println("Testing admin slot overwriting");
             System.out.println("Slots before: ");
@@ -212,12 +294,33 @@ public class BookingSlots {
             System.out.println("Slots after (slot booked by ird28 slot should now be rebooked): ");
             System.out.println(service.listSlots(id, column.getName()));
             System.out.println();
+            assertEquals("The user should have been booked the to slot",
+                    "user who wants to book full slot",
+                    service.showBooking(id, column.getName(), bookedSlot.getStartTime()).getUser());
+            assertEquals("The user should have been booked to the slot with this comment",
+                    "tick they want to do",
+                    service.showBooking(id, column.getName(), bookedSlot.getStartTime()).getComment());
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
             fail("Sheet, column and slot should all have been found");
         } catch (NotAllowedException e) {
             e.printStackTrace();
             fail("The booking should be allowed");
+        }
+    }
+    
+    @Test
+    public void adminBook_exception_wrongAuthCode() {
+        try {
+            service.book(id, column.getName(), emptySlot.getStartTime(),
+                    new SlotBookingBean(null, "user who wants to book empty slot",
+                            "tick they want to do", "wrong auth code"));
+            fail("The auth code is incorrect - permission should be denied");
+        } catch (ItemNotFoundException e) {
+            e.printStackTrace();
+            fail("The sheet, column and slot should be found");
+        } catch (NotAllowedException e) {
+            /* The auth code is incorrect - permission should be denied */
         }
     }
 

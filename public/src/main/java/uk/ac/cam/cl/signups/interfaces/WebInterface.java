@@ -304,7 +304,7 @@ public interface WebInterface {
             @PathParam("groupName") String groupName,
             @PathParam("user") String user,
             PermissionsBean bean /* contains comment-column map and group authCode*/)
-                    throws NotAllowedException, ItemNotFoundException, DuplicateNameException;
+                    throws NotAllowedException, ItemNotFoundException;
     /**
      * Forbids the user from signing up using any of the given comments (the keys in
      * the map).

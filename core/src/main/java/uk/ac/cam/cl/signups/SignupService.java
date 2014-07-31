@@ -1,15 +1,14 @@
 package uk.ac.cam.cl.signups;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 
 import uk.ac.cam.cl.signups.api.*;
 import uk.ac.cam.cl.signups.api.beans.*;
@@ -98,11 +97,12 @@ public class SignupService implements WebInterface {
         Sheet sheet = sheets.getItem(sheetID);
         for (Column col : sheet.getColumns()) {
             for (Slot slot : col.getSlots()) {
-                if (!slot.isBooked()) {
+                if (!slot.isBooked() && !toReturn.contains(slot.getStartTime())) {
                     toReturn.add(slot.getStartTime());
                 }
             }
         }
+        Collections.sort(toReturn);
         return toReturn;
     }
 
@@ -148,7 +148,8 @@ public class SignupService implements WebInterface {
         } else /* a non-admin request */{
             if (bookingBean.getUserToBook() != null) /* a book request */ {
                 if (slot.isBooked()) {
-                    throw new NotAllowedException("The slot has already been booked by someone");
+                    throw new NotAllowedException("The slot has already been booked by "
+                            + slot.getBookedUser());
                 }
                 if (slot.getStartTime().before(new Date())) {
                     throw new NotAllowedException("The start time of the slot has passed");
@@ -214,7 +215,11 @@ public class SignupService implements WebInterface {
             throw new NotAllowedException("Incorrect group authorisation code");
         }
         groups.removeItem(groupName);
-        //TODO: remove group from all sheets' lists of groups
+        for (Sheet sheet : sheets.listItems()) {
+            if (sheet.isPartOfGroup(groupName)) {
+                sheet.removeGroup(groupName);
+            }
+        }
     }
 
     public Map<String, String> getPermissions(String groupName, String user)
@@ -223,7 +228,7 @@ public class SignupService implements WebInterface {
     }
 
     public void addPermissions(String groupName, String user, PermissionsBean bean)
-            throws NotAllowedException, ItemNotFoundException, DuplicateNameException {
+            throws NotAllowedException, ItemNotFoundException {
         if (!groups.getItem(groupName).isGroupAuthCode(bean.getGroupAuthCode())) {
             throw new NotAllowedException("Incorrect group authorisation code");
         }
@@ -235,7 +240,13 @@ public class SignupService implements WebInterface {
         } catch (ItemNotFoundException e) { // user not in database - add user to database
             userObj = new User(user);
             userObj.getCommentColumnMap(groupName).putAll(bean.getCommentColumnMap());
-            users.insertItem(userObj);
+            try {
+                users.insertItem(userObj);
+            } catch (DuplicateNameException dne) {
+                System.err.println("This should never happen - the reason we're adding"
+                        + "the user to the database is that they weren't found in it!");
+                e.printStackTrace();
+            }
         }
     }
 

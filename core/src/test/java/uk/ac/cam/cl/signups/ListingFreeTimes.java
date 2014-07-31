@@ -38,6 +38,13 @@ public class ListingFreeTimes {
     @Before
     public void setUp() throws Exception {
         List<Slot> slotList = Get.slotList();
+        Slot slot = Get.slot();
+        slotList.add(slot);
+        slotList.add(slot);
+        for (int i = 0; i < 100; i++) {
+            slotList.addAll(Get.slotList());
+        }
+        slotList.addAll(Get.slotList());
         column = new Column("test-column", slotList);
         Collection<Column> cols = new LinkedList<Column>();
         cols.add(column);
@@ -50,8 +57,10 @@ public class ListingFreeTimes {
         try {
             List<Date> frees = service.listAllFreeStartTimes(id);
             for (int i = 1; i < frees.size(); i++) {
-                assertTrue("The list should be in chronological order without repeats",
-                        frees.get(i).after(frees.get(i-1)));
+                assertFalse("The list should be in chronological order",
+                        frees.get(i).before(frees.get(i-1)));
+                assertFalse("The list should be without repeats",
+                        frees.get(i).equals(frees.get(i-1)));
             }
             for (Slot slot : column.getSlots()) {
                 if (!slot.isBooked()) {
