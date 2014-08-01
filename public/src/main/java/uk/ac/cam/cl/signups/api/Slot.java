@@ -27,6 +27,9 @@ public class Slot implements Comparable<Slot>, DatabaseItem {
     private long duration; /* in milliseconds! */
     private String bookedUser; /* null if unbooked */
     private String comment;
+    private String sheetID;
+    private String columnName;
+    @Id
     private String _id;
     
     /**
@@ -35,7 +38,9 @@ public class Slot implements Comparable<Slot>, DatabaseItem {
      * @param duration The length of the slot - in milliseconds!
      */
     @JsonIgnore
-    public Slot(Date startTime, long duration) {
+    public Slot(String sheetID, String columnName, Date startTime, long duration) {
+        this.sheetID = sheetID;
+        this.columnName = columnName;
         this.startTime = startTime;
         this.duration = duration;
         this.bookedUser = null;
@@ -43,7 +48,9 @@ public class Slot implements Comparable<Slot>, DatabaseItem {
     }
     
     @JsonIgnore
-    public Slot(Date startTime, long duration, String user, String comment) {
+    public Slot(String sheetID, String columnName, Date startTime, long duration, String user, String comment) {
+        this.sheetID = sheetID;
+        this.columnName = columnName;
         this.startTime = startTime;
         this.duration = duration;
         this.bookedUser = user;
@@ -52,16 +59,30 @@ public class Slot implements Comparable<Slot>, DatabaseItem {
     
     @JsonCreator
     public Slot(
+            @JsonProperty("sheetID")    String sheetID,
+            @JsonProperty("columnName") String columnName,
             @JsonProperty("startTime")  Date startTime,
             @JsonProperty("duration")   long duration,
-            @JsonProperty("bookedUser")       String user,
+            @JsonProperty("bookedUser") String user,
             @JsonProperty("comment")    String comment,
             @JsonProperty("_id")        String _id
             ) {
+        this.sheetID = sheetID;
+        this.columnName = columnName;
         this.startTime = startTime;
         this.duration = duration;
         this.bookedUser = user;
         this.comment = comment;
+    }
+    
+    @JsonProperty("sheetID")
+    public String getSheetID() {
+        return sheetID;
+    }
+
+    @JsonProperty("columnName")
+    public String getColumnName() {
+        return columnName;
     }
 
     @JsonProperty("startTime")

@@ -5,7 +5,6 @@
  */
 package uk.ac.cam.cl.signups.api;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -26,99 +25,59 @@ import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
  */
 public class Column implements Comparable<Column>{
     
+    @Id
     private String name;
-    private List<Slot> slots;
-    private String _id;
-
-    @JsonIgnore
-    public Column(String name, List<Slot> slots) {
-        this.name = name;
-        this.slots = slots;
-    }
+    private List<String> slotIDs;
     
     @JsonCreator
     public Column(
-            @JsonProperty("name")   String name,
-            @JsonProperty("slots")  List<Slot> slots,
-            @JsonProperty("_id")    String _id
+            @JsonProperty("_id")   String name,
+            @JsonProperty("slotsIDs")  List<String> slotIDs
             ) {
         this.name = name;
-        this.slots = slots;
-        this._id = _id;
+        this.slotIDs = slotIDs;
     }
     
     @JsonIgnore
-    public void addSlot(Slot slot) throws DuplicateNameException {
-        for (Slot s : slots) {
-            if (s.getStartTime().equals(slot.getStartTime())) {
-                throw new DuplicateNameException(slot.getStartTime().toString());
-            }
+    public void addSlot(String slot) throws DuplicateNameException {
+        if (slotIDs.contains(slot)) {
+            throw new DuplicateNameException(slot);
         }
-        slots.add(slot);
-        Collections.sort(slots);
+        slotIDs.add(slot);
+        Collections.sort(slotIDs);
     }
     
     @JsonIgnore
-    public Slot getSlot(Date startTime) throws ItemNotFoundException {
-        Iterator<Slot> it = slots.iterator();
-        while (it.hasNext()) {
-            Slot slot = it.next();
-            if (startTime.equals(slot.getStartTime())) {
-                return slot;
-            }
+    public void removeSlot(String slot) throws ItemNotFoundException {
+        if (!slotIDs.contains(slot)) {
+            throw new ItemNotFoundException(slot);
         }
-        throw new ItemNotFoundException("Slot doesn't exist in this column");
-    }
-    
-    @JsonIgnore
-    public void removeSlot(Date startTime) throws ItemNotFoundException {
-        slots.remove(getSlot(startTime));
+        slotIDs.remove(slot);
     }
 
-    /**
-     * @return true if and only if there are no free slots in the future for the column.
-     */
-    @JsonIgnore
-    public boolean isFullyBooked() {
-        for (Slot slot : slots) {
-            if ((!slot.isBooked()) && slot.getStartTime().after(new Date())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @JsonProperty("name")
+    @Id
     public String getName() {
         return name;
     }
 
     @JsonProperty("slots")
-    public List<Slot> getSlots() {
-        return slots;
-    }
-
-    @Id @ObjectId
-    public String get_id() {
-        return _id;
-    }
-
-    @Id @ObjectId
-    public void set_id(String _id) {
-        this._id = _id;
+    public List<String> getSlotIDs() {
+        return slotIDs;
     }
 
     @Override @JsonIgnore
     public String toString() {
-        return "Name: " + name + " Slots: " + slots;
+        return "Name: " + name + " SlotIDs: " + slotIDs;
     }
+
+    
 
     @Override @JsonIgnore
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((slots == null) ? 0 : slots.hashCode());
+        result = prime * result + ((slotIDs == null) ? 0 : slotIDs.hashCode());
         return result;
     }
 
@@ -136,17 +95,16 @@ public class Column implements Comparable<Column>{
                 return false;
         } else if (!name.equals(other.name))
             return false;
-        if (slots == null) {
-            if (other.slots != null)
+        if (slotIDs == null) {
+            if (other.slotIDs != null)
                 return false;
-        } else if (!slots.equals(other.slots))
+        } else if (!slotIDs.equals(other.slotIDs))
             return false;
         return true;
     }
 
     @Override
-    public int compareTo(Column arg0) {
-        // TODO Auto-generated method stub
+    public int compareTo(Column arg0) { // sort by name
         return this.name.compareTo(arg0.name);
     }
     

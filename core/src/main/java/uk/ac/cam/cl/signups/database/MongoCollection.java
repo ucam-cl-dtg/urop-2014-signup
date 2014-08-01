@@ -3,6 +3,7 @@ package uk.ac.cam.cl.signups.database;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.mongojack.JacksonDBCollection;
 
@@ -41,9 +42,9 @@ public class MongoCollection<T extends DatabaseItem> implements DatabaseCollecti
 
     public List<T> listItems() {
         List<T> rtn = new LinkedList<T>();
-        Iterator<T> allRepos = collection.find();
-        while (allRepos.hasNext())
-            rtn.add(allRepos.next());
+        Iterator<T> allItems = collection.find();
+        while (allItems.hasNext())
+            rtn.add(allItems.next());
         return rtn;
     }
 

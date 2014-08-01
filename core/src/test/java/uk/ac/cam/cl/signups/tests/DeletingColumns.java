@@ -94,7 +94,7 @@ public class DeletingColumns {
             service.deleteColumn(id, column.getName(), auth);
             System.out.println("Columns after (should now not contain a column called \"test-column\"):");
             System.out.println(service.listColumns(id));
-            //assertFalse(service.listColumns(id).contains(column)); TODO: change List<Slot> to Set<Slot> in Column so that we can properly check for equality of the set of slots
+            assertFalse(service.listColumns(id).contains(column));
             System.out.println();
         } catch (ItemNotFoundException e) {
             e.printStackTrace();

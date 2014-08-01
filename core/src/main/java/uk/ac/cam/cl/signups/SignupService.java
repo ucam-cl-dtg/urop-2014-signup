@@ -18,6 +18,7 @@ import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
 import uk.ac.cam.cl.signups.database.DatabaseCollection;
 import uk.ac.cam.cl.signups.database.DatabaseModule;
+import uk.ac.cam.cl.signups.database.MongoSlots;
 import uk.ac.cam.cl.signups.interfaces.WebInterface;
 
 public class SignupService implements WebInterface {
@@ -25,7 +26,7 @@ public class SignupService implements WebInterface {
     private DatabaseCollection<Sheet> sheets;
     private DatabaseCollection<User> users;
     private DatabaseCollection<Group> groups;
-    private DatabaseCollection<Slot> slots;
+    private MongoSlots slots = new MongoSlots();
     
     {
         Guice.createInjector(new DatabaseModule()).injectMembers(this);
@@ -44,11 +45,6 @@ public class SignupService implements WebInterface {
     @Inject
     public void setGroups(DatabaseCollection<Group> groups) {
         this.groups = groups;
-    }
-    
-    @Inject
-    public void setSlots(DatabaseCollection<Slot> slots) {
-        this.slots = slots;
     }
 
     public SheetInfo addSheet(Sheet sheet) throws DuplicateNameException {
@@ -96,16 +92,15 @@ public class SignupService implements WebInterface {
 
     public List<Slot> listSlots(String sheetID, String columnName)
             throws ItemNotFoundException {
-        return sheets.getItem(sheetID).getColumn(columnName).getSlots();
+        sheets.getItem(sheetID).getColumn(columnName); // checks column exists
+        return slots.listByColumn(sheetID, columnName);
     }
-    
-    //TODO public List<Slot> listSlots(
     
     public List<Date> listAllFreeStartTimes(String sheetID) throws ItemNotFoundException {
         List<Date> toReturn = new ArrayList<Date>();
         Sheet sheet = sheets.getItem(sheetID);
         for (Column col : sheet.getColumns()) {
-            for (Slot slot : col.getSlots()) {
+            for (Slot slot : listSlots(sheetID, col.getName())) {
                 if (!slot.isBooked() && !toReturn.contains(slot.getStartTime())) {
                     toReturn.add(slot.getStartTime());
                 }
@@ -120,7 +115,7 @@ public class SignupService implements WebInterface {
         Sheet sheet = sheets.getItem(sheetID);
         List<String> toReturn = new ArrayList<String>();
         for (Column col : sheet.getColumns()) {
-            for (Slot slot : col.getSlots()) {
+            for (Slot slot : listSlots(sheetID, col.getName())) {
                 if (!slot.isBooked() && slot.getStartTime().equals(startTime)) {
                     toReturn.add(col.getName());
                     break;
@@ -139,7 +134,8 @@ public class SignupService implements WebInterface {
         if (!sheet.isAuthCode(bean.getAuthCode())) {
             throw new NotAllowedException("Incorrect authorisation code");
         }
-        sheet.getColumn(columnName).addSlot(bean.getSlot());
+        slots.insertItem(bean.getSlot());
+        sheet.getColumn(columnName).addSlot(bean.getSlot().getID());
         sheets.updateItem(sheet);
     }
 
@@ -149,23 +145,21 @@ public class SignupService implements WebInterface {
         if (!sheet.isAuthCode(authCode)) {
             throw new NotAllowedException("Incorrect authorisation code");
         }
-        sheet.getColumn(columnName).removeSlot(startTime);
+        String IDofDeletedSlot = slots.removeByTime(startTime);
+        sheet.getColumn(columnName).removeSlot(IDofDeletedSlot);
         sheets.updateItem(sheet);
     }
 
     public BookingInfo showBooking(String sheetID, String columnName, Date startTime)
             throws ItemNotFoundException {
-        return new BookingInfo(
-                sheets.getItem(sheetID)
-                .getColumn(columnName)
-                .getSlot(startTime));
+        return new BookingInfo(slots.getSlot(sheetID, columnName, startTime));
     }
 
     public void book(String sheetID, String columnName,
             Date startTime, SlotBookingBean bookingBean)
             throws ItemNotFoundException, NotAllowedException {
         Sheet sheet = sheets.getItem(sheetID);
-        Slot slot = sheet.getColumn(columnName).getSlot(startTime);
+        Slot slot = slots.getSlot(sheetID, columnName, startTime);
         if (bookingBean.authCodeProvided()) /* an admin request */ {
             if (sheet.isAuthCode(bookingBean.getAuthCode())) {
                 slot.book(bookingBean.getUserToBook(), bookingBean.getComment());
@@ -224,7 +218,7 @@ public class SignupService implements WebInterface {
             throw new NotAllowedException("Incorrect authorisation code");
         }
         for (Column col : sheet.getColumns()) {
-            for (Slot slot : col.getSlots()) {
+            for (Slot slot : slots.listByColumn(sheetID, col.getName())) {
                 if (slot.isBooked() && slot.getBookedUser().equals(user) && slot.getStartTime().after(new Date())) {
                     slot.unbook();
                 }
@@ -338,6 +332,15 @@ public class SignupService implements WebInterface {
         sheets.updateItem(sheet);
     }
     
+    public boolean columnIsFullyBooked(String sheetID, String columnName) {
+        for (Slot slot : slots.listByColumn(sheetID, columnName)) {
+            if (!slot.isBooked()) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
     /**
      * Returns true iff there exists a group in the sheet's list of groups such that
      * comment maps to either null or columnName in the entry in the user's map
@@ -348,7 +351,7 @@ public class SignupService implements WebInterface {
             boolean commentFound = user.getCommentColumnMap(group.getID()).containsKey(comment);
             String allowedColumn = user.getCommentColumnMap(group.getID()).get(comment);
             boolean columnAllowed = allowedColumn == null || allowedColumn.equals(columnName);
-            boolean allowedColumnIsFullyBooked = sheet.getColumn(columnName).isFullyBooked();
+            boolean allowedColumnIsFullyBooked = columnIsFullyBooked(sheet.getID(), columnName);
             if (commentFound && (columnAllowed || allowedColumnIsFullyBooked)) {
                 return true;
             }

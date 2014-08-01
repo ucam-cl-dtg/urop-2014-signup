@@ -6,6 +6,7 @@
 package uk.ac.cam.cl.signups.database;
 
 import java.util.List;
+import java.util.Map;
 
 import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
@@ -37,7 +38,7 @@ public interface DatabaseCollection<T extends /*ie implements*/ DatabaseItem> {
      * @return A list of the items in the collection
      */
     public List<T> listItems();
-    
+        
     /**
      * Returns true iff there is an item with the given name in the collection.
      */

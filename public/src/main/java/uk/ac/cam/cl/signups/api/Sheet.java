@@ -30,11 +30,6 @@ public class Sheet implements DatabaseItem {
     @JsonProperty("_id")
     private String sheetID;
     
-    /*
-     * The sheetID is now being used as the _id, need to replicate for other collections, and see what's gone wrong
-     * with DatabaseItem and the method in it. TODO: fix everything
-     */
-    
     private String title;
     private String description;
     private String location;

@@ -110,6 +110,14 @@ public class BookingSlots {
     public void userBookEmptySlot_exception_notWhitelisted() {
         try {
             service.removePermissions("test-group", "abc123", specificColumnPermBean);
+        } catch (NotAllowedException e) {
+            e.printStackTrace();
+            fail("Should be allowed");
+        } catch (ItemNotFoundException e) {
+            e.printStackTrace();
+            /* Never mind, user probably doesn't have permission then */
+        }
+        try {
             service.book(id, column.getName(), emptySlot.getStartTime(),
                     new SlotBookingBean(null, "abc123", "tick789"));
             fail("The user should not have permission to make the booking");

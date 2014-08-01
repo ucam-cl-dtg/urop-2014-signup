@@ -27,32 +27,39 @@ public class Get {
     }
     
     public static Sheet sheet() {
-        return new Sheet(name(), name(), name(), columnCollection());
+        String sid = name();
+        return new Sheet(sid, name(), name(), columnCollection(sid));
     }
     
-    public static Column column() {
-        return new Column(name(), slotList());
+    public static Column column(String sheetID) {
+        String name = name();
+        List<Slot> slots = slotList(sheetID, name);
+        List<String> ids = new ArrayList<String>();
+        for (Slot s : slots) {
+            ids.add(s.getID());
+        }
+        return new Column(name, ids);
     }
     
-    public static Slot slot() {
+    public static Slot slot(String sheetID, String columnName) {
         if (random.nextBoolean())
-            return new Slot(new Date((long) random.nextInt()), random.nextInt(60));
+            return new Slot(sheetID, columnName, new Date((long) random.nextInt()), random.nextInt(60));
         else
-            return new Slot(new Date((long) random.nextInt()), random.nextInt(60), name(), name());
+            return new Slot(sheetID, columnName, new Date((long) random.nextInt()), random.nextInt(60), name(), name());
     }
     
-    public static Collection<Column> columnCollection() {
+    public static Collection<Column> columnCollection(String sheetID) {
         LinkedList<Column> out = new LinkedList<Column>();
         for (int i = 0; i < random.nextInt(6); i++) {
-            out.add(column());
+            out.add(column(sheetID));
         }
         return (Collection<Column>) out;
     }
     
-    public static List<Slot> slotList() {
+    public static List<Slot> slotList(String sheetID, String columnName) {
         LinkedList<Slot> out = new LinkedList<Slot>();
         for (int i = 0; i < random.nextInt(6); i++) {
-            out.add(slot());
+            out.add(slot(sheetID, columnName));
         }
         return out;
     }
