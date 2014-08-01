@@ -9,8 +9,10 @@ import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import uk.ac.cam.cl.signups.ModuleProvider;
 import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.Group;
 import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
@@ -27,7 +29,7 @@ import com.google.inject.Guice;
 public class AddingGroups {
 
     private WebInterface service =
-            Guice.createInjector(new TestDatabaseModule())
+            Guice.createInjector(ModuleProvider.provide())
             .getInstance(WebInterface.class);
     
     private Group g1 = new Group("one");
@@ -35,8 +37,8 @@ public class AddingGroups {
     private Group g2 = new Group("two");
     private String auth2;
     
-    @After
-    public void tearDown() throws Exception {
+    @Before @After // before tests and after each
+    public void clearDatabase() throws Exception {
         if (service.listGroups().contains(g1)) {
             service.deleteGroup("one", auth1);
         }

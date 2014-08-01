@@ -6,9 +6,6 @@
 package uk.ac.cam.cl.signups.interfaces;
 
 import org.mongojack.Id;
-import org.mongojack.ObjectId;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author ird28
@@ -16,10 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public interface DatabaseItem {
     
-    @JsonProperty("name")
-    public String getName();
-    
-    @Id @ObjectId
-    public String get_id();
+    @Id
+    public String getID();
 
 }

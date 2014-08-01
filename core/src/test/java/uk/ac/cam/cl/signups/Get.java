@@ -57,7 +57,7 @@ public class Get {
         return out;
     }
 
-    private static String name() {
+    public static String name() {
         String out = "";
         while (generated.contains(out)) {
             out = Integer.toString(Math.abs(random.nextInt()));

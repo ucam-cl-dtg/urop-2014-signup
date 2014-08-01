@@ -10,6 +10,8 @@ import java.util.Date;
 import org.mongojack.Id;
 import org.mongojack.ObjectId;
 
+import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
+
 import com.fasterxml.jackson.annotation.*;
 
 /**
@@ -19,7 +21,7 @@ import com.fasterxml.jackson.annotation.*;
  * refers to the tick to be marked.
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
-public class Slot implements Comparable<Slot> {
+public class Slot implements Comparable<Slot>, DatabaseItem {
     
     private Date startTime;
     private long duration; /* in milliseconds! */
@@ -113,12 +115,12 @@ public class Slot implements Comparable<Slot> {
     }
 
     @Id @ObjectId
-    public String get_id() {
+    public String getID() {
         return _id;
     }
 
     @Id @ObjectId
-    public void set_id(String _id) {
+    public void setID(String _id) {
         this._id = _id;
     }
 

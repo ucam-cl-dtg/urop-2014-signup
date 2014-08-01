@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.cam.cl.signups.Get;
+import uk.ac.cam.cl.signups.ModuleProvider;
 import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.*;
 import uk.ac.cam.cl.signups.api.beans.GroupSheetBean;
@@ -27,7 +28,7 @@ public class BookingSlots {
     // TODO: test adding and removing permissions
     
     private WebInterface service =
-            Guice.createInjector(new TestDatabaseModule())
+            Guice.createInjector(ModuleProvider.provide())
             .getInstance(WebInterface.class);
     
     private Group group;
@@ -54,8 +55,8 @@ public class BookingSlots {
         bookedSlot = new Slot(new Date(2806302413000L), 789000L, "ird28", "tick6");
         pastSlot = new Slot(new Date(new Date().getTime()-2000), 60000L);
         
-        column.addSlot(new Slot(new Date(1806302413000L), 60000)); // emptySlot
-        column.addSlot(new Slot(new Date(2806302413000L), 789000, "ird28", "tick6")); // bookedSlot
+        column.addSlot(emptySlot);
+        column.addSlot(bookedSlot);
         column.addSlot(pastSlot);
         otherColumn.addSlot(new Slot(new Date(1806302413000L), 60000)); // emptrySlot
         otherColumn.addSlot(new Slot(new Date(2806302413000L), 789000, "ird28", "tick6")); // bookedSlot
@@ -108,6 +109,7 @@ public class BookingSlots {
     @Test
     public void userBookEmptySlot_exception_notWhitelisted() {
         try {
+            service.removePermissions("test-group", "abc123", specificColumnPermBean);
             service.book(id, column.getName(), emptySlot.getStartTime(),
                     new SlotBookingBean(null, "abc123", "tick789"));
             fail("The user should not have permission to make the booking");
@@ -194,6 +196,8 @@ public class BookingSlots {
     @Test
     public void userUnbookFullSlot_success() {
         try {
+            System.out.println(service.showBooking(id, column.getName(), bookedSlot.getStartTime()).getUser());
+            System.out.println(bookedSlot.getBookedUser());
             service.book(id, column.getName(), bookedSlot.getStartTime(),
                     new SlotBookingBean(bookedSlot.getBookedUser(), null, null));
         } catch (ItemNotFoundException e) {

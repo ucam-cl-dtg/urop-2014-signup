@@ -24,18 +24,19 @@ public class MongoCollection<T extends DatabaseItem> implements DatabaseCollecti
 
     public void insertItem(T item) throws DuplicateNameException {
         try {
-            collection.ensureIndex(new BasicDBObject("name", 1), null, true); // each repo name must be unique
             collection.insert(item);
         } catch(com.mongodb.MongoException dupKey) {
-            throw new DuplicateNameException(item.getName());
+            System.out.println("Should be duplicate key:");
+            dupKey.printStackTrace();
+            throw new DuplicateNameException(item.getID());
         }
     }
 
     public void updateItem(T item) throws ItemNotFoundException {
-        if (!contains(item.getName()))
-            throw new ItemNotFoundException("The item " + item.getName()
+        if (!contains(item.getID()))
+            throw new ItemNotFoundException("The item " + item.getID()
                     + " of type " + item.getClass() + " was not found in the database");
-        collection.updateById(item.get_id(), item);
+        collection.updateById(item.getID(), item);
     }
 
     public List<T> listItems() {
@@ -46,8 +47,8 @@ public class MongoCollection<T extends DatabaseItem> implements DatabaseCollecti
         return rtn;
     }
 
-    public boolean contains(String name) {
-        int matchingItems = collection.find(new BasicDBObject("name", name)).count();
+    public boolean contains(String id) {
+        int matchingItems = collection.find(new BasicDBObject("_id", id)).count();
         assert (matchingItems == 0 || matchingItems == 1);
         return (matchingItems == 1);
     }
@@ -56,18 +57,18 @@ public class MongoCollection<T extends DatabaseItem> implements DatabaseCollecti
         if (!contains(name))
             throw new ItemNotFoundException("The item " + name +
                     " was not found in the database");
-        return collection.findOne(new BasicDBObject("name", name));
+        return collection.findOneById(name);
     }
 
     public void removeAll() {
         collection.remove(new BasicDBObject());
     }
 
-    public void removeItem(String name) throws ItemNotFoundException {
-        if (!contains(name))
-            throw new ItemNotFoundException("The item " + name +
+    public void removeItem(String id) throws ItemNotFoundException {
+        if (!contains(id))
+            throw new ItemNotFoundException("The item " + id +
                     " was not found in the database");
-        collection.remove(new BasicDBObject("name", name));
+        collection.removeById(id);
     }
 
 }

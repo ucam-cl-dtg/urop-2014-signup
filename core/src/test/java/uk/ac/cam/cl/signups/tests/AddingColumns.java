@@ -10,15 +10,19 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.Inject;
 
 import uk.ac.cam.cl.signups.Get;
+import uk.ac.cam.cl.signups.ModuleProvider;
 import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.*;
 import uk.ac.cam.cl.signups.api.beans.ColumnBean;
 import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
+import uk.ac.cam.cl.signups.database.DatabaseModule;
 import uk.ac.cam.cl.signups.interfaces.WebInterface;
 
 /**
@@ -27,7 +31,7 @@ import uk.ac.cam.cl.signups.interfaces.WebInterface;
 public class AddingColumns {
     
     private WebInterface service =
-            Guice.createInjector(new TestDatabaseModule()) // hashmap instead of mongo
+            Guice.createInjector(ModuleProvider.provide())
             .getInstance(WebInterface.class);
     
     private Sheet sheet;
@@ -44,7 +48,8 @@ public class AddingColumns {
         SheetInfo info1 = service.addSheet(sheet);
         id1 = info1.getSheetID();
         auth1 = info1.getAuthCode();
-        
+        System.out.println("SheetID (just added): " + id1);
+        System.out.println(service.listSheets());
     }
     
     

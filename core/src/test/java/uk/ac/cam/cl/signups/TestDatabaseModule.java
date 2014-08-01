@@ -9,6 +9,7 @@ import uk.ac.cam.cl.signups.SignupService;
 import uk.ac.cam.cl.signups.User;
 import uk.ac.cam.cl.signups.api.Group;
 import uk.ac.cam.cl.signups.api.Sheet;
+import uk.ac.cam.cl.signups.api.Slot;
 import uk.ac.cam.cl.signups.database.DatabaseCollection;
 import uk.ac.cam.cl.signups.database.HashMapCollection;
 import uk.ac.cam.cl.signups.interfaces.WebInterface;
@@ -40,6 +41,11 @@ public class TestDatabaseModule extends AbstractModule {
     @Provides
     public DatabaseCollection<Group> provideGroupCollection() {
         return new HashMapCollection<Group>();
+    }
+    
+    @Provides
+    public DatabaseCollection<Slot> provideSlotCollection() {
+        return new HashMapCollection<Slot>();
     }
 
 }

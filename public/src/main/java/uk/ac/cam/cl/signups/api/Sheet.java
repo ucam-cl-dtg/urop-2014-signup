@@ -11,12 +11,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.mongojack.Id;
-import org.mongojack.ObjectId;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -25,17 +21,19 @@ import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
 
 /**
- * Represents one signup "session".
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
 public class Sheet implements DatabaseItem {
     
-    // TODO: we don't need 2 ids - get rid of one.
-    
     private List<Column> columns;
     private String authCode;
+    @JsonProperty("_id")
     private String sheetID;
-    private String _id;
+    
+    /*
+     * The sheetID is now being used as the _id, need to replicate for other collections, and see what's gone wrong
+     * with DatabaseItem and the method in it. TODO: fix everything
+     */
     
     private String title;
     private String description;
@@ -43,9 +41,9 @@ public class Sheet implements DatabaseItem {
     
     private List<Group> groups;
     
-    private SecureRandom random = new SecureRandom();
-    private MessageDigest digester;
-    {
+    private static SecureRandom random = new SecureRandom();
+    private static MessageDigest digester;
+    static {
         try {
             digester = MessageDigest.getInstance("SHA");
         } catch (NoSuchAlgorithmException e) {
@@ -85,12 +83,11 @@ public class Sheet implements DatabaseItem {
     public Sheet
         ( @JsonProperty("columns")      List<Column> columns
         , @JsonProperty("authCode")     String authCode
-        , @JsonProperty("name")         String sheetID
+        , @JsonProperty("_id")          String sheetID
         , @JsonProperty("title")        String title
         , @JsonProperty("description")  String description
         , @JsonProperty("location")     String location
         , @JsonProperty("groups")       List<Group> groups
-        , @JsonProperty("_id")          String _id
         )
     {
         this.columns = columns;
@@ -100,7 +97,7 @@ public class Sheet implements DatabaseItem {
         this.description = description;
         this.location = location;
         this.groups = groups;
-        this._id = _id;
+        this.sheetID = sheetID;
     }
     
     @JsonIgnore
@@ -151,23 +148,23 @@ public class Sheet implements DatabaseItem {
     }
     
     @JsonIgnore
-    public void removeGroup(String groupName) throws ItemNotFoundException {
+    public void removeGroup(String groupID) throws ItemNotFoundException {
         Group toRemove = null;
         for (Group g : groups) {
-            if (g.getName().equals(groupName)) {
+            if (g.getID().equals(groupID)) {
                 toRemove = g;
             }
         }
         if (toRemove == null) {
-            throw new ItemNotFoundException("No group with the given name was found");
+            throw new ItemNotFoundException("No group with the given id was found");
         }
         groups.remove(toRemove);
     }
     
     @JsonIgnore
-    public boolean isPartOfGroup(String groupName) {
+    public boolean isPartOfGroup(String groupID) {
         for (Group g : groups) {
-            if (g.getName().equals(groupName)) {
+            if (g.getID().equals(groupID)) {
                 return true;
             }
         }
@@ -185,19 +182,14 @@ public class Sheet implements DatabaseItem {
         return "Needs to be implemented";
     }
     
-    @JsonProperty("name")
-    public String getName() { /* Used to ensure uniqueness in database */
+    //@Id @ObjectId @JsonProperty("_id")
+    public String getID() { /* Used to ensure uniqueness in database */
         return sheetID;
     }
     
-    @Id @ObjectId
-    public String get_id() { /* Used by mongojack */
-        return _id;
-    }
-    
-    @Id @ObjectId
-    public void set_id(String _id) { /* Used by mongojack */
-        this._id = _id;
+    //@Id @ObjectId @JsonProperty("_id")
+    public void setID(String sheetID) { /* Used by mongojack */
+        this.sheetID = sheetID;
     }
 
     @JsonProperty("title")
@@ -218,7 +210,7 @@ public class Sheet implements DatabaseItem {
     @Override @JsonIgnore
     public String toString() {
         return "columns: " + columns + "\nauthCode: " + authCode
-                + "\nsheetID: " + sheetID + "\n_id: " + _id + "\ntitle: " + title
+                + "\nsheetID: " + sheetID + "\ntitle: " + title
                 + "\ndescription: " + description + "\nlocation: " + location
                 + "\ngroups: " + groups + "\n";
     }
@@ -241,5 +233,71 @@ public class Sheet implements DatabaseItem {
     private String generateAuthCode() {
         return new BigInteger(130, random).toString(32);
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((authCode == null) ? 0 : authCode.hashCode());
+        result = prime * result + ((columns == null) ? 0 : columns.hashCode());
+        result = prime * result
+                + ((description == null) ? 0 : description.hashCode());
+        result = prime * result + ((groups == null) ? 0 : groups.hashCode());
+        result = prime * result
+                + ((location == null) ? 0 : location.hashCode());
+        result = prime * result + ((sheetID == null) ? 0 : sheetID.hashCode());
+        result = prime * result + ((title == null) ? 0 : title.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Sheet other = (Sheet) obj;
+        if (authCode == null) {
+            if (other.authCode != null)
+                return false;
+        } else if (!authCode.equals(other.authCode))
+            return false;
+        if (columns == null) {
+            if (other.columns != null)
+                return false;
+        } else if (!columns.equals(other.columns))
+            return false;
+        if (description == null) {
+            if (other.description != null)
+                return false;
+        } else if (!description.equals(other.description))
+            return false;
+        if (groups == null) {
+            if (other.groups != null)
+                return false;
+        } else if (!groups.equals(other.groups))
+            return false;
+        if (location == null) {
+            if (other.location != null)
+                return false;
+        } else if (!location.equals(other.location))
+            return false;
+        if (sheetID == null) {
+            if (other.sheetID != null)
+                return false;
+        } else if (!sheetID.equals(other.sheetID))
+            return false;
+        if (title == null) {
+            if (other.title != null)
+                return false;
+        } else if (!title.equals(other.title))
+            return false;
+        return true;
+    }
+    
+    
      
 }

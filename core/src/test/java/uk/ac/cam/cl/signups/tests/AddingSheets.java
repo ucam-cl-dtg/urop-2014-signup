@@ -10,15 +10,17 @@ import org.junit.Test;
 import com.google.inject.Guice;
 
 import uk.ac.cam.cl.signups.Get;
+import uk.ac.cam.cl.signups.ModuleProvider;
 import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.Sheet;
 import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
+import uk.ac.cam.cl.signups.database.DatabaseModule;
 import uk.ac.cam.cl.signups.interfaces.WebInterface;
 
 public class AddingSheets {
 
     private WebInterface service =
-            Guice.createInjector(new TestDatabaseModule()) // Uses hashmap instead of mongo!
+            Guice.createInjector(ModuleProvider.provide())
             .getInstance(WebInterface.class);
     
     private Sheet sheet1;
@@ -34,13 +36,16 @@ public class AddingSheets {
     @Test
     public void addSheet_success() {
         try {
+            int sheetsBefore = service.listSheets().size();
+            
             /* add sheets */
             service.addSheet(sheet1);
             service.addSheet(sheet2);
             
             /* check that the sheets were added */
             List<Sheet> list = service.listSheets();
-            assertEquals(2, list.size());
+            assertEquals("There should now be two more sheets in the database",
+                    2, list.size()-sheetsBefore);
             assertTrue(list.contains(sheet1));
             assertTrue(list.contains(sheet2));
         } catch (DuplicateNameException e) {

@@ -11,6 +11,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 
 import uk.ac.cam.cl.signups.Get;
+import uk.ac.cam.cl.signups.ModuleProvider;
 import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.Column;
 import uk.ac.cam.cl.signups.api.Sheet;
@@ -26,7 +27,7 @@ import uk.ac.cam.cl.signups.interfaces.WebInterface;
 public class AddingSlots {
     
     private WebInterface service =
-            Guice.createInjector(new TestDatabaseModule())
+            Guice.createInjector(ModuleProvider.provide())
             .getInstance(WebInterface.class);
     
     private Sheet sheet;

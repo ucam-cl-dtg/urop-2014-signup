@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.cam.cl.signups.Get;
+import uk.ac.cam.cl.signups.ModuleProvider;
 import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.*;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
@@ -29,7 +30,7 @@ import com.google.inject.Guice;
 public class RemovingAllUserBookings {
     
     private WebInterface service =
-            Guice.createInjector(new TestDatabaseModule())
+            Guice.createInjector(ModuleProvider.provide())
             .getInstance(WebInterface.class);
     
     private Sheet sheet = Get.sheet();

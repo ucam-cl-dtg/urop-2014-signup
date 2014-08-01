@@ -27,26 +27,23 @@ import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
  */
 public class Group implements DatabaseItem {
     
-    private String name;
-    private String groupAuthCode;
+    @JsonProperty("_id")  
     private String _id;
+    private String groupAuthCode;
     
     @JsonIgnore
-    public Group(String name) {
-        this.name = name;
+    public Group(String _id) {
+        this._id = _id;
         this.groupAuthCode = generateAuthCode();
     }
     
     @JsonCreator
     public Group (
-            @JsonProperty("sheets")         List<Sheet> sheets,
-            @JsonProperty("name")           String name,
-            @JsonProperty("groupAuthCode")  String groupAuthCode,
-            @JsonProperty("_id")            String _id
+            @JsonProperty("_id")            String _id,
+            @JsonProperty("groupAuthCode")  String groupAuthCode
             ) {
-        this.name = name;
-        this.groupAuthCode = groupAuthCode;
         this._id = _id;
+        this.groupAuthCode = groupAuthCode;
     }
     
     @JsonProperty("groupAuthCode")
@@ -59,19 +56,13 @@ public class Group implements DatabaseItem {
         return code.equals(groupAuthCode);
     }
     
-
-    @Override @JsonProperty("name")
-    public String getName() {
-       return name;
-    }
-
-    @Override @Id @ObjectId
-    public String get_id() {
+    @Override @Id
+    public String getID() {
         return _id;
     }
     
-    @Id @ObjectId
-    public void set_id(String _id) {
+    @Id
+    public void setID(String _id) {
         this._id = _id;
     }
         
@@ -82,7 +73,41 @@ public class Group implements DatabaseItem {
     
     @Override
     public String toString() {
-        return "Name: " + name + " authCode: " + groupAuthCode;
+        return "_id: " + _id + " authCode: " + groupAuthCode;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((_id == null) ? 0 : _id.hashCode());
+        result = prime * result
+                + ((groupAuthCode == null) ? 0 : groupAuthCode.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Group other = (Group) obj;
+        if (_id == null) {
+            if (other._id != null)
+                return false;
+        } else if (!_id.equals(other._id))
+            return false;
+        if (groupAuthCode == null) {
+            if (other.groupAuthCode != null)
+                return false;
+        } else if (!groupAuthCode.equals(other.groupAuthCode))
+            return false;
+        return true;
+    }
+    
+    
 
 }

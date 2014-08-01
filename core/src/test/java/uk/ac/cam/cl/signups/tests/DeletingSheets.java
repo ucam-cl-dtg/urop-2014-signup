@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.cam.cl.signups.Get;
+import uk.ac.cam.cl.signups.ModuleProvider;
 import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.Sheet;
 import uk.ac.cam.cl.signups.api.SheetInfo;
@@ -28,7 +29,7 @@ import com.google.inject.Guice;
 public class DeletingSheets {
     
     private WebInterface service =
-            Guice.createInjector(new TestDatabaseModule()) // Uses hashmap instead of mongo!
+            Guice.createInjector(ModuleProvider.provide())
             .getInstance(WebInterface.class);
     
     private Sheet sheet1;
@@ -58,6 +59,8 @@ public class DeletingSheets {
     
     @Test
     public void deleteSheet_success() {
+        int initialSheets = service.listSheets().size();
+        
         /* delete one sheet */
         try {
             service.deleteSheet(id1, auth1);
@@ -71,7 +74,7 @@ public class DeletingSheets {
         
         /* check that the sheet was deleted */
         List<Sheet> list = service.listSheets();
-        assertEquals("Only one sheet should remain", 1, list.size());
+        assertEquals("One sheet should have been deleted", 1, initialSheets-list.size());
         assertFalse("sheet1 should have been deleted", list.contains(sheet1));
         assertTrue("sheet2 should not have been deleted", list.contains(sheet2));
         
@@ -88,7 +91,7 @@ public class DeletingSheets {
         
         /* check that the sheet was deleted */
         list = service.listSheets();
-        assertEquals("No sheets should be left in the database", 0, list.size());
+        assertEquals("Both sheets should have been deleted", 2, initialSheets-list.size());
         assertFalse("sheet1 should have been deleted", list.contains(sheet1));
         assertFalse("sheet2 should have been deleted", list.contains(sheet2));
     }

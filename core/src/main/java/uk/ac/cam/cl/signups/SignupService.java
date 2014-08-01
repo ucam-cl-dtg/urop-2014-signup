@@ -25,6 +25,7 @@ public class SignupService implements WebInterface {
     private DatabaseCollection<Sheet> sheets;
     private DatabaseCollection<User> users;
     private DatabaseCollection<Group> groups;
+    private DatabaseCollection<Slot> slots;
     
     {
         Guice.createInjector(new DatabaseModule()).injectMembers(this);
@@ -43,6 +44,11 @@ public class SignupService implements WebInterface {
     @Inject
     public void setGroups(DatabaseCollection<Group> groups) {
         this.groups = groups;
+    }
+    
+    @Inject
+    public void setSlots(DatabaseCollection<Slot> slots) {
+        this.slots = slots;
     }
 
     public SheetInfo addSheet(Sheet sheet) throws DuplicateNameException {
@@ -92,6 +98,8 @@ public class SignupService implements WebInterface {
             throws ItemNotFoundException {
         return sheets.getItem(sheetID).getColumn(columnName).getSlots();
     }
+    
+    //TODO public List<Slot> listSlots(
     
     public List<Date> listAllFreeStartTimes(String sheetID) throws ItemNotFoundException {
         List<Date> toReturn = new ArrayList<Date>();
@@ -190,7 +198,14 @@ public class SignupService implements WebInterface {
                 }
                 slot.book(bookingBean.getUserToBook(), bookingBean.getComment());
             } else /* an unbook request */ {
-                if (slot.getBookedUser() != bookingBean.getCurrentlyBookedUser()) {
+                if (bookingBean.getCurrentlyBookedUser() == null) {
+                    throw new NotAllowedException("You think the slot is unbooked already - "
+                            + "why are you trying to unbook it?");
+                }
+                if (slot.getBookedUser() == null) {
+                    throw new NotAllowedException("The slot is already unbooked");
+                }
+                if (!slot.getBookedUser().equals(bookingBean.getCurrentlyBookedUser())) {
                     throw new NotAllowedException("The user given was not booked to this slot");
                 }
                 if (slot.getStartTime().before(new Date())) {
@@ -227,41 +242,44 @@ public class SignupService implements WebInterface {
         return groups.listItems();
     }
 
-    public void deleteGroup(String groupName, String groupAuthCode)
+    public void deleteGroup(String groupID, String groupAuthCode)
             throws ItemNotFoundException, NotAllowedException {
-        Group group = groups.getItem(groupName);
+        Group group = groups.getItem(groupID);
         if (!group.isGroupAuthCode(groupAuthCode)) {
             throw new NotAllowedException("Incorrect group authorisation code");
         }
-        groups.removeItem(groupName);
+        groups.removeItem(groupID);
         for (Sheet sheet : sheets.listItems()) {
-            if (sheet.isPartOfGroup(groupName)) {
-                sheet.removeGroup(groupName);
+            if (sheet.isPartOfGroup(groupID)) {
+                sheet.removeGroup(groupID);
             }
+        }
+        for (User user : users.listItems()) {
+            user.getGroupToCommentToColumnMap().remove(groupID);
         }
     }
 
-    public Map<String, String> getPermissions(String groupName, String user) {
+    public Map<String, String> getPermissions(String groupID, String user) {
         try {
-            return users.getItem(user).getCommentColumnMap(groupName);
+            return users.getItem(user).getCommentColumnMap(groupID);
         } catch (ItemNotFoundException e) {
             return new HashMap<String, String>();
         }
     }
 
-    public void addPermissions(String groupName, String user, PermissionsBean bean)
+    public void addPermissions(String groupID, String user, PermissionsBean bean)
             throws NotAllowedException, ItemNotFoundException {
-        if (!groups.getItem(groupName).isGroupAuthCode(bean.getGroupAuthCode())) {
+        if (!groups.getItem(groupID).isGroupAuthCode(bean.getGroupAuthCode())) {
             throw new NotAllowedException("Incorrect group authorisation code");
         }
         User userObj;
         try {
             userObj = users.getItem(user);
-            userObj.getCommentColumnMap(groupName).putAll(bean.getCommentColumnMap());
+            userObj.getCommentColumnMap(groupID).putAll(bean.getCommentColumnMap());
             users.updateItem(userObj);
         } catch (ItemNotFoundException e) { // user not in database - add user to database
             userObj = new User(user);
-            userObj.getCommentColumnMap(groupName).putAll(bean.getCommentColumnMap());
+            userObj.getCommentColumnMap(groupID).putAll(bean.getCommentColumnMap());
             try {
                 users.insertItem(userObj);
             } catch (DuplicateNameException dne) {
@@ -272,22 +290,22 @@ public class SignupService implements WebInterface {
         }
     }
 
-    public void removePermissions(String groupName, String user,
+    public void removePermissions(String groupID, String user,
             PermissionsBean bean) throws NotAllowedException, ItemNotFoundException {
-        if (!groups.getItem(groupName).isGroupAuthCode(bean.getGroupAuthCode())) {
+        if (!groups.getItem(groupID).isGroupAuthCode(bean.getGroupAuthCode())) {
             throw new NotAllowedException("Incorrect group authorisation code");
         }
         User userObj = users.getItem(user);
-        Map<String, String> userMap = userObj.getCommentColumnMap(groupName);
+        Map<String, String> userMap = userObj.getCommentColumnMap(groupID);
         for (String comment : bean.getCommentColumnMap().keySet()) {
             userMap.remove(comment);
         }
         users.updateItem(userObj);
     }
 
-    public void addSheet(String groupName, GroupSheetBean bean)
+    public void addSheet(String groupID, GroupSheetBean bean)
             throws ItemNotFoundException, NotAllowedException {
-        Group group = groups.getItem(groupName);
+        Group group = groups.getItem(groupID);
         if (!group.isGroupAuthCode(bean.getGroupAuthCode())) {
             throw new NotAllowedException("Incorrect group authorisation code");
         }
@@ -299,24 +317,24 @@ public class SignupService implements WebInterface {
         sheets.updateItem(sheet);
     }
 
-    public List<String> listSheetIDs(String groupName) throws ItemNotFoundException {
+    public List<String> listSheetIDs(String groupID) throws ItemNotFoundException {
         List<String> toReturn = (List<String>) new LinkedList<String>();
         for (Sheet sheet : listSheets()) {
-            if (sheet.isPartOfGroup(groupName)) {
-                toReturn.add(sheet.getName());
+            if (sheet.isPartOfGroup(groupID)) {
+                toReturn.add(sheet.getID());
             }
         }
         return toReturn;
     }
 
-    public void removeSheetFromGroup(String groupName, String sheetID,
+    public void removeSheetFromGroup(String groupID, String sheetID,
             String groupAuthCode) throws ItemNotFoundException, NotAllowedException {
-        Group group = groups.getItem(groupName);
+        Group group = groups.getItem(groupID);
         if (!group.isGroupAuthCode(groupAuthCode)) {
             throw new NotAllowedException("Incorrect group authorisation code");
         }
         Sheet sheet = sheets.getItem(sheetID);
-        sheet.removeGroup(groupName);
+        sheet.removeGroup(groupID);
         sheets.updateItem(sheet);
     }
     
@@ -327,8 +345,8 @@ public class SignupService implements WebInterface {
      */
     private boolean userHasPermission(User user, Sheet sheet, String comment, String columnName) throws ItemNotFoundException {
         for (Group group : sheet.getGroups()) {
-            boolean commentFound = user.getCommentColumnMap(group.getName()).containsKey(comment);
-            String allowedColumn = user.getCommentColumnMap(group.getName()).get(comment);
+            boolean commentFound = user.getCommentColumnMap(group.getID()).containsKey(comment);
+            String allowedColumn = user.getCommentColumnMap(group.getID()).get(comment);
             boolean columnAllowed = allowedColumn == null || allowedColumn.equals(columnName);
             boolean allowedColumnIsFullyBooked = sheet.getColumn(columnName).isFullyBooked();
             if (commentFound && (columnAllowed || allowedColumnIsFullyBooked)) {

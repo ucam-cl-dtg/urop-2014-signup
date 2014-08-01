@@ -11,6 +11,7 @@ import uk.ac.cam.cl.signups.SignupService;
 import uk.ac.cam.cl.signups.User;
 import uk.ac.cam.cl.signups.api.Group;
 import uk.ac.cam.cl.signups.api.Sheet;
+import uk.ac.cam.cl.signups.api.Slot;
 import uk.ac.cam.cl.signups.database.Mongo;
 import uk.ac.cam.cl.signups.interfaces.WebInterface;
 
@@ -26,6 +27,7 @@ public class DatabaseModule extends AbstractModule {
     private static final String SHEETCOLLECTION = "sheets";
     private static final String USERCOLLECTION = "users";
     private static final String GROUPCOLLECTION = "groups";
+    private static final String SLOTCOLLECTION = "slots";
         
     @Override
     protected void configure() {
@@ -61,6 +63,17 @@ public class DatabaseModule extends AbstractModule {
                 JacksonDBCollection.wrap(
                         Mongo.getDB().getCollection(GROUPCOLLECTION)
                         , Group.class
+                        , String.class));
+        return toReturn;
+    }
+    
+    @Provides
+    public DatabaseCollection<Slot> provideSlotCollection() {
+        MongoCollection<Slot> toReturn = new MongoCollection<Slot>();
+        toReturn.setCollection(
+                JacksonDBCollection.wrap(
+                        Mongo.getDB().getCollection(SLOTCOLLECTION)
+                        , Slot.class
                         , String.class));
         return toReturn;
     }

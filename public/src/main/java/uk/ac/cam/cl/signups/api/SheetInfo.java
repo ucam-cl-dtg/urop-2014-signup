@@ -24,7 +24,7 @@ public class SheetInfo {
     public SheetInfo(Sheet sheet) {
         URL = sheet.getURL();
         authCode = sheet.getAuthCode();
-        sheetID = sheet.getName();
+        sheetID = sheet.getID();
     }
     
     @JsonCreator

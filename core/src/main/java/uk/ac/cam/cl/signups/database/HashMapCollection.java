@@ -18,18 +18,18 @@ public class HashMapCollection<T extends DatabaseItem> implements DatabaseCollec
 
      
     public void insertItem(T item) throws DuplicateNameException {
-        if (collection.containsKey(item.getName())) {
-            throw new DuplicateNameException(item.getName());
+        if (collection.containsKey(item.getID())) {
+            throw new DuplicateNameException(item.getID());
         }
-        collection.put(item.getName(), item);
+        collection.put(item.getID(), item);
     }
 
      
     public void updateItem(T item) throws ItemNotFoundException {
-        if (!collection.containsKey(item.getName())) {
-            throw new ItemNotFoundException(item.getName());
+        if (!collection.containsKey(item.getID())) {
+            throw new ItemNotFoundException(item.getID());
         }
-        collection.put(item.getName(), item);
+        collection.put(item.getID(), item);
     }
      
     public List<T> listItems() {

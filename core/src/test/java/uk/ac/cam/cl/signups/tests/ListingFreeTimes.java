@@ -18,6 +18,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 
 import uk.ac.cam.cl.signups.Get;
+import uk.ac.cam.cl.signups.ModuleProvider;
 import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.*;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
@@ -30,7 +31,7 @@ import uk.ac.cam.cl.signups.interfaces.WebInterface;
 public class ListingFreeTimes {
     
     private WebInterface service =
-            Guice.createInjector(new TestDatabaseModule())
+            Guice.createInjector(ModuleProvider.provide())
             .getInstance(WebInterface.class);
     
     private Sheet sheet;
@@ -50,7 +51,7 @@ public class ListingFreeTimes {
         column = new Column("test-column", slotList);
         Collection<Column> cols = new LinkedList<Column>();
         cols.add(column);
-        sheet = new Sheet("title", "description", "location", cols);
+        sheet = new Sheet("title", Get.name(), "location", cols);
         id = service.addSheet(sheet).getSheetID();
     }
 

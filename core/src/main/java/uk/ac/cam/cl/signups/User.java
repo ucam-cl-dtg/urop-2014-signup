@@ -21,9 +21,9 @@ import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
  */
 public class User implements DatabaseItem {
     
+    @JsonProperty("_id")
     private String name;
     private Map<String, HashMap<String, String>> groupToCommentToColumnMap;
-    private String _id;
     
     @JsonIgnore
     public User(String name) {
@@ -33,13 +33,11 @@ public class User implements DatabaseItem {
     
     @JsonCreator
     public User(
-            @JsonProperty("name")   String name,
-            @JsonProperty("map")    Map<String, HashMap<String, String>> map,
-            @JsonProperty("_id")    String _id
+            @JsonProperty("_id")   String name,
+            @JsonProperty("map")    Map<String, HashMap<String, String>> map
             ) {
         this.name = name;
         this.groupToCommentToColumnMap = map;
-        this._id = _id;
     }
     
     @JsonIgnore
@@ -51,25 +49,20 @@ public class User implements DatabaseItem {
         }
         return commentToColumnMap;
     }
-    
-    @JsonProperty("name")
-    public String getName() {
-        return name;
-    }
-    
+        
     @JsonProperty("map")
     public Map<String, HashMap<String, String>> getGroupToCommentToColumnMap() {
         return groupToCommentToColumnMap;
     }
 
-    @Id @ObjectId
-    public String get_id() {
-        return _id;
+    @Id
+    public String getID() {
+        return name;
     }
     
-    @Id @ObjectId
-    public void set_id(String _id) {
-        this._id = _id;
+    @Id
+    public void setID(String name) {
+        this.name = name;
     }
 
 }

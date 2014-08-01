@@ -14,6 +14,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 
 import uk.ac.cam.cl.signups.Get;
+import uk.ac.cam.cl.signups.ModuleProvider;
 import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.*;
 import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
@@ -27,7 +28,7 @@ import uk.ac.cam.cl.signups.interfaces.WebInterface;
 public class DeletingColumns {
     
     private WebInterface service =
-            Guice.createInjector(new TestDatabaseModule()) // hashmap not mongo
+            Guice.createInjector(ModuleProvider.provide())
             .getInstance(WebInterface.class);
     
     private Sheet sheet;
