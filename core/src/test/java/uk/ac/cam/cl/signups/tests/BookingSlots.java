@@ -16,6 +16,7 @@ import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.*;
 import uk.ac.cam.cl.signups.api.beans.GroupSheetBean;
 import uk.ac.cam.cl.signups.api.beans.PermissionsBean;
+import uk.ac.cam.cl.signups.api.beans.SlotBean;
 import uk.ac.cam.cl.signups.api.beans.SlotBookingBean;
 import uk.ac.cam.cl.signups.api.exceptions.*;
 import uk.ac.cam.cl.signups.database.DatabaseModule;
@@ -49,17 +50,14 @@ public class BookingSlots {
         group = new Group("test-group");
         gauth = service.addGroup(group).getAuthCode();
         sheet = Get.sheet();
-        column = Get.column();
-        otherColumn = Get.column();
-        emptySlot = new Slot(new Date(1806302413000L), 60000L);
-        bookedSlot = new Slot(new Date(2806302413000L), 789000L, "ird28", "tick6");
-        pastSlot = new Slot(new Date(new Date().getTime()-2000), 60000L);
-        
-        column.addSlot(emptySlot);
-        column.addSlot(bookedSlot);
-        column.addSlot(pastSlot);
-        otherColumn.addSlot(new Slot(new Date(1806302413000L), 60000)); // emptrySlot
-        otherColumn.addSlot(new Slot(new Date(2806302413000L), 789000, "ird28", "tick6")); // bookedSlot
+        column = Get.column(sheet.getID());
+        otherColumn = Get.column(sheet.getID());
+        emptySlot = new Slot(sheet.getID(), column.getName(),
+                new Date(1806302413000L), 60000L);
+        bookedSlot = new Slot(sheet.getID(), column.getName(),
+                new Date(2806302413000L), 789000L, "ird28", "tick6");
+        pastSlot = new Slot(sheet.getID(), column.getName(),
+                new Date(new Date().getTime()-2000), 60000L);
         
         sheet.addColumn(column);
         sheet.addColumn(otherColumn);
@@ -67,6 +65,19 @@ public class BookingSlots {
         id = info.getSheetID();
         sauth = info.getAuthCode();
         service.addSheet("test-group", new GroupSheetBean(id, gauth, sauth));
+        
+        service.addSlot(sheet.getID(), column.getName(), new SlotBean(emptySlot, sauth));
+        service.addSlot(sheet.getID(), column.getName(), new SlotBean(bookedSlot, sauth));
+        service.addSlot(sheet.getID(), column.getName(), new SlotBean(pastSlot, sauth));
+        
+        service.addSlot(sheet.getID(), otherColumn.getName(),
+                new SlotBean(new Slot(sheet.getID(), otherColumn.getName(),
+                        new Date(1806302413000L), 60000), sauth)); // emptySlot
+        service.addSlot(sheet.getID(), otherColumn.getName(),
+                new SlotBean(new Slot(sheet.getID(), otherColumn.getName(), // bookedSlot
+                        new Date(2806302413000L), 789000, "ird28", "tick6"), sauth));
+        
+        
         Map<String,String> map = new HashMap<String,String>();
         map.put("tick789", column.getName());
         specificColumnPermBean = new PermissionsBean(map, gauth);

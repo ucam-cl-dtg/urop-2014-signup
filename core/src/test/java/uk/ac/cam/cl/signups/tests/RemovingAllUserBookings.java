@@ -17,6 +17,7 @@ import uk.ac.cam.cl.signups.Get;
 import uk.ac.cam.cl.signups.ModuleProvider;
 import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.*;
+import uk.ac.cam.cl.signups.api.beans.SlotBean;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
 import uk.ac.cam.cl.signups.database.DatabaseModule;
@@ -34,39 +35,49 @@ public class RemovingAllUserBookings {
             .getInstance(WebInterface.class);
     
     private Sheet sheet = Get.sheet();
-    private Column col1 = Get.column();
-    private Column col2 = Get.column();
+    private Column col1 = Get.column(sheet.getID());
+    private Column col2 = Get.column(sheet.getID());
+    
     private Slot bookedByUserInFuture =
-            new Slot(new Date(40000000000000L), 100000L, "user", "comment");
+            new Slot(sheet.getID(), col1.getName(),
+                    new Date(40000000000000L), 100000L, "user", "comment");
     private Slot bookedByUserInNearFuture =
-            new Slot(new Date(new Date().getTime()+10000L), 10000000L, "user", "comment");
+            new Slot(sheet.getID(), col2.getName(),
+                    new Date(new Date().getTime()+10000L), 10000000L, "user", "comment");
     private Slot bookedByUserInNearPast =
-            new Slot(new Date(new Date().getTime()-10000L), 10000000L, "user", "comment");
+            new Slot(sheet.getID(), col2.getName(),
+                    new Date(new Date().getTime()-10000L), 10000000L, "user", "comment");
     private Slot bookedByUserInPast =
-            new Slot(new Date(0L), 50L, "user", "comment");
+            new Slot(sheet.getID(), col1.getName(),
+                    new Date(0L), 50L, "user", "comment");
+    
     private Slot bookedByOtherUserInFuture =
-            new Slot(new Date(41000000000000L), 100000L, "other", "comment");
+            new Slot(sheet.getID(), col2.getName(),
+                    new Date(41000000000000L), 100000L, "other", "comment");
     private Slot bookedByOtherUserInNearFuture =
-            new Slot(new Date(new Date().getTime()+10000L), 10000000L, "other", "comment");
+            new Slot(sheet.getID(), col1.getName(),
+                    new Date(new Date().getTime()+10000L), 10000000L, "other", "comment");
     private Slot bookedByOtherUserInPast =
-            new Slot(new Date(10L), 50L, "other", "comment");
+            new Slot(sheet.getID(), col1.getName(),
+                    new Date(1001L), 600L, "other", "comment");
+    
     private String id;
     private String auth;
     
     @Before
     public void setUp() throws Exception {
-        col1.addSlot(bookedByUserInFuture);
-        col1.addSlot(bookedByUserInPast);
-        col1.addSlot(bookedByOtherUserInPast);
-        col1.addSlot(bookedByOtherUserInNearFuture);
-        col2.addSlot(bookedByUserInNearFuture);
-        col2.addSlot(bookedByUserInNearPast);
-        col2.addSlot(bookedByOtherUserInFuture);
         sheet.addColumn(col1);
         sheet.addColumn(col2);
         SheetInfo info = service.addSheet(sheet);
         id = info.getSheetID();
         auth = info.getAuthCode();
+        service.addSlot(sheet.getID(), col1.getName(), new SlotBean(bookedByUserInFuture, auth));
+        service.addSlot(sheet.getID(), col1.getName(), new SlotBean(bookedByUserInPast, auth));
+        service.addSlot(sheet.getID(), col1.getName(), new SlotBean(bookedByOtherUserInPast, auth));
+        service.addSlot(sheet.getID(), col1.getName(), new SlotBean(bookedByOtherUserInNearFuture, auth));
+        service.addSlot(sheet.getID(), col2.getName(), new SlotBean(bookedByUserInNearFuture, auth));
+        service.addSlot(sheet.getID(), col2.getName(), new SlotBean(bookedByUserInNearPast, auth));
+        service.addSlot(sheet.getID(), col2.getName(), new SlotBean(bookedByOtherUserInFuture, auth));
     }
 
     @Test

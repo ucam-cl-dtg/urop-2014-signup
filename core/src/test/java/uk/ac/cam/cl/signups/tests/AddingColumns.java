@@ -43,8 +43,8 @@ public class AddingColumns {
     @Before
     public void setUp() throws DuplicateNameException {
         sheet = Get.sheet();
-        column1 = new Column("test-column", Get.slotList());
-        sameNameAsColumn1 = new Column("test-column", Get.slotList());
+        column1 = Get.column(sheet.getID(), "test-column");
+        sameNameAsColumn1 = Get.column(sheet.getID(), "test-column");
         SheetInfo info1 = service.addSheet(sheet);
         id1 = info1.getSheetID();
         auth1 = info1.getAuthCode();

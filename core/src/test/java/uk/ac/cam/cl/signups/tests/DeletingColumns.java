@@ -39,7 +39,7 @@ public class DeletingColumns {
     @Before
     public void setUp() throws DuplicateNameException {
         sheet = Get.sheet();
-        column = new Column("test-column", Get.slotList());
+        column = Get.column(sheet.getID(), "test-column");
         sheet.addColumn(column);
         SheetInfo info = service.addSheet(sheet); // We assume this function is fine
         id = info.getSheetID();

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import uk.ac.cam.cl.signups.api.Column;
@@ -21,6 +22,7 @@ public class Get {
     
     private static List<String> generated = new ArrayList<String>();
     private static Random random = new Random();
+    private Map<String, List<Slot>> slots;
     
     static {
         generated.add("");
@@ -39,6 +41,15 @@ public class Get {
             ids.add(s.getID());
         }
         return new Column(name, ids);
+    }
+    
+    public static Column column(String sheetID, String columnName) {
+        List<Slot> slots = slotList(sheetID, columnName);
+        List<String> ids = new ArrayList<String>();
+        for (Slot s : slots) {
+            ids.add(s.getID());
+        }
+        return new Column(columnName, ids);
     }
     
     public static Slot slot(String sheetID, String columnName) {

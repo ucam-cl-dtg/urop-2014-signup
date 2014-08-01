@@ -16,6 +16,7 @@ import uk.ac.cam.cl.signups.api.Column;
 import uk.ac.cam.cl.signups.api.Sheet;
 import uk.ac.cam.cl.signups.api.SheetInfo;
 import uk.ac.cam.cl.signups.api.Slot;
+import uk.ac.cam.cl.signups.api.beans.SlotBean;
 import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
@@ -36,14 +37,15 @@ public class DeletingSlots {
     @Before
     public void setUp() throws Exception {
         sheet = Get.sheet();
-        column = Get.column();
+        column = Get.column(sheet.getID());
         
-        slot = new Slot(new Date(), 60000, "test-user", "slot to remove in the test");
-        column.addSlot(slot);
+        slot = new Slot(sheet.getID(), column.getName(),
+                new Date(), 60000, "test-user", "slot to remove in the test");
         sheet.addColumn(column);        
         SheetInfo info = service.addSheet(sheet); // We assume this function is fine
         id = info.getSheetID();
         auth = info.getAuthCode();
+        service.addSlot(sheet.getID(), column.getName(), new SlotBean(slot, auth));
     }
 
     @Test
@@ -90,7 +92,8 @@ public class DeletingSlots {
     @Test
     public void deleteSlot_exception_slotNotFound() {
         try {
-            service.deleteSlot(id, column.getName(), Get.slot().getStartTime(), auth);
+            service.deleteSlot(id, column.getName(),
+                    Get.slot(sheet.getID(), column.getName()).getStartTime(), auth);
             fail("Slot should not be found");
         } catch (ItemNotFoundException e) {
             /* Slot should not be found */

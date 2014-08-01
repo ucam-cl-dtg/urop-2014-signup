@@ -16,7 +16,9 @@ import org.mongojack.JacksonDBCollection;
 
 import com.google.inject.Inject;
 import com.mongodb.BasicDBObject;
+import com.mongodb.MongoException;
 
+import uk.ac.cam.cl.signups.api.Group;
 import uk.ac.cam.cl.signups.api.Slot;
 import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
@@ -24,33 +26,32 @@ import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 /**
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
-public class MongoSlots implements DatabaseCollection<Slot> {
-    
-private JacksonDBCollection<Slot, String> collection;
-    
-    @Inject /* We are not actually injecting using Guice, we do it manually */
-    protected void setCollection(JacksonDBCollection<Slot, String> collection) {
-        this.collection = collection;
-    }
+public class MongoSlots {
 
-    public void insertItem(Slot item) throws DuplicateNameException {
+    private JacksonDBCollection<Slot, String> collection =
+            JacksonDBCollection.wrap(
+                    Mongo.getDB().getCollection("slots")
+                    , Slot.class
+                    , String.class);
+
+    public void insertSlot(Slot slot) throws DuplicateNameException {
         try {
-            collection.insert(item);
+            collection.insert(slot);
         } catch(com.mongodb.MongoException dupKey) {
             System.out.println("Should be duplicate key:");
             dupKey.printStackTrace();
-            throw new DuplicateNameException(item.getID());
+            throw new DuplicateNameException(slot.getID());
         }
     }
 
-    public void updateItem(Slot item) throws ItemNotFoundException {
-        if (!contains(item.getID()))
-            throw new ItemNotFoundException("Slothe item " + item.getID()
-                    + " of type " + item.getClass() + " was not found in the database");
-        collection.updateById(item.getID(), item);
+    public void updateSlot(Slot slot) throws ItemNotFoundException {
+        if (!contains(slot.getID()))
+            throw new ItemNotFoundException("The slot " + slot.getID()
+                    + " was not found in the database");
+        collection.updateById(slot.getID(), slot);
     }
 
-    public List<Slot> listItems() {
+    public List<Slot> listSlots() {
         List<Slot> rtn = new LinkedList<Slot>();
         Iterator<Slot> allItems = collection.find();
         while (allItems.hasNext())
@@ -59,16 +60,15 @@ private JacksonDBCollection<Slot, String> collection;
     }
 
     public boolean contains(String id) {
-        int matchingItems = collection.find(new BasicDBObject("_id", id)).count();
-        assert (matchingItems == 0 || matchingItems == 1);
-        return (matchingItems == 1);
+        Slot matchingItem = collection.findOneById(id);
+        return (matchingItem != null);
     }
 
-    public Slot getItem(String name) throws ItemNotFoundException {
-        if (!contains(name))
-            throw new ItemNotFoundException("Slothe item " + name +
+    public Slot getSlot(String id) throws ItemNotFoundException {
+        if (!contains(id))
+            throw new ItemNotFoundException("The slot " + id +
                     " was not found in the database");
-        return collection.findOneById(name);
+        return collection.findOneById(id);
     }
     
     public Slot getSlot(String sheetID, String columnName, Date startTime) throws ItemNotFoundException {
@@ -89,18 +89,22 @@ private JacksonDBCollection<Slot, String> collection;
         collection.remove(new BasicDBObject());
     }
 
-    public void removeItem(String id) throws ItemNotFoundException {
+    /**
+     * @return ID of the slot that was deleted
+     */
+    public String removeSlot(String id) throws ItemNotFoundException {
         if (!contains(id))
-            throw new ItemNotFoundException("Slothe item " + id +
+            throw new ItemNotFoundException("The item " + id +
                     " was not found in the database");
         collection.removeById(id);
+        return id;
     }
     
     /**
      * @return ID of the slot that was deleted
      */
-    public String removeByTime(Date startTime) {
-        return collection.remove(new BasicDBObject("startTime", startTime)).getSavedId();
+    public String removeByTime(String sheetID, String columnName, Date startTime) throws ItemNotFoundException {
+        return removeSlot(getSlot(sheetID, columnName, startTime).getID());
     }
     
     public List<Slot> listByColumn(String sheetID, String columnName) {

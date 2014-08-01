@@ -134,7 +134,7 @@ public class SignupService implements WebInterface {
         if (!sheet.isAuthCode(bean.getAuthCode())) {
             throw new NotAllowedException("Incorrect authorisation code");
         }
-        slots.insertItem(bean.getSlot());
+        slots.insertSlot(bean.getSlot());
         sheet.getColumn(columnName).addSlot(bean.getSlot().getID());
         sheets.updateItem(sheet);
     }
@@ -145,7 +145,7 @@ public class SignupService implements WebInterface {
         if (!sheet.isAuthCode(authCode)) {
             throw new NotAllowedException("Incorrect authorisation code");
         }
-        String IDofDeletedSlot = slots.removeByTime(startTime);
+        String IDofDeletedSlot = slots.removeByTime(sheetID, columnName, startTime);
         sheet.getColumn(columnName).removeSlot(IDofDeletedSlot);
         sheets.updateItem(sheet);
     }
@@ -208,6 +208,7 @@ public class SignupService implements WebInterface {
                 slot.unbook();
             }
         }
+        slots.updateSlot(slot);
         sheets.updateItem(sheet);
     }
     
@@ -221,6 +222,7 @@ public class SignupService implements WebInterface {
             for (Slot slot : slots.listByColumn(sheetID, col.getName())) {
                 if (slot.isBooked() && slot.getBookedUser().equals(user) && slot.getStartTime().after(new Date())) {
                     slot.unbook();
+                    slots.updateSlot(slot);
                 }
             }
         }

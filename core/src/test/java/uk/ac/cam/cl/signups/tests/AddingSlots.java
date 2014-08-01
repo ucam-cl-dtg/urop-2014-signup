@@ -39,10 +39,11 @@ public class AddingSlots {
     @Before
     public void setUp() throws DuplicateNameException {
         sheet = Get.sheet();
-        column = Get.column();
+        column = Get.column(sheet.getID());
         sheet.addColumn(column);
-        slot = new Slot(new Date(), 60000, "test-user", "this slot has been added in the test");
-        SheetInfo info = service.addSheet(sheet); // We assume this function is fine
+        slot = new Slot(sheet.getID(), column.getName(),
+                new Date(), 60000, "test-user", "this slot has been added in the test");
+        SheetInfo info = service.addSheet(sheet);
         id = info.getSheetID();
         auth = info.getAuthCode();
     }
@@ -129,7 +130,7 @@ public class AddingSlots {
         try {
             /* Add a slot with the same start time again */
             service.addSlot(id, column.getName(),
-                    new SlotBean(new Slot(slot.getStartTime(), 50000L), auth));
+                    new SlotBean(new Slot(id, column.getName(), slot.getStartTime(), 50000L), auth));
             fail("Slot already exists");
         } catch (ItemNotFoundException e) {
             e.printStackTrace();

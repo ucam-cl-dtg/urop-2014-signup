@@ -5,6 +5,9 @@
  */
 package uk.ac.cam.cl.signups.api;
 
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 import org.mongojack.Id;
@@ -32,6 +35,14 @@ public class Slot implements Comparable<Slot>, DatabaseItem {
     @Id
     private String _id;
     
+    private static MessageDigest digester;
+    static {
+        try {
+            digester = MessageDigest.getInstance("SHA");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
     /**
      * Creates a new unbooked slot.
      * @param startTime The time the slot starts
@@ -45,6 +56,7 @@ public class Slot implements Comparable<Slot>, DatabaseItem {
         this.duration = duration;
         this.bookedUser = null;
         this.comment = null;
+        this._id = generateSlotID();
     }
     
     @JsonIgnore
@@ -55,6 +67,7 @@ public class Slot implements Comparable<Slot>, DatabaseItem {
         this.duration = duration;
         this.bookedUser = user;
         this.comment = comment;
+        this._id = generateSlotID();
     }
     
     @JsonCreator
@@ -73,6 +86,7 @@ public class Slot implements Comparable<Slot>, DatabaseItem {
         this.duration = duration;
         this.bookedUser = user;
         this.comment = comment;
+        this._id = _id;
     }
     
     @JsonProperty("sheetID")
@@ -135,12 +149,12 @@ public class Slot implements Comparable<Slot>, DatabaseItem {
         }
     }
 
-    @Id @ObjectId
+    @Id
     public String getID() {
         return _id;
     }
 
-    @Id @ObjectId
+    @Id
     public void setID(String _id) {
         this._id = _id;
     }
@@ -201,6 +215,18 @@ public class Slot implements Comparable<Slot>, DatabaseItem {
         return true;
     }
     
-    
+    @JsonIgnore
+    private String generateSlotID() {
+        digester.reset();
+        digester.update(sheetID.getBytes());
+        digester.update(columnName.getBytes());
+        digester.update(startTime.toString().getBytes());
+        byte[] bytes = digester.digest();
+        StringBuilder out = new StringBuilder();
+        for (byte b : bytes) {
+            out.append(String.format("%02x", b));
+        }
+        return out.toString().substring(12);
+    }
 
 }

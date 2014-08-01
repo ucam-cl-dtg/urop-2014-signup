@@ -27,7 +27,6 @@ public class DatabaseModule extends AbstractModule {
     private static final String SHEETCOLLECTION = "sheets";
     private static final String USERCOLLECTION = "users";
     private static final String GROUPCOLLECTION = "groups";
-    private static final String SLOTCOLLECTION = "slots";
         
     @Override
     protected void configure() {
@@ -67,15 +66,4 @@ public class DatabaseModule extends AbstractModule {
         return toReturn;
     }
     
-    @Provides
-    public DatabaseCollection<Slot> provideSlotCollection() {
-        MongoCollection<Slot> toReturn = new MongoCollection<Slot>();
-        toReturn.setCollection(
-                JacksonDBCollection.wrap(
-                        Mongo.getDB().getCollection(SLOTCOLLECTION)
-                        , Slot.class
-                        , String.class));
-        return toReturn;
-    }
-
 }

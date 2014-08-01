@@ -21,6 +21,8 @@ import uk.ac.cam.cl.signups.Get;
 import uk.ac.cam.cl.signups.ModuleProvider;
 import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.*;
+import uk.ac.cam.cl.signups.api.beans.ColumnBean;
+import uk.ac.cam.cl.signups.api.beans.SlotBean;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.database.DatabaseModule;
 import uk.ac.cam.cl.signups.interfaces.WebInterface;
@@ -36,23 +38,27 @@ public class ListingFreeTimes {
     
     private Sheet sheet;
     private String id;
+    private String auth;
     private Column column;
 
     @Before
     public void setUp() throws Exception {
-        List<Slot> slotList = Get.slotList();
-        Slot slot = Get.slot();
-        slotList.add(slot);
+        sheet = new Sheet("title", Get.name(), "location");
+        column = Get.column(sheet.getID(), "test-column");
+        List<Slot> slotList = Get.slotList(sheet.getID(), column.getName());
+        Slot slot = Get.slot(sheet.getID(), "test-column");
         slotList.add(slot);
         for (int i = 0; i < 100; i++) {
-            slotList.addAll(Get.slotList());
+            slotList.addAll(Get.slotList(sheet.getID(), "test-column"));
         }
-        slotList.addAll(Get.slotList());
-        column = new Column("test-column", slotList);
-        Collection<Column> cols = new LinkedList<Column>();
-        cols.add(column);
-        sheet = new Sheet("title", Get.name(), "location", cols);
-        id = service.addSheet(sheet).getSheetID();
+        sheet = new Sheet("title", Get.name(), "location");
+        SheetInfo info = service.addSheet(sheet);
+        id = info.getSheetID();
+        auth = info.getAuthCode();
+        service.addColumn(sheet.getID(), new ColumnBean(column, auth));
+        for (Slot s : slotList) {
+            service.addSlot(id, column.getName(), new SlotBean(s, auth));
+        }
     }
 
     @Test
@@ -65,7 +71,7 @@ public class ListingFreeTimes {
                 assertFalse("The list should be without repeats",
                         frees.get(i).equals(frees.get(i-1)));
             }
-            for (Slot slot : column.getSlots()) {
+            for (Slot slot : service.listSlots(sheet.getID(), column.getName())) {
                 if (!slot.isBooked()) {
                     assertTrue("All free slots should be listed",
                             frees.contains(slot.getStartTime()));
@@ -91,8 +97,8 @@ public class ListingFreeTimes {
         }
     }
     
-    private boolean thereIsASlotWithStartTime(Date startTime) {
-        for (Slot slot : column.getSlots()) {
+    private boolean thereIsASlotWithStartTime(Date startTime) throws ItemNotFoundException {
+        for (Slot slot : service.listSlots(sheet.getID(), column.getName())) {
             if (slot.getStartTime().equals(startTime)) {
                 return true;
             }
