@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,6 +60,11 @@ public class ListingFreeTimes {
         for (Slot s : slotList) {
             service.addSlot(id, column.getName(), new SlotBean(s, auth));
         }
+    }
+    
+    @After
+    public void tearDown() throws Exception {
+        service.deleteSheet(id, auth);
     }
 
     @Test

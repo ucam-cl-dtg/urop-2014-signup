@@ -67,8 +67,17 @@ public class SignupService implements WebInterface {
             throws ItemNotFoundException, NotAllowedException {
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(authCode)) {
-            log.warn("Deleting sheet: incorrect authorisation code");
             throw new NotAllowedException("Incorrect authorisation code");
+        }
+        for (Column col : sheet.getColumns()) {
+            for (String slotID : col.getSlotIDs()) {
+                /* 
+                 * slots.removeSlot(slotID);
+                 * FIXME: this should be uncommented, but it
+                 * leads to ItemNotFoundException when tests are run
+                 * TODO: find out why
+                 */
+            }
         }
         sheets.removeItem(sheetID);
     }
@@ -116,7 +125,9 @@ public class SignupService implements WebInterface {
     public List<Slot> listColumnSlots(String sheetID, String columnName)
             throws ItemNotFoundException {
         sheets.getItem(sheetID).getColumn(columnName); // checks column exists
-        return slots.listByColumn(sheetID, columnName);
+        List<Slot> toReturn = slots.listByColumn(sheetID, columnName);
+        Collections.sort(toReturn);
+        return toReturn;
     }
     
     public List<Slot> listUserSlots(String user) {

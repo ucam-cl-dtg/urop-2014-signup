@@ -26,8 +26,6 @@ import com.google.inject.Guice;
 
 public class BookingSlots {
     
-    // TODO: test adding and removing permissions
-    
     private WebInterface service =
             Guice.createInjector(ModuleProvider.provide())
             .getInstance(WebInterface.class);
