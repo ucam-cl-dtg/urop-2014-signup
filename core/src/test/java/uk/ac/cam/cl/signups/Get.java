@@ -17,6 +17,8 @@ import uk.ac.cam.cl.signups.api.Slot;
 
 /**
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
+ * 
+ * Provides randomly generated objects for use in testing.
  */
 public class Get {
     

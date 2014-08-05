@@ -25,6 +25,8 @@ import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 
 /**
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
+ * 
+ * Used for storing and accessing Slots in the database.
  */
 public class MongoSlots {
 

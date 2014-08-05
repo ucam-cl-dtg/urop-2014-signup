@@ -151,7 +151,7 @@ public interface WebInterface {
      * at the given time
      */
     @GET
-    @Path("/TODO222/{sheetID}/{startTime}")
+    @Path("/TODO/{sheetID}/{startTime}")
     @Produces("application/json")
     public List<String> listColumnsWithFreeSlotsAt(@PathParam("sheetID") String SheetID, @PathParam("startTime") Date startTime)
             throws ItemNotFoundException;

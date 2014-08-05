@@ -11,6 +11,9 @@ import com.google.inject.AbstractModule;
 
 /**
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
+ * 
+ * Can easily specify whether to run tests using mongo collections
+ * (DatabaseModule) or hash map collections (TestDatabaseModule).
  */
 public class ModuleProvider {
     
