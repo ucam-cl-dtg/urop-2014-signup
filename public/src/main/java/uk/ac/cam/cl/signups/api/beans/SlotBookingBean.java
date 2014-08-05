@@ -50,6 +50,8 @@ public class SlotBookingBean {
         this.authCode = authCode;
     }
     
+    public SlotBookingBean() {}
+    
     public String getCurrentlyBookedUser() {
         return currentlyBookedUser;
     }
@@ -69,5 +71,23 @@ public class SlotBookingBean {
     public boolean authCodeProvided() {
         return authCode != null;
     }
+
+    public void setCurrentlyBookedUser(String currentlyBookedUser) {
+        this.currentlyBookedUser = currentlyBookedUser;
+    }
+
+    public void setUserToBook(String userToBook) {
+        this.userToBook = userToBook;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public void setAuthCode(String authCode) {
+        this.authCode = authCode;
+    }
+    
+    
 
 }

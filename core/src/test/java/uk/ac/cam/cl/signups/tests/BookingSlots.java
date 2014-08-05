@@ -48,7 +48,7 @@ public class BookingSlots {
     @Before
     public void setUp() throws Exception {
         group = new Group("test-group");
-        gauth = service.addGroup(group).getAuthCode();
+        gauth = service.addGroup(group);
         sheet = Get.sheet();
         column = Get.column(sheet.getID());
         otherColumn = Get.column(sheet.getID());
@@ -98,11 +98,11 @@ public class BookingSlots {
             service.addPermissions("test-group", "abc123", specificColumnPermBean); // allow user permission to make booking
             System.out.println("Testing booking a slot");
             System.out.println("Slots before:");
-            System.out.println(service.listSlots(id, column.getName()));
+            System.out.println(service.listColumnSlots(id, column.getName()));
             service.book(id, column.getName(), emptySlot.getStartTime(),
                     new SlotBookingBean(null, "abc123", "tick789"));
             System.out.println("Slots after (empty slot should be booked by abc123 for tick789):");
-            System.out.println(service.listSlots(id, column.getName()));
+            System.out.println(service.listColumnSlots(id, column.getName()));
             System.out.println();
             assertEquals("The user should have booked the slot",
                     "abc123", service.showBooking(id, column.getName(), emptySlot.getStartTime()).getUser());
@@ -286,12 +286,12 @@ public class BookingSlots {
         try {
             System.out.println("Testing admin slot booking");
             System.out.println("Slots before: ");
-            System.out.println(service.listSlots(id, column.getName()));
+            System.out.println(service.listColumnSlots(id, column.getName()));
             service.book(id, column.getName(), emptySlot.getStartTime(),
                     new SlotBookingBean(null, "user who wants to book empty slot",
                             "tick they want to do", sauth));
             System.out.println("Slots after (empty slot should now be booked): ");
-            System.out.println(service.listSlots(id, column.getName()));
+            System.out.println(service.listColumnSlots(id, column.getName()));
             System.out.println();
             assertEquals("The user should have been booked the to slot",
                     "user who wants to book empty slot",
@@ -313,11 +313,11 @@ public class BookingSlots {
         try {
             System.out.println("Testing admin slot overwriting");
             System.out.println("Slots before: ");
-            System.out.println(service.listSlots(id, column.getName()));
+            System.out.println(service.listColumnSlots(id, column.getName()));
             service.book(id, column.getName(), bookedSlot.getStartTime(),
                     new SlotBookingBean(null, "user who wants to book full slot", "tick they want to do", sauth));
             System.out.println("Slots after (slot booked by ird28 slot should now be rebooked): ");
-            System.out.println(service.listSlots(id, column.getName()));
+            System.out.println(service.listColumnSlots(id, column.getName()));
             System.out.println();
             assertEquals("The user should have been booked the to slot",
                     "user who wants to book full slot",

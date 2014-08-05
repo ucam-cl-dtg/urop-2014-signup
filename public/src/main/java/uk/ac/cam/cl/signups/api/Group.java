@@ -27,7 +27,7 @@ import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
  */
 public class Group implements DatabaseItem {
     
-    @JsonProperty("_id")  
+    @JsonProperty("_id")
     private String _id;
     private String groupAuthCode;
     
@@ -35,6 +35,9 @@ public class Group implements DatabaseItem {
     public Group(String _id) {
         this._id = _id;
         this.groupAuthCode = generateAuthCode();
+    }
+    
+    public Group() {
     }
     
     @JsonCreator
@@ -47,7 +50,12 @@ public class Group implements DatabaseItem {
     }
     
     @JsonProperty("groupAuthCode")
-    protected String getGroupAuthCode() {
+    public void setGroupAuthCode(String groupAuthCode) {
+        this.groupAuthCode = groupAuthCode;
+    }
+    
+    @JsonProperty("groupAuthCode")
+    public String getGroupAuthCode() {
         return groupAuthCode;
     }
     

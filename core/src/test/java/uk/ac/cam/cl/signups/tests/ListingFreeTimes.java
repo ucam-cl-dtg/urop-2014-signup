@@ -71,7 +71,7 @@ public class ListingFreeTimes {
                 assertFalse("The list should be without repeats",
                         frees.get(i).equals(frees.get(i-1)));
             }
-            for (Slot slot : service.listSlots(sheet.getID(), column.getName())) {
+            for (Slot slot : service.listColumnSlots(sheet.getID(), column.getName())) {
                 if (!slot.isBooked()) {
                     assertTrue("All free slots should be listed",
                             frees.contains(slot.getStartTime()));
@@ -98,7 +98,7 @@ public class ListingFreeTimes {
     }
     
     private boolean thereIsASlotWithStartTime(Date startTime) throws ItemNotFoundException {
-        for (Slot slot : service.listSlots(sheet.getID(), column.getName())) {
+        for (Slot slot : service.listColumnSlots(sheet.getID(), column.getName())) {
             if (slot.getStartTime().equals(startTime)) {
                 return true;
             }

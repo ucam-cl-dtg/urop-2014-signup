@@ -15,6 +15,8 @@ public class PermissionsBean {
     Map<String, String> commentColumnMap;
     String groupAuthCode;
     
+    public PermissionsBean() {}
+    
     public PermissionsBean(Map<String, String> commentColumnMap,
             String groupAuthCode) {
         this.commentColumnMap = commentColumnMap;
@@ -28,5 +30,15 @@ public class PermissionsBean {
     public String getGroupAuthCode() {
         return groupAuthCode;
     }
+
+    public void setCommentColumnMap(Map<String, String> commentColumnMap) {
+        this.commentColumnMap = commentColumnMap;
+    }
+
+    public void setGroupAuthCode(String groupAuthCode) {
+        this.groupAuthCode = groupAuthCode;
+    }
+    
+    
 
 }

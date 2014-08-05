@@ -50,8 +50,8 @@ public class AddingGroups {
     @Test
     public void addGroup_success() {
         try {
-            auth1 = service.addGroup(g1).getAuthCode();
-            auth2 = service.addGroup(g2).getAuthCode();
+            auth1 = service.addGroup(g1);
+            auth2 = service.addGroup(g2);
             assertTrue("Database should contain both groups",
                     service.listGroups().contains(g1));
             assertTrue("Database should contain both groups",
@@ -65,13 +65,13 @@ public class AddingGroups {
     @Test
     public void addGroup_exception_alreadyExists() {
         try {
-            auth1 = service.addGroup(g1).getAuthCode();
+            auth1 = service.addGroup(g1);
         } catch (DuplicateNameException e) {
             e.printStackTrace();
             fail("Group should not already exist");
         }
         try {
-            auth1 = service.addGroup(g1).getAuthCode();
+            auth1 = service.addGroup(g1);
             fail("Group already exists");
         } catch (DuplicateNameException e) {
             /* Group already exists */

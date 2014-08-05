@@ -47,8 +47,8 @@ public class GroupingSheets {
 
     @Before
     public void setUp() throws DuplicateNameException {
-        gAuthCode1 = service.addGroup(group1).getAuthCode();
-        gAuthCode2 = service.addGroup(group2).getAuthCode();
+        gAuthCode1 = service.addGroup(group1);
+        gAuthCode2 = service.addGroup(group2);
         sheet1 = Get.sheet();
         sheet2 = Get.sheet();
         sAuthCode1 = service.addSheet(sheet1).getAuthCode();

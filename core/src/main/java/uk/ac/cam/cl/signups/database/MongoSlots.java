@@ -117,5 +117,13 @@ public class MongoSlots {
             rtn.add(allItems.next());
         return rtn;
     }
+    
+    public List<Slot> listByUser(String user) {
+        List<Slot> rtn = new LinkedList<Slot>();
+        Iterator<Slot> allItems = collection.find(new BasicDBObject("bookedUser", user));
+        while (allItems.hasNext())
+            rtn.add(allItems.next());
+        return rtn;
+    }
 
 }

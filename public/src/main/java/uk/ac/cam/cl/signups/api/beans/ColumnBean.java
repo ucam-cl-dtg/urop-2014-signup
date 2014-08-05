@@ -21,6 +21,9 @@ public class ColumnBean {
         this.authCode = authCode;
     }
 
+    public ColumnBean() {
+    }
+
     public Column getColumn() {
         return column;
     }
@@ -28,5 +31,15 @@ public class ColumnBean {
     public String getAuthCode() {
         return authCode;
     }
+
+    public void setColumn(Column column) {
+        this.column = column;
+    }
+
+    public void setAuthCode(String authCode) {
+        this.authCode = authCode;
+    }
+    
+    
 
 }

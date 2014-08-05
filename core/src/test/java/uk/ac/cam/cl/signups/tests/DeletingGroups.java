@@ -28,8 +28,8 @@ public class DeletingGroups {
 
     @Before
     public void setUp() throws Exception {
-        auth1 = service.addGroup(g1).getAuthCode();
-        auth2 = service.addGroup(g2).getAuthCode();
+        auth1 = service.addGroup(g1);
+        auth2 = service.addGroup(g2);
     }
     
     @After

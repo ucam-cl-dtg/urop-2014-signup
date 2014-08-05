@@ -4,6 +4,7 @@
 **/bin/
 .*.swp
 **/doc/
+**/logs/
 **/META-INF
 **/WEB-INF/classes
 **/WEB-INF/lib

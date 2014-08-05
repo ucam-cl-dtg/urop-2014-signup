@@ -23,6 +23,8 @@ import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
  */
 @Path("/")
 public interface WebInterface {
+    
+    // TODO: redo all paths
         
     /**
      * @param sheet The sheet to be added to the database
@@ -89,6 +91,13 @@ public interface WebInterface {
             ColumnBean bean /* contains Column to add and sheet authCode */)
                     throws ItemNotFoundException, NotAllowedException, DuplicateNameException;
     
+    //TODO: javadoc
+    @POST
+    @Path("/sheets/{sheetID}")
+    @Consumes("application/json")
+    public void createColumn(@PathParam("sheetID") String sheetID, CreateColumnBean bean)
+            throws ItemNotFoundException, NotAllowedException, DuplicateNameException;
+    
     /**
      * Updates the database so that the specified sheet no longer contains
      * the specified column. Also deletes all slots, booked or unbooked, contained
@@ -117,24 +126,34 @@ public interface WebInterface {
     @GET
     @Path("/sheets/{sheetID}/{columnName}")
     @Produces("application/json")
-    public List<Slot> listSlots(@PathParam("sheetID") String sheetID,
+    public List<Slot> listColumnSlots(@PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName) throws ItemNotFoundException;
+    
+    // TODO: javadoc
+    @GET
+    @Path("/users/{user}")
+    @Produces("application/json")
+    public List<Slot> listUserSlots(@PathParam("user") String user);
     
     /**
      * @param sheetID
      * @return If a slot is free, its start time appears in this list.
      * @throws ItemNotFoundException 
      */
-    // TODO: path etc.
-    public List<Date> listAllFreeStartTimes(String sheetID) throws ItemNotFoundException;
+    @GET
+    @Path("/TODO/{sheetID}")
+    @Produces("application/json")
+    public List<Date> listAllFreeStartTimes(@PathParam("sheetID") String sheetID) throws ItemNotFoundException;
     
     /**
      * @param startTime
      * @return A list of the names of the columns with a free slot that starts
      * at the given time
      */
-    //TODO: path etc.
-    public List<String> listColumnsWithFreeSlotsAt(String SheetID, Date startTime)
+    @GET
+    @Path("/TODO222/{sheetID}/{startTime}")
+    @Produces("application/json")
+    public List<String> listColumnsWithFreeSlotsAt(@PathParam("sheetID") String SheetID, @PathParam("startTime") Date startTime)
             throws ItemNotFoundException;
     
     /**
@@ -234,22 +253,25 @@ public interface WebInterface {
      * @throws NotAllowedException
      * @throws ItemNotFoundException
      */
-    public void removeAllUserBookings(String sheetID, String user, String authCode)
+    @DELETE
+    @Path("/sheets/{sheetID}/{user}")
+    @Consumes("text/plain")
+    public void removeAllUserBookings(@PathParam("sheetID") String sheetID,
+            @PathParam("user") String user, String authCode)
             throws NotAllowedException, ItemNotFoundException;
     
     /**
      * Adds the given group object to the database.
      * @param group
-     * @return A GroupInfo object which currently only contains the admin
-     * authorisation code for the group.
+     * @return The admin authorisation code for the group.
      * @throws DuplicateNameException A group with that name already exists
      * in the database
      */
     @POST
     @Path("/groups")
     @Consumes("application/json")
-    @Produces("application/json")
-    public GroupInfo addGroup(Group group) throws DuplicateNameException;
+    @Produces("text/plain")
+    public String addGroup(Group group) throws DuplicateNameException;
     
     /**
      * @return A list of all group objects currently stored in the database

@@ -9,6 +9,7 @@ import javax.ws.rs.core.Application;
 
 import uk.ac.cam.cl.dtg.teaching.exceptions.RemoteFailureHandler;
 import uk.ac.cam.cl.dtg.teaching.exceptions.ExceptionHandler;
+import uk.ac.cam.cl.signups.interfaces.WebInterface;
 
 /**
  * This class registers the resteasy handlers. The name is important since it is

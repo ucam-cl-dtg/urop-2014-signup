@@ -53,10 +53,10 @@ public class DeletingSlots {
         try {
             System.out.println("Testing deleting a slot from a column");
             System.out.println("Slots before:");
-            System.out.println(service.listSlots(id, column.getName()));
+            System.out.println(service.listColumnSlots(id, column.getName()));
             service.deleteSlot(id, column.getName(), slot.getStartTime(), auth);
             System.out.println("Slots after (should now not contain test-user booked slot):");
-            System.out.println(service.listSlots(id, column.getName()));
+            System.out.println(service.listColumnSlots(id, column.getName()));
             System.out.println();
         } catch (ItemNotFoundException e) {
             fail("The sheet and column should be found");

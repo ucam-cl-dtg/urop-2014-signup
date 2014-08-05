@@ -14,6 +14,8 @@ public class GroupSheetBean {
     String groupAuthCode;
     String sheetAuthCode;
     
+    public GroupSheetBean() {}
+    
     public GroupSheetBean(String sheetID, String groupAuthCode,
             String sheetAuthCode) {
         this.sheetID = sheetID;
@@ -28,6 +30,18 @@ public class GroupSheetBean {
     }
     public String getSheetAuthCode() {
         return sheetAuthCode;
+    }
+
+    public void setSheetID(String sheetID) {
+        this.sheetID = sheetID;
+    }
+
+    public void setGroupAuthCode(String groupAuthCode) {
+        this.groupAuthCode = groupAuthCode;
+    }
+
+    public void setSheetAuthCode(String sheetAuthCode) {
+        this.sheetAuthCode = sheetAuthCode;
     }
     
     

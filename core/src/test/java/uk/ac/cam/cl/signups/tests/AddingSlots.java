@@ -53,13 +53,13 @@ public class AddingSlots {
         try {
             System.out.println("Testing adding a slot to a column");
             System.out.println("Slots before:");
-            System.out.println(service.listSlots(id, column.getName()));
+            System.out.println(service.listColumnSlots(id, column.getName()));
             service.addSlot(id, column.getName(), new SlotBean(slot, auth));
             System.out.println("Slots after (should now contain test-user booked slot):");
-            System.out.println(service.listSlots(id, column.getName()));
+            System.out.println(service.listColumnSlots(id, column.getName()));
             System.out.println();
             assertTrue("Column should now contain slot",
-                    service.listSlots(id, column.getName()).contains(slot));
+                    service.listColumnSlots(id, column.getName()).contains(slot));
         } catch (ItemNotFoundException e) {
             fail("The sheet and column should be found");
         } catch (NotAllowedException e) {
@@ -106,7 +106,7 @@ public class AddingSlots {
             /* Add a slot */
             service.addSlot(id, column.getName(), new SlotBean(slot, auth));
             assertTrue("Column should now contain slot",
-                    service.listSlots(id, column.getName()).contains(slot));
+                    service.listColumnSlots(id, column.getName()).contains(slot));
         } catch (ItemNotFoundException e) {
             fail("The sheet and column should be found");
         } catch (NotAllowedException e) {

@@ -87,7 +87,16 @@
 			<version>3.0.1</version>
 			<scope>provided</scope>
 		</dependency>
-
+    	<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-guice</artifactId>
+			<version>${my.resteasy.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-multipart-provider</artifactId>
+			<version>${my.resteasy.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

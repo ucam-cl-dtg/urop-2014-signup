@@ -8,6 +8,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 
@@ -22,6 +25,9 @@ import uk.ac.cam.cl.signups.database.MongoSlots;
 import uk.ac.cam.cl.signups.interfaces.WebInterface;
 
 public class SignupService implements WebInterface {
+    
+    /* For logging */
+    private static final Logger log = LoggerFactory.getLogger(SignupService.class);
     
     private DatabaseCollection<Sheet> sheets;
     private DatabaseCollection<User> users;
@@ -48,6 +54,7 @@ public class SignupService implements WebInterface {
     }
 
     public SheetInfo addSheet(Sheet sheet) throws DuplicateNameException {
+        log.info("Adding sheet to database");
         sheets.insertItem(sheet);
         return new SheetInfo(sheet);
     }
@@ -60,6 +67,7 @@ public class SignupService implements WebInterface {
             throws ItemNotFoundException, NotAllowedException {
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(authCode)) {
+            log.warn("Deleting sheet: incorrect authorisation code");
             throw new NotAllowedException("Incorrect authorisation code");
         }
         sheets.removeItem(sheetID);
@@ -74,33 +82,53 @@ public class SignupService implements WebInterface {
             throws ItemNotFoundException, NotAllowedException, DuplicateNameException {
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(bean.getAuthCode())) {
+            log.warn("Adding column: incorrect authorisation code");
             throw new NotAllowedException("Incorrect authorisation code");
         }
         sheet.addColumn(bean.getColumn());
         sheets.updateItem(sheet);
+    }
+    
+    public void createColumn(String sheetID, CreateColumnBean bean)
+            throws ItemNotFoundException, NotAllowedException, DuplicateNameException {
+        Column column = new Column(bean.getColumnName(), new LinkedList<String>());
+        addColumn(sheetID, new ColumnBean(column, bean.getAuthCode()));
+        for (long slotStart = bean.getStartTime().getTime();
+                slotStart < bean.getEndTime().getTime();
+                slotStart += bean.getSlotLength()) {
+            addSlot(sheetID, bean.getColumnName(),
+                    new SlotBean(new Slot(sheetID, bean.getColumnName(),
+                            new Date(slotStart), bean.getSlotLength()), bean.getAuthCode()));
+        }
     }
 
     public void deleteColumn(String sheetID, String columnName, String authCode)
             throws NotAllowedException, ItemNotFoundException {
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(authCode)) {
+            log.warn("Deleting column: incorrect authorisation code");
             throw new NotAllowedException("Incorrect authorisation code");
         }
         sheet.removeColumn(columnName);
         sheets.updateItem(sheet);
     }
 
-    public List<Slot> listSlots(String sheetID, String columnName)
+    public List<Slot> listColumnSlots(String sheetID, String columnName)
             throws ItemNotFoundException {
         sheets.getItem(sheetID).getColumn(columnName); // checks column exists
         return slots.listByColumn(sheetID, columnName);
     }
     
+    public List<Slot> listUserSlots(String user) {
+        return slots.listByUser(user);
+    }
+    
     public List<Date> listAllFreeStartTimes(String sheetID) throws ItemNotFoundException {
-        List<Date> toReturn = new ArrayList<Date>();
+        log.info("Starting listing free start times.");
+        List<Date> toReturn = new LinkedList<Date>();
         Sheet sheet = sheets.getItem(sheetID);
         for (Column col : sheet.getColumns()) {
-            for (Slot slot : listSlots(sheetID, col.getName())) {
+            for (Slot slot : listColumnSlots(sheetID, col.getName())) {
                 if (!slot.isBooked() && !toReturn.contains(slot.getStartTime())) {
                     toReturn.add(slot.getStartTime());
                 }
@@ -115,8 +143,9 @@ public class SignupService implements WebInterface {
         Sheet sheet = sheets.getItem(sheetID);
         List<String> toReturn = new ArrayList<String>();
         for (Column col : sheet.getColumns()) {
-            for (Slot slot : listSlots(sheetID, col.getName())) {
+            for (Slot slot : listColumnSlots(sheetID, col.getName())) {
                 if (!slot.isBooked() && slot.getStartTime().equals(startTime)) {
+                    log.info("adding col!");
                     toReturn.add(col.getName());
                     break;
                 }
@@ -132,6 +161,7 @@ public class SignupService implements WebInterface {
             throws ItemNotFoundException, NotAllowedException, DuplicateNameException {
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(bean.getAuthCode())) {
+            log.warn("Adding slot: incorrect authorisation code");
             throw new NotAllowedException("Incorrect authorisation code");
         }
         slots.insertSlot(bean.getSlot());
@@ -229,9 +259,9 @@ public class SignupService implements WebInterface {
         sheets.updateItem(sheet);
     }
 
-    public GroupInfo addGroup(Group group) throws DuplicateNameException {
+    public String addGroup(Group group) throws DuplicateNameException {
         groups.insertItem(group);
-        return new GroupInfo(group);
+        return group.getGroupAuthCode();
     }
 
     public List<Group> listGroups() {
@@ -279,9 +309,10 @@ public class SignupService implements WebInterface {
             try {
                 users.insertItem(userObj);
             } catch (DuplicateNameException dne) {
-                System.err.println("This should never happen - the reason we're adding"
-                        + "the user to the database is that they weren't found in it!");
-                e.printStackTrace();
+                log.error("This should never happen - the reason we're adding"
+                        + "the user to the database is that they weren't found in it!", e);
+                log.info("This should never happen - the reason we're adding"
+                        + "the user to the database is that they weren't found in it!", e);
             }
         }
     }

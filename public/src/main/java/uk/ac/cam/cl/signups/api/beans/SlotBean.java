@@ -16,6 +16,8 @@ public class SlotBean {
     private Slot slot;
     private String authCode;
     
+    public SlotBean() {}
+    
     public SlotBean(Slot slot, String authCode) {
         this.slot = slot;
         this.authCode = authCode;
@@ -28,5 +30,15 @@ public class SlotBean {
     public String getAuthCode() {
         return authCode;
     }
+
+    public void setSlot(Slot slot) {
+        this.slot = slot;
+    }
+
+    public void setAuthCode(String authCode) {
+        this.authCode = authCode;
+    }
+    
+    
 
 }
