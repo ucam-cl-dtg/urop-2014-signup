@@ -62,7 +62,7 @@ public class BookingSlots {
         SheetInfo info = service.addSheet(sheet);
         id = info.getSheetID();
         sauth = info.getAuthCode();
-        service.addSheet("test-group", new GroupSheetBean(id, gauth, sauth));
+        service.addSheetToGroup("test-group", new GroupSheetBean(id, gauth, sauth));
         
         service.addSlot(sheet.getID(), column.getName(), new SlotBean(emptySlot, sauth));
         service.addSlot(sheet.getID(), column.getName(), new SlotBean(bookedSlot, sauth));

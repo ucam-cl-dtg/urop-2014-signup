@@ -64,11 +64,11 @@ public class GroupingSheets {
     @Test
     public void addSheet_success() {
         try {
-            service.addSheet("test-group-1",
+            service.addSheetToGroup("test-group-1",
                     new GroupSheetBean(sheet1.getID(), gAuthCode1, sAuthCode1));
-            service.addSheet("test-group-1",
+            service.addSheetToGroup("test-group-1",
                     new GroupSheetBean(sheet2.getID(), gAuthCode1, sAuthCode2));
-            service.addSheet("test-group-2",
+            service.addSheetToGroup("test-group-2",
                     new GroupSheetBean(sheet1.getID(), gAuthCode2, sAuthCode1));
             assertTrue(service.listSheets("test-group-1").contains(sheet1));
             assertTrue(service.listSheets("test-group-1").contains(sheet2));
@@ -88,7 +88,7 @@ public class GroupingSheets {
     @Test
     public void addSheet_exception_sheetNotFound() {
         try {
-            service.addSheet("test-group-1",
+            service.addSheetToGroup("test-group-1",
                     new GroupSheetBean("sheet not found", gAuthCode1, sAuthCode1));
             fail("Sheet should not be found");
         } catch (ItemNotFoundException e) {
@@ -102,7 +102,7 @@ public class GroupingSheets {
     @Test
     public void addSheet_exception_groupNotFound() {
         try {
-            service.addSheet("no such group",
+            service.addSheetToGroup("no such group",
                     new GroupSheetBean(sheet1.getID(), gAuthCode1, sAuthCode1));
             fail("Group should not be found");
         } catch (ItemNotFoundException e) {
@@ -116,7 +116,7 @@ public class GroupingSheets {
     @Test
     public void addSheet_exception_wrongSheetAuthCode() {
         try {
-            service.addSheet("test-group-1",
+            service.addSheetToGroup("test-group-1",
                     new GroupSheetBean(sheet1.getID(), gAuthCode1, "wrong code"));
             fail("The sheet auth code is wrong");
         } catch (ItemNotFoundException e) {
@@ -130,7 +130,7 @@ public class GroupingSheets {
     @Test
     public void addSheet_exception_wrongGroupAuthCode() {
         try {
-            service.addSheet("test-group-1",
+            service.addSheetToGroup("test-group-1",
                     new GroupSheetBean(sheet1.getID(), "wrong code", sAuthCode1));
             fail("The group auth code is wrong");
         } catch (ItemNotFoundException e) {
@@ -147,11 +147,11 @@ public class GroupingSheets {
     public void removeSheet_success() {
         try {
             /* add sheets to be removed - assumed to work - tested elsewhere */
-            service.addSheet("test-group-1",
+            service.addSheetToGroup("test-group-1",
                     new GroupSheetBean(sheet1.getID(), gAuthCode1, sAuthCode1));
-            service.addSheet("test-group-1",
+            service.addSheetToGroup("test-group-1",
                     new GroupSheetBean(sheet2.getID(), gAuthCode1, sAuthCode2));
-            service.addSheet("test-group-2",
+            service.addSheetToGroup("test-group-2",
                     new GroupSheetBean(sheet1.getID(), gAuthCode2, sAuthCode1));
             /* alternately remove sheets and check they have been removed */
             service.removeSheetFromGroup("test-group-1", sheet1.getID(), gAuthCode1);
@@ -199,7 +199,7 @@ public class GroupingSheets {
     @Test
     public void removeSheet_exception_wrongGroupAuthCode() {
         try { /* add a sheet to remove */
-            service.addSheet("test-group-1",
+            service.addSheetToGroup("test-group-1",
                     new GroupSheetBean(sheet1.getID(), gAuthCode1, sAuthCode1));
         } catch (ItemNotFoundException e) {
             e.printStackTrace();

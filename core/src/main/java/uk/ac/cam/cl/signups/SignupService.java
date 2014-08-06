@@ -8,12 +8,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 
+import uk.ac.cam.cl.dtg.teaching.exceptions.RemoteFailureHandler;
 import uk.ac.cam.cl.signups.api.*;
 import uk.ac.cam.cl.signups.api.beans.*;
 import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
@@ -130,14 +134,19 @@ public class SignupService implements WebInterface {
         return slots.listByUser(user);
     }
     
-    public List<Date> listAllFreeStartTimes(String sheetID) throws ItemNotFoundException {
-        log.info("Starting listing free start times.");
+    public List<Date> listAllFreeStartTimes(String user, String comment, String groupID, String sheetID) throws ItemNotFoundException {
         List<Date> toReturn = new LinkedList<Date>();
         Sheet sheet = sheets.getItem(sheetID);
+        if (!getPermissions(groupID, user).containsKey(comment)) {
+            return toReturn;
+        }
+        String allowedColumn = getPermissions(groupID, user).get(comment);
         for (Column col : sheet.getColumns()) {
-            for (Slot slot : listColumnSlots(sheetID, col.getName())) {
-                if (!slot.isBooked() && !toReturn.contains(slot.getStartTime())) {
-                    toReturn.add(slot.getStartTime());
+            if (allowedColumn == null || col.equals(allowedColumn)) {
+                for (Slot slot : listColumnSlots(sheetID, col.getName())) {
+                    if (!slot.isBooked() && !toReturn.contains(slot.getStartTime())) {
+                        toReturn.add(slot.getStartTime());
+                    }
                 }
             }
         }
@@ -337,7 +346,7 @@ public class SignupService implements WebInterface {
         users.updateItem(userObj);
     }
 
-    public void addSheet(String groupID, GroupSheetBean bean)
+    public void addSheetToGroup(String groupID, GroupSheetBean bean)
             throws ItemNotFoundException, NotAllowedException {
         Group group = groups.getItem(groupID);
         if (!group.isGroupAuthCode(bean.getGroupAuthCode())) {
@@ -349,6 +358,14 @@ public class SignupService implements WebInterface {
         }
         sheet.addGroup(group);
         sheets.updateItem(sheet);
+    }
+    
+    public List<String> getGroupIDs(String sheetID) throws ItemNotFoundException {
+        List<String> toReturn = new LinkedList<String>();
+        for (Group g : sheets.getItem(sheetID).getGroups()) {
+            toReturn.add(g.getID());
+        }
+        return toReturn;
     }
 
     public List<Sheet> listSheets(String groupID) throws ItemNotFoundException {
@@ -397,6 +414,32 @@ public class SignupService implements WebInterface {
             }
         }
         return false;
+    }
+    
+    public static void main(String[] args) throws Exception {
+        try {
+            ResteasyClient client = new ResteasyClientBuilder().build();
+            ResteasyWebTarget target = client.target("http://urop2014.dtg.cl.cam.ac.uk/UROP_SIGNUPS/rest/");
+            WebInterface service = target.proxy(WebInterface.class);
+            Sheet sheet = new Sheet("Example sheet 1", "eg", "right here right now");
+            Sheet sheet2 = new Sheet("Example sheet 2", "eggggg", "intel lab");
+            SheetInfo info1 = service.addSheet(sheet);
+            String id1 = info1.getSheetID();
+            String sauth1 = info1.getAuthCode();
+            SheetInfo info2 = service.addSheet(sheet2);
+            String id2 = info2.getSheetID();
+            String sauth2 = info2.getAuthCode();
+            String groupID = "53e2578ce4b03ff2afde9d17";
+            String gauth = service.addGroup(new Group(groupID));
+            service.addSheetToGroup(groupID, new GroupSheetBean(id1, gauth, sauth1));
+            service.addSheetToGroup(groupID, new GroupSheetBean(id2, gauth, sauth2));
+            System.out.println("done");
+        } catch (javax.ws.rs.InternalServerErrorException e) {
+            RemoteFailureHandler h = new RemoteFailureHandler();
+            Object o = h.readException(e);
+            System.out.println(o);
+            throw e;
+        }
     }
 
 }

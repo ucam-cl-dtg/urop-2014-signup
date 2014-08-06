@@ -22,6 +22,7 @@ import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
  *
  */
 @Path("/")
+@Consumes("application/json")
 public interface WebInterface {
     
     // TODO: redo all paths
@@ -143,7 +144,7 @@ public interface WebInterface {
     @GET
     @Path("/TODO/{sheetID}")
     @Produces("application/json")
-    public List<Date> listAllFreeStartTimes(@PathParam("sheetID") String sheetID) throws ItemNotFoundException;
+    public List<Date> listAllFreeStartTimes(String user, String comment, String groupID, @PathParam("sheetID") String sheetID) throws ItemNotFoundException;
     
     /**
      * @param startTime
@@ -364,9 +365,15 @@ public interface WebInterface {
     @POST
     @Path("/groups/{groupName}/sheets")
     @Consumes("application/json")
-    public void addSheet(@PathParam("groupName") String groupName,
+    public void addSheetToGroup(@PathParam("groupName") String groupName,
             GroupSheetBean bean /* contains group and sheet authCodes and sheetID*/)
                     throws ItemNotFoundException, NotAllowedException;
+    
+    
+    @GET
+    @Path("/todooooo/{sheetID}") //TODO
+    @Produces("application/json")
+    public List<String> getGroupIDs(@PathParam("sheetID") String sheetID) throws ItemNotFoundException;
     
     /**
      * @param groupName

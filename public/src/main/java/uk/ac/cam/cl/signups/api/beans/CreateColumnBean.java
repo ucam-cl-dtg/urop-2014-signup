@@ -7,6 +7,8 @@ package uk.ac.cam.cl.signups.api.beans;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.*;
+
 /**
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
@@ -18,12 +20,13 @@ public class CreateColumnBean {
     private Date endTime;
     private int slotLength;
     
+    @JsonCreator
     public CreateColumnBean(
-            String columnName,
-            String authCode,
-            Date startTime,
-            Date endTime,
-            int slotLength) {
+            @JsonProperty("columnName") String columnName,
+            @JsonProperty("authCode")   String authCode,
+            @JsonProperty("startTime")  Date startTime,
+            @JsonProperty("endTime")    Date endTime,
+            @JsonProperty("slotLength") int slotLength) {
         this.columnName = columnName;
         this.authCode = authCode;
         this.startTime = startTime;

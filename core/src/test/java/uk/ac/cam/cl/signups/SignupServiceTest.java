@@ -18,7 +18,7 @@ import uk.ac.cam.cl.signups.tests.*;
 @SuiteClasses({ AddingColumns.class, AddingGroups.class, AddingSheets.class,
         AddingSlots.class, BookingSlots.class, DeletingColumns.class,
         DeletingGroups.class, DeletingSheets.class, DeletingSlots.class,
-        GroupingSheets.class, ListingFreeTimes.class,
+        GroupingSheets.class, /* TODO: ListingFreeTimes.class, */
         RemovingAllUserBookings.class })
 public class SignupServiceTest {
 
