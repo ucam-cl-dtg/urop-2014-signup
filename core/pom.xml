@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>uk.ac.cam.cl.signups</groupId>
 	<artifactId>core</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<name>UROP_SIGNUPS</name>
 
@@ -64,7 +64,7 @@
 		<dependency>
 			<groupId>uk.ac.cam.cl.signups</groupId>
 			<artifactId>public</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>uk.ac.cam.cl.dtg.web</groupId>
