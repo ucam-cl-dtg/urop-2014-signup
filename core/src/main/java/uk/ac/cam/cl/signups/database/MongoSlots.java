@@ -95,9 +95,10 @@ public class MongoSlots {
      * @return ID of the slot that was deleted
      */
     public String removeSlot(String id) throws ItemNotFoundException {
-        if (!contains(id))
-            throw new ItemNotFoundException("The item " + id +
+        if (!contains(id)) {
+            throw new ItemNotFoundException("The slot with id " + id +
                     " was not found in the database");
+        }
         collection.removeById(id);
         return id;
     }

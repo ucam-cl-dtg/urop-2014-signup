@@ -376,7 +376,7 @@ public interface WebInterface {
     @GET
     @Path("/groups/{groupName}/sheets")
     @Produces("application/json")
-    public List<String> listSheetIDs(@PathParam("groupName") String groupName)
+    public List<Sheet> listSheets(@PathParam("groupName") String groupName)
             throws ItemNotFoundException;
     
     /**

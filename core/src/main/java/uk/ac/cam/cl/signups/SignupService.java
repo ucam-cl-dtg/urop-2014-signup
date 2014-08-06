@@ -54,7 +54,6 @@ public class SignupService implements WebInterface {
     }
 
     public SheetInfo addSheet(Sheet sheet) throws DuplicateNameException {
-        log.info("Adding sheet to database");
         sheets.insertItem(sheet);
         return new SheetInfo(sheet);
     }
@@ -71,12 +70,9 @@ public class SignupService implements WebInterface {
         }
         for (Column col : sheet.getColumns()) {
             for (String slotID : col.getSlotIDs()) {
-                /* 
-                 * slots.removeSlot(slotID);
-                 * FIXME: this should be uncommented, but it
-                 * leads to ItemNotFoundException when tests are run
-                 * TODO: find out why
-                 */
+
+                slots.removeSlot(slotID);
+
             }
         }
         sheets.removeItem(sheetID);
@@ -355,11 +351,11 @@ public class SignupService implements WebInterface {
         sheets.updateItem(sheet);
     }
 
-    public List<String> listSheetIDs(String groupID) throws ItemNotFoundException {
-        List<String> toReturn = (List<String>) new LinkedList<String>();
+    public List<Sheet> listSheets(String groupID) throws ItemNotFoundException {
+        List<Sheet> toReturn = (List<Sheet>) new LinkedList<Sheet>();
         for (Sheet sheet : listSheets()) {
             if (sheet.isPartOfGroup(groupID)) {
-                toReturn.add(sheet.getID());
+                toReturn.add(sheet);
             }
         }
         return toReturn;

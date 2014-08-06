@@ -24,13 +24,31 @@ public class Get {
     
     private static List<String> generated = new ArrayList<String>();
     private static Random random = new Random();
-    private Map<String, List<Slot>> slots;
+    private static List<Slot> sheetSlots;
     
     static {
         generated.add("");
     }
     
+    public static Sheet sheetWithEmptyCols() {
+        String sid = name();
+        return new Sheet(sid, name(), name(), emptyColumnCollection());
+    }
+    
+    public static Collection<Column> emptyColumnCollection() {
+        LinkedList<Column> out = new LinkedList<Column>();
+        for (int i = 0; i < random.nextInt(6); i++) {
+            out.add(emptyColumn());
+        }
+        return (Collection<Column>) out;
+    }
+
+    public static Column emptyColumn() {
+        return new Column(name(), new ArrayList<String>());
+    }
+
     public static Sheet sheet() {
+        sheetSlots = new ArrayList<Slot>();
         String sid = name();
         return new Sheet(sid, name(), name(), columnCollection(sid));
     }
@@ -75,6 +93,10 @@ public class Get {
             out.add(slot(sheetID, columnName));
         }
         return out;
+    }
+    
+    public static List<Slot> getSheetSlots() {
+        return sheetSlots;
     }
 
     public static String name() {

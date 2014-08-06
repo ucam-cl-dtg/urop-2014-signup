@@ -233,16 +233,7 @@ public class Sheet implements DatabaseItem {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result
-                + ((authCode == null) ? 0 : authCode.hashCode());
-        result = prime * result + ((columns == null) ? 0 : columns.hashCode());
-        result = prime * result
-                + ((description == null) ? 0 : description.hashCode());
-        result = prime * result + ((groups == null) ? 0 : groups.hashCode());
-        result = prime * result
-                + ((location == null) ? 0 : location.hashCode());
         result = prime * result + ((sheetID == null) ? 0 : sheetID.hashCode());
-        result = prime * result + ((title == null) ? 0 : title.hashCode());
         return result;
     }
 
@@ -255,44 +246,15 @@ public class Sheet implements DatabaseItem {
         if (getClass() != obj.getClass())
             return false;
         Sheet other = (Sheet) obj;
-        if (authCode == null) {
-            if (other.authCode != null)
-                return false;
-        } else if (!authCode.equals(other.authCode))
-            return false;
-        if (columns == null) {
-            if (other.columns != null)
-                return false;
-        } else if (!columns.equals(other.columns))
-            return false;
-        if (description == null) {
-            if (other.description != null)
-                return false;
-        } else if (!description.equals(other.description))
-            return false;
-        if (groups == null) {
-            if (other.groups != null)
-                return false;
-        } else if (!groups.equals(other.groups))
-            return false;
-        if (location == null) {
-            if (other.location != null)
-                return false;
-        } else if (!location.equals(other.location))
-            return false;
         if (sheetID == null) {
             if (other.sheetID != null)
                 return false;
         } else if (!sheetID.equals(other.sheetID))
             return false;
-        if (title == null) {
-            if (other.title != null)
-                return false;
-        } else if (!title.equals(other.title))
-            return false;
         return true;
     }
-    
+
+     
     
      
 }

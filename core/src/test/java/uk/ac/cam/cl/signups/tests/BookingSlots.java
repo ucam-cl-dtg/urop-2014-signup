@@ -47,9 +47,9 @@ public class BookingSlots {
     public void setUp() throws Exception {
         group = new Group("test-group");
         gauth = service.addGroup(group);
-        sheet = Get.sheet();
-        column = Get.column(sheet.getID());
-        otherColumn = Get.column(sheet.getID());
+        sheet = Get.sheetWithEmptyCols();
+        column = Get.emptyColumn();
+        otherColumn = Get.emptyColumn();
         emptySlot = new Slot(sheet.getID(), column.getName(),
                 new Date(1806302413000L), 60000L);
         bookedSlot = new Slot(sheet.getID(), column.getName(),

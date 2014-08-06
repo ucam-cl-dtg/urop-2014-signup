@@ -70,12 +70,12 @@ public class GroupingSheets {
                     new GroupSheetBean(sheet2.getID(), gAuthCode1, sAuthCode2));
             service.addSheet("test-group-2",
                     new GroupSheetBean(sheet1.getID(), gAuthCode2, sAuthCode1));
-            assertTrue(service.listSheetIDs("test-group-1").contains(sheet1.getID()));
-            assertTrue(service.listSheetIDs("test-group-1").contains(sheet2.getID()));
-            assertTrue(service.listSheetIDs("test-group-2").contains(sheet1.getID()));
-            assertFalse(service.listSheetIDs("test-group-2").contains(sheet2.getID()));
+            assertTrue(service.listSheets("test-group-1").contains(sheet1));
+            assertTrue(service.listSheets("test-group-1").contains(sheet2));
+            assertTrue(service.listSheets("test-group-2").contains(sheet1));
+            assertFalse(service.listSheets("test-group-2").contains(sheet2));
             service.removeSheetFromGroup("test-group-1", sheet1.getID(), gAuthCode1);
-            assertFalse(service.listSheetIDs("test-group-1").contains(sheet1.getID()));
+            assertFalse(service.listSheets("test-group-1").contains(sheet1));
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
             fail("The groups and sheets should all be found");
@@ -155,11 +155,11 @@ public class GroupingSheets {
                     new GroupSheetBean(sheet1.getID(), gAuthCode2, sAuthCode1));
             /* alternately remove sheets and check they have been removed */
             service.removeSheetFromGroup("test-group-1", sheet1.getID(), gAuthCode1);
-            assertFalse(service.listSheetIDs("test-group-1").contains(sheet1.getID()));
+            assertFalse(service.listSheets("test-group-1").contains(sheet1.getID()));
             service.removeSheetFromGroup("test-group-1", sheet2.getID(), gAuthCode1);
-            assertFalse(service.listSheetIDs("test-group-1").contains(sheet2.getID()));
+            assertFalse(service.listSheets("test-group-1").contains(sheet2.getID()));
             service.removeSheetFromGroup("test-group-2", sheet1.getID(), gAuthCode2);
-            assertFalse(service.listSheetIDs("test-group-2").contains(sheet2.getID()));
+            assertFalse(service.listSheets("test-group-2").contains(sheet2.getID()));
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
             fail("The groups and sheets should all be found");

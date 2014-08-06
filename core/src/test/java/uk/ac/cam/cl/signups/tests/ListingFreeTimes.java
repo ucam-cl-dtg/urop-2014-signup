@@ -45,7 +45,7 @@ public class ListingFreeTimes {
     @Before
     public void setUp() throws Exception {
         sheet = new Sheet("title", Get.name(), "location");
-        column = Get.column(sheet.getID(), "test-column");
+        column = Get.emptyColumn();
         List<Slot> slotList = Get.slotList(sheet.getID(), column.getName());
         Slot slot = Get.slot(sheet.getID(), "test-column");
         slotList.add(slot);

@@ -173,14 +173,15 @@ public class Slot implements Comparable<Slot>, DatabaseItem {
                 + " Status: " + status;
     }
 
+    
+    
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result
-                + ((bookedUser == null) ? 0 : bookedUser.hashCode());
-        result = prime * result + ((comment == null) ? 0 : comment.hashCode());
-        result = prime * result + (int) (duration ^ (duration >>> 32));
+                + ((columnName == null) ? 0 : columnName.hashCode());
+        result = prime * result + ((sheetID == null) ? 0 : sheetID.hashCode());
         result = prime * result
                 + ((startTime == null) ? 0 : startTime.hashCode());
         return result;
@@ -195,17 +196,15 @@ public class Slot implements Comparable<Slot>, DatabaseItem {
         if (getClass() != obj.getClass())
             return false;
         Slot other = (Slot) obj;
-        if (bookedUser == null) {
-            if (other.bookedUser != null)
+        if (columnName == null) {
+            if (other.columnName != null)
                 return false;
-        } else if (!bookedUser.equals(other.bookedUser))
+        } else if (!columnName.equals(other.columnName))
             return false;
-        if (comment == null) {
-            if (other.comment != null)
+        if (sheetID == null) {
+            if (other.sheetID != null)
                 return false;
-        } else if (!comment.equals(other.comment))
-            return false;
-        if (duration != other.duration)
+        } else if (!sheetID.equals(other.sheetID))
             return false;
         if (startTime == null) {
             if (other.startTime != null)
@@ -214,7 +213,7 @@ public class Slot implements Comparable<Slot>, DatabaseItem {
             return false;
         return true;
     }
-    
+
     @JsonIgnore
     private String generateSlotID() {
         digester.reset();
