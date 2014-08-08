@@ -145,7 +145,7 @@ public class SignupService implements SignupsWebInterface {
         }
         String allowedColumn = getPermissions(groupID, user).get(comment);
         for (Column col : sheet.getColumns()) {
-            if (allowedColumn == null || col.equals(allowedColumn)) {
+            if (allowedColumn == null || col.getName().equals(allowedColumn)) {
                 for (Slot slot : listColumnSlots(sheetID, col.getName())) {
                     if (!slot.isBooked() && !toReturn.contains(slot.getStartTime())) {
                         toReturn.add(slot.getStartTime());
