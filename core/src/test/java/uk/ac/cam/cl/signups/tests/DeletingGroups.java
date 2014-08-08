@@ -11,15 +11,15 @@ import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.Group;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
-import uk.ac.cam.cl.signups.interfaces.WebInterface;
+import uk.ac.cam.cl.signups.interfaces.SignupsWebInterface;
 
 import com.google.inject.Guice;
 
 public class DeletingGroups {
     
-    private WebInterface service =
+    private SignupsWebInterface service =
             Guice.createInjector(ModuleProvider.provide())
-            .getInstance(WebInterface.class);
+            .getInstance(SignupsWebInterface.class);
     
     private Group g1 = new Group("one");
     private String auth1;

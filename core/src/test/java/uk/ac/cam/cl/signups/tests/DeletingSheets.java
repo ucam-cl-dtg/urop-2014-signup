@@ -25,7 +25,7 @@ import uk.ac.cam.cl.signups.api.beans.ColumnBean;
 import uk.ac.cam.cl.signups.api.beans.SlotBean;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
-import uk.ac.cam.cl.signups.interfaces.WebInterface;
+import uk.ac.cam.cl.signups.interfaces.SignupsWebInterface;
 
 import com.google.inject.Guice;
 
@@ -34,9 +34,9 @@ import com.google.inject.Guice;
  */
 public class DeletingSheets {
     
-    private WebInterface service =
+    private SignupsWebInterface service =
             Guice.createInjector(ModuleProvider.provide())
-            .getInstance(WebInterface.class);
+            .getInstance(SignupsWebInterface.class);
     
     private Sheet sheet1;
     private Sheet sheet2;

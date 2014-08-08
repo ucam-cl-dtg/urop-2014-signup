@@ -9,7 +9,8 @@ import javax.ws.rs.core.Application;
 
 import uk.ac.cam.cl.dtg.teaching.exceptions.RemoteFailureHandler;
 import uk.ac.cam.cl.dtg.teaching.exceptions.ExceptionHandler;
-import uk.ac.cam.cl.signups.interfaces.WebInterface;
+import uk.ac.cam.cl.signups.api.APIOverviewResource;
+import uk.ac.cam.cl.signups.interfaces.SignupsWebInterface;
 
 /**
  * This class registers the resteasy handlers. The name is important since it is
@@ -26,6 +27,7 @@ public class ApplicationRegister extends Application {
         result.add(SignupService.class);
         result.add(RemoteFailureHandler.class);
         result.add(ExceptionHandler.class);
+        result.add(APIOverviewResource.class);
         return result;
     }
 

@@ -20,16 +20,16 @@ import uk.ac.cam.cl.signups.api.*;
 import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
-import uk.ac.cam.cl.signups.interfaces.WebInterface;
+import uk.ac.cam.cl.signups.interfaces.SignupsWebInterface;
 
 /**
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
 public class DeletingColumns {
     
-    private WebInterface service =
+    private SignupsWebInterface service =
             Guice.createInjector(ModuleProvider.provide())
-            .getInstance(WebInterface.class);
+            .getInstance(SignupsWebInterface.class);
     
     private Sheet sheet;
     private Column column;
@@ -39,7 +39,7 @@ public class DeletingColumns {
     @Before
     public void setUp() throws DuplicateNameException {
         sheet = Get.sheet();
-        column = Get.column(sheet.getID(), "test-column");
+        column = Get.column(sheet.get_id(), "test-column");
         sheet.addColumn(column);
         SheetInfo info = service.addSheet(sheet); // We assume this function is fine
         id = info.getSheetID();

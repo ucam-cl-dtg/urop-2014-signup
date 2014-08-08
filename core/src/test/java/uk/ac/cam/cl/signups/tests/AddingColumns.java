@@ -23,16 +23,16 @@ import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
 import uk.ac.cam.cl.signups.database.DatabaseModule;
-import uk.ac.cam.cl.signups.interfaces.WebInterface;
+import uk.ac.cam.cl.signups.interfaces.SignupsWebInterface;
 
 /**
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
 public class AddingColumns {
     
-    private WebInterface service =
+    private SignupsWebInterface service =
             Guice.createInjector(ModuleProvider.provide())
-            .getInstance(WebInterface.class);
+            .getInstance(SignupsWebInterface.class);
     
     private Sheet sheet;
     private Column column1;
@@ -43,8 +43,8 @@ public class AddingColumns {
     @Before
     public void setUp() throws DuplicateNameException {
         sheet = Get.sheet();
-        column1 = Get.column(sheet.getID(), "test-column");
-        sameNameAsColumn1 = Get.column(sheet.getID(), "test-column");
+        column1 = Get.column(sheet.get_id(), "test-column");
+        sameNameAsColumn1 = Get.column(sheet.get_id(), "test-column");
         SheetInfo info1 = service.addSheet(sheet);
         id1 = info1.getSheetID();
         auth1 = info1.getAuthCode();

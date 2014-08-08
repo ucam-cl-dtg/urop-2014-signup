@@ -14,6 +14,6 @@ import org.mongojack.Id;
 public interface DatabaseItem {
     
     @Id
-    public String getID();
+    public String get_id();
 
 }

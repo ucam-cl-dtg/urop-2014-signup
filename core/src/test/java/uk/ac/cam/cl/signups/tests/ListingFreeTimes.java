@@ -29,7 +29,7 @@ import uk.ac.cam.cl.signups.api.beans.PermissionsBean;
 import uk.ac.cam.cl.signups.api.beans.SlotBean;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.database.DatabaseModule;
-import uk.ac.cam.cl.signups.interfaces.WebInterface;
+import uk.ac.cam.cl.signups.interfaces.SignupsWebInterface;
 
 /**
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
@@ -38,9 +38,9 @@ public class ListingFreeTimes {
     
     /* TODO: lots more testing of new functionality (only appropriate times shown) */
     
-    private WebInterface service =
+    private SignupsWebInterface service =
             Guice.createInjector(ModuleProvider.provide())
-            .getInstance(WebInterface.class);
+            .getInstance(SignupsWebInterface.class);
     
     private Sheet sheet;
     private String id;
@@ -54,17 +54,17 @@ public class ListingFreeTimes {
     public void setUp() throws Exception {
         sheet = new Sheet("title", Get.name(), "location");
         column = Get.emptyColumn();
-        List<Slot> slotList = Get.slotList(sheet.getID(), column.getName());
-        Slot slot = Get.slot(sheet.getID(), "test-column");
+        List<Slot> slotList = Get.slotList(sheet.get_id(), column.getName());
+        Slot slot = Get.slot(sheet.get_id(), "test-column");
         slotList.add(slot);
         for (int i = 0; i < 100; i++) {
-            slotList.addAll(Get.slotList(sheet.getID(), "test-column"));
+            slotList.addAll(Get.slotList(sheet.get_id(), "test-column"));
         }
         sheet = new Sheet("title", Get.name(), "location");
         SheetInfo info = service.addSheet(sheet);
         id = info.getSheetID();
         sauth = info.getAuthCode();
-        service.addColumn(sheet.getID(), new ColumnBean(column, sauth));
+        service.addColumn(sheet.get_id(), new ColumnBean(column, sauth));
         for (Slot s : slotList) {
             service.addSlot(id, column.getName(), new SlotBean(s, sauth));
         }
@@ -94,7 +94,7 @@ public class ListingFreeTimes {
                 assertFalse("The list should be without repeats",
                         frees.get(i).equals(frees.get(i-1)));
             }
-            for (Slot slot : service.listColumnSlots(sheet.getID(), column.getName())) {
+            for (Slot slot : service.listColumnSlots(sheet.get_id(), column.getName())) {
                 if (!slot.isBooked()) {
                     assertTrue("All free slots should be listed",
                             frees.contains(slot.getStartTime()));
@@ -121,7 +121,7 @@ public class ListingFreeTimes {
     }
     
     private boolean thereIsASlotWithStartTime(Date startTime) throws ItemNotFoundException {
-        for (Slot slot : service.listColumnSlots(sheet.getID(), column.getName())) {
+        for (Slot slot : service.listColumnSlots(sheet.get_id(), column.getName())) {
             if (slot.getStartTime().equals(startTime)) {
                 return true;
             }

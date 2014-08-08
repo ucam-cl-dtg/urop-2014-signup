@@ -29,15 +29,15 @@ public class MongoCollection<T extends DatabaseItem> implements DatabaseCollecti
         } catch(com.mongodb.MongoException dupKey) {
             System.out.println("Should be duplicate key:");
             dupKey.printStackTrace();
-            throw new DuplicateNameException(item.getID());
+            throw new DuplicateNameException(item.get_id());
         }
     }
 
     public void updateItem(T item) throws ItemNotFoundException {
-        if (!contains(item.getID()))
-            throw new ItemNotFoundException("The item " + item.getID()
+        if (!contains(item.get_id()))
+            throw new ItemNotFoundException("The item " + item.get_id()
                     + " of type " + item.getClass() + " was not found in the database");
-        collection.updateById(item.getID(), item);
+        collection.updateById(item.get_id(), item);
     }
 
     public List<T> listItems() {

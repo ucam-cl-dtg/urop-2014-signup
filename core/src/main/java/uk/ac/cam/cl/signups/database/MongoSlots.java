@@ -42,15 +42,15 @@ public class MongoSlots {
         } catch(com.mongodb.MongoException dupKey) {
             System.out.println("Should be duplicate key:");
             dupKey.printStackTrace();
-            throw new DuplicateNameException(slot.getID());
+            throw new DuplicateNameException(slot.get_id());
         }
     }
 
     public void updateSlot(Slot slot) throws ItemNotFoundException {
-        if (!contains(slot.getID()))
-            throw new ItemNotFoundException("The slot " + slot.getID()
+        if (!contains(slot.get_id()))
+            throw new ItemNotFoundException("The slot " + slot.get_id()
                     + " was not found in the database");
-        collection.updateById(slot.getID(), slot);
+        collection.updateById(slot.get_id(), slot);
     }
 
     public List<Slot> listSlots() {
@@ -107,7 +107,7 @@ public class MongoSlots {
      * @return ID of the slot that was deleted
      */
     public String removeByTime(String sheetID, String columnName, Date startTime) throws ItemNotFoundException {
-        return removeSlot(getSlot(sheetID, columnName, startTime).getID());
+        return removeSlot(getSlot(sheetID, columnName, startTime).get_id());
     }
     
     public List<Slot> listByColumn(String sheetID, String columnName) {

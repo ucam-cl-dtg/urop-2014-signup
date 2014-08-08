@@ -56,12 +56,12 @@ public class User implements DatabaseItem {
     }
 
     @Id
-    public String getID() {
+    public String get_id() {
         return name;
     }
     
     @Id
-    public void setID(String name) {
+    public void set_id(String name) {
         this.name = name;
     }
 

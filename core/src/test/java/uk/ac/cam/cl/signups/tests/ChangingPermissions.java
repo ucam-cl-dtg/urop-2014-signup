@@ -28,7 +28,7 @@ import uk.ac.cam.cl.signups.api.beans.SlotBean;
 import uk.ac.cam.cl.signups.api.beans.SlotBookingBean;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
-import uk.ac.cam.cl.signups.interfaces.WebInterface;
+import uk.ac.cam.cl.signups.interfaces.SignupsWebInterface;
 
 import com.google.inject.Guice;
 
@@ -37,9 +37,9 @@ import com.google.inject.Guice;
  */
 public class ChangingPermissions {
     
-    private WebInterface service =
+    private SignupsWebInterface service =
             Guice.createInjector(ModuleProvider.provide())
-            .getInstance(WebInterface.class);
+            .getInstance(SignupsWebInterface.class);
     
     private Group group;
     private Sheet sheet;
@@ -60,13 +60,13 @@ public class ChangingPermissions {
         group = new Group("test-group");
         gauth = service.addGroup(group);
         sheet = Get.sheet();
-        column = Get.column(sheet.getID());
-        otherColumn = Get.column(sheet.getID());
-        emptySlot = new Slot(sheet.getID(), column.getName(),
+        column = Get.column(sheet.get_id());
+        otherColumn = Get.column(sheet.get_id());
+        emptySlot = new Slot(sheet.get_id(), column.getName(),
                 new Date(1806302413000L), 60000L);
-        emptySlot2 = new Slot(sheet.getID(), column.getName(),
+        emptySlot2 = new Slot(sheet.get_id(), column.getName(),
                 new Date(1806308413000L), 60000L);
-        bookedSlot = new Slot(sheet.getID(), column.getName(),
+        bookedSlot = new Slot(sheet.get_id(), column.getName(),
                 new Date(2806302413000L), 789000L, "ird28", "tick6");
         
         sheet.addColumn(column);
@@ -76,18 +76,18 @@ public class ChangingPermissions {
         sauth = info.getAuthCode();
         service.addSheetToGroup("test-group", new GroupSheetBean(id, gauth, sauth));
         
-        service.addSlot(sheet.getID(), column.getName(), new SlotBean(emptySlot, sauth));
-        service.addSlot(sheet.getID(), column.getName(), new SlotBean(emptySlot2, sauth));
-        service.addSlot(sheet.getID(), column.getName(), new SlotBean(bookedSlot, sauth));
+        service.addSlot(sheet.get_id(), column.getName(), new SlotBean(emptySlot, sauth));
+        service.addSlot(sheet.get_id(), column.getName(), new SlotBean(emptySlot2, sauth));
+        service.addSlot(sheet.get_id(), column.getName(), new SlotBean(bookedSlot, sauth));
         
-        service.addSlot(sheet.getID(), otherColumn.getName(),
-                new SlotBean(new Slot(sheet.getID(), otherColumn.getName(),
+        service.addSlot(sheet.get_id(), otherColumn.getName(),
+                new SlotBean(new Slot(sheet.get_id(), otherColumn.getName(),
                         new Date(1806302413000L), 60000), sauth)); // emptySlot
-        service.addSlot(sheet.getID(), otherColumn.getName(),
-                new SlotBean(new Slot(sheet.getID(), otherColumn.getName(),
+        service.addSlot(sheet.get_id(), otherColumn.getName(),
+                new SlotBean(new Slot(sheet.get_id(), otherColumn.getName(),
                         new Date(1806308413000L), 60000), sauth)); // emptySlot2
-        service.addSlot(sheet.getID(), otherColumn.getName(),
-                new SlotBean(new Slot(sheet.getID(), otherColumn.getName(), // bookedSlot
+        service.addSlot(sheet.get_id(), otherColumn.getName(),
+                new SlotBean(new Slot(sheet.get_id(), otherColumn.getName(), // bookedSlot
                         new Date(2806302413000L), 789000, "ird28", "tick6"), sauth));
         
         
@@ -120,7 +120,7 @@ public class ChangingPermissions {
             fail("Everything should be found");
         }
         try {
-            service.book(id, column.getName(), emptySlot.getStartTime(),
+            service.book(id, column.getName(), emptySlot.getStartTime().getTime(),
                     new SlotBookingBean(null, "ird28", "tick789"));
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
@@ -139,7 +139,7 @@ public class ChangingPermissions {
             fail("Everything should be found");
         }
         try {
-            service.book(id, column.getName(), emptySlot2.getStartTime(),
+            service.book(id, column.getName(), emptySlot2.getStartTime().getTime(),
                     new SlotBookingBean(null, "ird28", "tick789"));
             fail("Permission should be denied");
         } catch (ItemNotFoundException e) {
@@ -162,9 +162,9 @@ public class ChangingPermissions {
             fail("Everything should be found");
         }
         try {
-            service.book(id, column.getName(), emptySlot.getStartTime(),
+            service.book(id, column.getName(), emptySlot.getStartTime().getTime(),
                     new SlotBookingBean(null, "ird28", "tick789"));
-            service.book(id, otherColumn.getName(), emptySlot.getStartTime(),
+            service.book(id, otherColumn.getName(), emptySlot.getStartTime().getTime(),
                     new SlotBookingBean(null, "ird28", "tick789"));
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
@@ -183,9 +183,9 @@ public class ChangingPermissions {
             fail("Everything should be found");
         }
         try {
-            service.book(id, column.getName(), emptySlot2.getStartTime(),
+            service.book(id, column.getName(), emptySlot2.getStartTime().getTime(),
                     new SlotBookingBean(null, "ird28", "tick789"));
-            service.book(id, otherColumn.getName(), emptySlot2.getStartTime(),
+            service.book(id, otherColumn.getName(), emptySlot2.getStartTime().getTime(),
                     new SlotBookingBean(null, "ird28", "tick789"));
             fail("Permission should be denied");
         } catch (ItemNotFoundException e) {
@@ -208,7 +208,7 @@ public class ChangingPermissions {
             fail("Everything should be found");
         }
         try {
-            service.book(id, column.getName(), emptySlot.getStartTime(),
+            service.book(id, column.getName(), emptySlot.getStartTime().getTime(),
                     new SlotBookingBean(null, "ird28", "tick789"));
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
@@ -218,7 +218,7 @@ public class ChangingPermissions {
             fail("Permission for the booking should have been granted");
         }
         try {
-            service.book(id, otherColumn.getName(), emptySlot.getStartTime(),
+            service.book(id, otherColumn.getName(), emptySlot.getStartTime().getTime(),
                     new SlotBookingBean(null, "ird28", "tick789"));
             fail("Permission should not be granted for this column");
         } catch (ItemNotFoundException e) {
@@ -237,7 +237,7 @@ public class ChangingPermissions {
             fail("Everything should be found");
         }
         try {
-            service.book(id, otherColumn.getName(), emptySlot.getStartTime(),
+            service.book(id, otherColumn.getName(), emptySlot.getStartTime().getTime(),
                     new SlotBookingBean(null, "ird28", "tick789"));
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
@@ -247,7 +247,7 @@ public class ChangingPermissions {
             fail("Permission for the booking should have been granted");
         }
         try {
-            service.book(id, column.getName(), emptySlot.getStartTime(),
+            service.book(id, column.getName(), emptySlot.getStartTime().getTime(),
                     new SlotBookingBean(null, "ird28", "tick789"));
             fail("Permission should not be granted for this column");
         } catch (ItemNotFoundException e) {

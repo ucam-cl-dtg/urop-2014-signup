@@ -13,7 +13,7 @@ import uk.ac.cam.cl.signups.api.Group;
 import uk.ac.cam.cl.signups.api.Sheet;
 import uk.ac.cam.cl.signups.api.Slot;
 import uk.ac.cam.cl.signups.database.Mongo;
-import uk.ac.cam.cl.signups.interfaces.WebInterface;
+import uk.ac.cam.cl.signups.interfaces.SignupsWebInterface;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -30,7 +30,7 @@ public class DatabaseModule extends AbstractModule {
         
     @Override
     protected void configure() {
-        bind(WebInterface.class).to(SignupService.class);
+        bind(SignupsWebInterface.class).to(SignupService.class);
     }
     
     @Provides

@@ -20,13 +20,13 @@ import uk.ac.cam.cl.signups.api.beans.SlotBean;
 import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
-import uk.ac.cam.cl.signups.interfaces.WebInterface;
+import uk.ac.cam.cl.signups.interfaces.SignupsWebInterface;
 
 public class DeletingSlots {
     
-    private WebInterface service =
+    private SignupsWebInterface service =
             Guice.createInjector(ModuleProvider.provide())
-            .getInstance(WebInterface.class);
+            .getInstance(SignupsWebInterface.class);
     
     private Sheet sheet;
     private Column column;
@@ -37,15 +37,15 @@ public class DeletingSlots {
     @Before
     public void setUp() throws Exception {
         sheet = Get.sheet();
-        column = Get.column(sheet.getID());
+        column = Get.column(sheet.get_id());
         
-        slot = new Slot(sheet.getID(), column.getName(),
+        slot = new Slot(sheet.get_id(), column.getName(),
                 new Date(), 60000, "test-user", "slot to remove in the test");
         sheet.addColumn(column);        
         SheetInfo info = service.addSheet(sheet); // We assume this function is fine
         id = info.getSheetID();
         auth = info.getAuthCode();
-        service.addSlot(sheet.getID(), column.getName(), new SlotBean(slot, auth));
+        service.addSlot(sheet.get_id(), column.getName(), new SlotBean(slot, auth));
     }
 
     @Test
@@ -54,7 +54,7 @@ public class DeletingSlots {
             System.out.println("Testing deleting a slot from a column");
             System.out.println("Slots before:");
             System.out.println(service.listColumnSlots(id, column.getName()));
-            service.deleteSlot(id, column.getName(), slot.getStartTime(), auth);
+            service.deleteSlot(id, column.getName(), slot.getStartTime().getTime(), auth);
             System.out.println("Slots after (should now not contain test-user booked slot):");
             System.out.println(service.listColumnSlots(id, column.getName()));
             System.out.println();
@@ -68,7 +68,7 @@ public class DeletingSlots {
     @Test
     public void deleteSlot_exception_sheetNotFound() {
         try {
-            service.deleteSlot("non existent sheet", column.getName(), slot.getStartTime(), auth);
+            service.deleteSlot("non existent sheet", column.getName(), slot.getStartTime().getTime(), auth);
             fail("Sheet should not be found");
         } catch (ItemNotFoundException e) {
             /* Sheet should not be found */
@@ -80,7 +80,7 @@ public class DeletingSlots {
     @Test
     public void deleteSlot_exception_columnNotFound() {
         try {
-            service.deleteSlot(id, "non existent column", slot.getStartTime(), auth);
+            service.deleteSlot(id, "non existent column", slot.getStartTime().getTime(), auth);
             fail("Column should not be found");
         } catch (ItemNotFoundException e) {
             /* Column should not be found */
@@ -93,7 +93,7 @@ public class DeletingSlots {
     public void deleteSlot_exception_slotNotFound() {
         try {
             service.deleteSlot(id, column.getName(),
-                    Get.slot(sheet.getID(), column.getName()).getStartTime(), auth);
+                    Get.slot(sheet.get_id(), column.getName()).getStartTime().getTime(), auth);
             fail("Slot should not be found");
         } catch (ItemNotFoundException e) {
             /* Slot should not be found */
@@ -105,7 +105,7 @@ public class DeletingSlots {
     @Test
     public void deleteSlot_exception_wrongAuthCode() {
         try {
-            service.deleteSlot(id, column.getName(), slot.getStartTime(), "incorrect auth code");
+            service.deleteSlot(id, column.getName(), slot.getStartTime().getTime(), "incorrect auth code");
             fail("The authCode should be incorrect");
         } catch (ItemNotFoundException e) {
             fail("The authCode should be incorrect");

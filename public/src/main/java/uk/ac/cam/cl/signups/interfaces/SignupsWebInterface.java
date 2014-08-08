@@ -23,7 +23,7 @@ import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
  */
 @Path("/")
 @Consumes("application/json")
-public interface WebInterface {
+public interface SignupsWebInterface {
     
     // TODO: redo all paths
         
@@ -70,7 +70,7 @@ public interface WebInterface {
      * @throws ItemNotFoundException The sheet was not found in the database
      */
     @GET
-    @Path("/sheets/{sheetID}")
+    @Path("/sheets/{sheetID}/")
     @Produces("application/json")
     public List<Column> listColumns(@PathParam("sheetID") String sheetID)
             throws ItemNotFoundException;
@@ -86,15 +86,23 @@ public interface WebInterface {
      * @throws DuplicateNameException 
      */
     @POST
-    @Path("/sheets/{sheetID}")
+    @Path("/sheets/{sheetID}/columns/")
     @Consumes("application/json")
     public void addColumn(@PathParam("sheetID") String sheetID,
             ColumnBean bean /* contains Column to add and sheet authCode */)
                     throws ItemNotFoundException, NotAllowedException, DuplicateNameException;
     
-    //TODO: javadoc
+    /**
+     * Adds a new column to the given sheet, populated with empty slots at regular
+     * intervals between the given times.
+     * @param sheetID
+     * @param bean
+     * @throws ItemNotFoundException
+     * @throws NotAllowedException
+     * @throws DuplicateNameException
+     */
     @POST
-    @Path("/sheets/{sheetID}")
+    @Path("/sheets/{sheetID}/createcolumn/")
     @Consumes("application/json")
     public void createColumn(@PathParam("sheetID") String sheetID, CreateColumnBean bean)
             throws ItemNotFoundException, NotAllowedException, DuplicateNameException;
@@ -110,7 +118,7 @@ public interface WebInterface {
      * @throws ItemNotFoundException The sheet or column specified was not found
      */
     @DELETE
-    @Path("/sheets/{sheetID}/{columnName}")
+    @Path("/sheets/{sheetID}/columns/{columnName}")
     @Consumes("text/plain")
     public void deleteColumn(@PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName,
@@ -125,12 +133,15 @@ public interface WebInterface {
      * @throws ItemNotFoundException The sheet or column was not found
      */
     @GET
-    @Path("/sheets/{sheetID}/{columnName}")
+    @Path("/sheets/{sheetID}/columns/{columnName}")
     @Produces("application/json")
     public List<Slot> listColumnSlots(@PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName) throws ItemNotFoundException;
     
-    // TODO: javadoc
+    /**
+     * @param user
+     * @return A list of all slots booked by the user: past, present and future.
+     */
     @GET
     @Path("/users/{user}")
     @Produces("application/json")
@@ -142,9 +153,13 @@ public interface WebInterface {
      * @throws ItemNotFoundException 
      */
     @GET
-    @Path("/TODO/{sheetID}")
+    @Path("/sheets/{sheetID}/times/{groupID}/{comment}/{user}")
     @Produces("application/json")
-    public List<Date> listAllFreeStartTimes(String user, String comment, String groupID, @PathParam("sheetID") String sheetID) throws ItemNotFoundException;
+    public List<Date> listAllFreeStartTimes(@PathParam("user") String user,
+            @PathParam("comment") String comment,
+            @PathParam("groupID") String groupID,
+            @PathParam("sheetID") String sheetID)
+                    throws ItemNotFoundException;
     
     /**
      * @param startTime
@@ -152,9 +167,9 @@ public interface WebInterface {
      * at the given time
      */
     @GET
-    @Path("/TODO/{sheetID}/{startTime}")
+    @Path("/sheets/{sheetID}/times/{startTime}")
     @Produces("application/json")
-    public List<String> listColumnsWithFreeSlotsAt(@PathParam("sheetID") String SheetID, @PathParam("startTime") Date startTime)
+    public List<String> listColumnsWithFreeSlotsAt(@PathParam("sheetID") String SheetID, @PathParam("startTime") Long startTime)
             throws ItemNotFoundException;
     
     /**
@@ -169,7 +184,7 @@ public interface WebInterface {
      * @throws DuplicateNameException 
      */
     @POST
-    @Path("/sheets/{sheetID}/{columnName}")
+    @Path("/sheets/{sheetID}/columns/{columnName}")
     @Consumes("application/json")
     public void addSlot(@PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName,
@@ -187,12 +202,12 @@ public interface WebInterface {
      * @throws NotAllowedException The admin authorisation code was incorrect
      */
     @DELETE
-    @Path("/sheets/{sheetID}/{columnName}/{time}")
+    @Path("/sheets/{sheetID}/columns/{columnName}/{time}")
     @Consumes("text/plain")
     public void deleteSlot(
             @PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName,
-            @PathParam("time") Date startTime,
+            @PathParam("time") Long startTime,
             String authCode /* in request body */)
                     throws ItemNotFoundException, NotAllowedException;
     
@@ -207,11 +222,11 @@ public interface WebInterface {
      * @throws ItemNotFoundException
      */
     @GET
-    @Path("/sheets/{sheetID}/{columnName}/{time}")
+    @Path("/sheets/{sheetID}/columns/{columnName}/{time}")
     @Produces("application/json")
     public BookingInfo showBooking(@PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName,
-            @PathParam("time") Date startTime)
+            @PathParam("time") Long startTime)
                     throws ItemNotFoundException;
     
     /**
@@ -237,11 +252,11 @@ public interface WebInterface {
      * @throws NotAllowedException
      */
     @POST
-    @Path("/sheets/{sheetID}/{columnName}/{time}")
+    @Path("/sheets/{sheetID}/columns/{columnName}/{time}")
     @Consumes("application/json")
     public void book(@PathParam("sheetID") String sheetID,
             @PathParam("columnName") String columnName,
-            @PathParam("time") Date startTime,
+            @PathParam("time") Long startTime,
             SlotBookingBean bookingBean)
                     throws ItemNotFoundException, NotAllowedException;
     
@@ -255,7 +270,7 @@ public interface WebInterface {
      * @throws ItemNotFoundException
      */
     @DELETE
-    @Path("/sheets/{sheetID}/{user}")
+    @Path("/sheets/{sheetID}/users/{user}")
     @Consumes("text/plain")
     public void removeAllUserBookings(@PathParam("sheetID") String sheetID,
             @PathParam("user") String user, String authCode)
@@ -281,7 +296,7 @@ public interface WebInterface {
     @Path("/groups")
     @Produces("application/json")
     public List<Group> listGroups();
-    
+        
     /**
      * Deletes the given group object from the database. All sheets corresponding to
      * the deleted group remain in the database.
@@ -371,7 +386,7 @@ public interface WebInterface {
     
     
     @GET
-    @Path("/todooooo/{sheetID}") //TODO
+    @Path("/sheets/{sheetID}/groups")
     @Produces("application/json")
     public List<String> getGroupIDs(@PathParam("sheetID") String sheetID) throws ItemNotFoundException;
     

@@ -58,7 +58,7 @@ public class Get {
         List<Slot> slots = slotList(sheetID, name);
         List<String> ids = new ArrayList<String>();
         for (Slot s : slots) {
-            ids.add(s.getID());
+            ids.add(s.get_id());
         }
         return new Column(name, ids);
     }
@@ -67,7 +67,7 @@ public class Get {
         List<Slot> slots = slotList(sheetID, columnName);
         List<String> ids = new ArrayList<String>();
         for (Slot s : slots) {
-            ids.add(s.getID());
+            ids.add(s.get_id());
         }
         return new Column(columnName, ids);
     }

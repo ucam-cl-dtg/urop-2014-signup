@@ -21,7 +21,7 @@ import uk.ac.cam.cl.signups.api.beans.SlotBean;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
 import uk.ac.cam.cl.signups.database.DatabaseModule;
-import uk.ac.cam.cl.signups.interfaces.WebInterface;
+import uk.ac.cam.cl.signups.interfaces.SignupsWebInterface;
 
 import com.google.inject.Guice;
 
@@ -30,35 +30,35 @@ import com.google.inject.Guice;
  */
 public class RemovingAllUserBookings {
     
-    private WebInterface service =
+    private SignupsWebInterface service =
             Guice.createInjector(ModuleProvider.provide())
-            .getInstance(WebInterface.class);
+            .getInstance(SignupsWebInterface.class);
     
     private Sheet sheet = Get.sheet();
-    private Column col1 = Get.column(sheet.getID());
-    private Column col2 = Get.column(sheet.getID());
+    private Column col1 = Get.column(sheet.get_id());
+    private Column col2 = Get.column(sheet.get_id());
     
     private Slot bookedByUserInFuture =
-            new Slot(sheet.getID(), col1.getName(),
+            new Slot(sheet.get_id(), col1.getName(),
                     new Date(40000000000000L), 100000L, "user", "comment");
     private Slot bookedByUserInNearFuture =
-            new Slot(sheet.getID(), col2.getName(),
+            new Slot(sheet.get_id(), col2.getName(),
                     new Date(new Date().getTime()+10000L), 10000000L, "user", "comment");
     private Slot bookedByUserInNearPast =
-            new Slot(sheet.getID(), col2.getName(),
+            new Slot(sheet.get_id(), col2.getName(),
                     new Date(new Date().getTime()-10000L), 10000000L, "user", "comment");
     private Slot bookedByUserInPast =
-            new Slot(sheet.getID(), col1.getName(),
+            new Slot(sheet.get_id(), col1.getName(),
                     new Date(0L), 50L, "user", "comment");
     
     private Slot bookedByOtherUserInFuture =
-            new Slot(sheet.getID(), col2.getName(),
+            new Slot(sheet.get_id(), col2.getName(),
                     new Date(41000000000000L), 100000L, "other", "comment");
     private Slot bookedByOtherUserInNearFuture =
-            new Slot(sheet.getID(), col1.getName(),
+            new Slot(sheet.get_id(), col1.getName(),
                     new Date(new Date().getTime()+10000L), 10000000L, "other", "comment");
     private Slot bookedByOtherUserInPast =
-            new Slot(sheet.getID(), col1.getName(),
+            new Slot(sheet.get_id(), col1.getName(),
                     new Date(1001L), 600L, "other", "comment");
     
     private String id;
@@ -71,13 +71,13 @@ public class RemovingAllUserBookings {
         SheetInfo info = service.addSheet(sheet);
         id = info.getSheetID();
         auth = info.getAuthCode();
-        service.addSlot(sheet.getID(), col1.getName(), new SlotBean(bookedByUserInFuture, auth));
-        service.addSlot(sheet.getID(), col1.getName(), new SlotBean(bookedByUserInPast, auth));
-        service.addSlot(sheet.getID(), col1.getName(), new SlotBean(bookedByOtherUserInPast, auth));
-        service.addSlot(sheet.getID(), col1.getName(), new SlotBean(bookedByOtherUserInNearFuture, auth));
-        service.addSlot(sheet.getID(), col2.getName(), new SlotBean(bookedByUserInNearFuture, auth));
-        service.addSlot(sheet.getID(), col2.getName(), new SlotBean(bookedByUserInNearPast, auth));
-        service.addSlot(sheet.getID(), col2.getName(), new SlotBean(bookedByOtherUserInFuture, auth));
+        service.addSlot(sheet.get_id(), col1.getName(), new SlotBean(bookedByUserInFuture, auth));
+        service.addSlot(sheet.get_id(), col1.getName(), new SlotBean(bookedByUserInPast, auth));
+        service.addSlot(sheet.get_id(), col1.getName(), new SlotBean(bookedByOtherUserInPast, auth));
+        service.addSlot(sheet.get_id(), col1.getName(), new SlotBean(bookedByOtherUserInNearFuture, auth));
+        service.addSlot(sheet.get_id(), col2.getName(), new SlotBean(bookedByUserInNearFuture, auth));
+        service.addSlot(sheet.get_id(), col2.getName(), new SlotBean(bookedByUserInNearPast, auth));
+        service.addSlot(sheet.get_id(), col2.getName(), new SlotBean(bookedByOtherUserInFuture, auth));
     }
 
     @Test
@@ -87,31 +87,31 @@ public class RemovingAllUserBookings {
             
             assertTrue("Slot booked in future by user should be unbooked",
                     service.showBooking(id, col1.getName(),
-                            bookedByUserInFuture.getStartTime()).getUser() == null);
+                            bookedByUserInFuture.getStartTime().getTime()).getUser() == null);
             
             assertTrue("Slot booked in future by user should be unbooked",
                     service.showBooking(id, col2.getName(),
-                            bookedByUserInNearFuture.getStartTime()).getUser() == null);
+                            bookedByUserInNearFuture.getStartTime().getTime()).getUser() == null);
             
             assertTrue("Slot booked in past by user should be still booked",
                     service.showBooking(id, col2.getName(),
-                            bookedByUserInNearPast.getStartTime()).getUser().equals("user"));
+                            bookedByUserInNearPast.getStartTime().getTime()).getUser().equals("user"));
             
             assertTrue("Slot booked in past by user should be still booked",
                     service.showBooking(id, col1.getName(),
-                            bookedByUserInPast.getStartTime()).getUser().equals("user"));
+                            bookedByUserInPast.getStartTime().getTime()).getUser().equals("user"));
             
             assertTrue("Slot booked by other user should be untouched",
                     service.showBooking(id, col2.getName(),
-                            bookedByOtherUserInFuture.getStartTime()).getUser().equals("other"));
+                            bookedByOtherUserInFuture.getStartTime().getTime()).getUser().equals("other"));
             
             assertTrue("Slot booked by other user should be untouched",
                     service.showBooking(id, col1.getName(),
-                            bookedByOtherUserInNearFuture.getStartTime()).getUser().equals("other"));
+                            bookedByOtherUserInNearFuture.getStartTime().getTime()).getUser().equals("other"));
             
             assertTrue("Slot booked by other user should be untouched",
                     service.showBooking(id, col1.getName(),
-                            bookedByOtherUserInPast.getStartTime()).getUser().equals("other"));
+                            bookedByOtherUserInPast.getStartTime().getTime()).getUser().equals("other"));
             
         } catch (NotAllowedException e) {
             e.printStackTrace();

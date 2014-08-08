@@ -12,7 +12,7 @@ import uk.ac.cam.cl.signups.api.Sheet;
 import uk.ac.cam.cl.signups.api.Slot;
 import uk.ac.cam.cl.signups.database.DatabaseCollection;
 import uk.ac.cam.cl.signups.database.HashMapCollection;
-import uk.ac.cam.cl.signups.interfaces.WebInterface;
+import uk.ac.cam.cl.signups.interfaces.SignupsWebInterface;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -25,7 +25,7 @@ public class TestDatabaseModule extends AbstractModule {
         
     @Override
     protected void configure() {
-        bind(WebInterface.class).to(SignupService.class);
+        bind(SignupsWebInterface.class).to(SignupService.class);
     }
     
     @Provides

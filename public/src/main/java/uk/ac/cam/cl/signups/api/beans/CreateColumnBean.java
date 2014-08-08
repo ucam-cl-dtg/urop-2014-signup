@@ -34,6 +34,7 @@ public class CreateColumnBean {
         this.slotLength = slotLength;
     }
 
+    @JsonProperty("columnName")
     public String getColumnName() {
         return columnName;
     }

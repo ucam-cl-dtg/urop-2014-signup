@@ -23,7 +23,7 @@ import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
 import uk.ac.cam.cl.signups.database.DatabaseModule;
-import uk.ac.cam.cl.signups.interfaces.WebInterface;
+import uk.ac.cam.cl.signups.interfaces.SignupsWebInterface;
 
 import com.google.inject.Guice;
 
@@ -32,9 +32,9 @@ import com.google.inject.Guice;
  */
 public class GroupingSheets {
 
-    private WebInterface service =
+    private SignupsWebInterface service =
             Guice.createInjector(ModuleProvider.provide())
-            .getInstance(WebInterface.class);
+            .getInstance(SignupsWebInterface.class);
 
     private Sheet sheet1;
     private Sheet sheet2;
@@ -65,16 +65,16 @@ public class GroupingSheets {
     public void addSheet_success() {
         try {
             service.addSheetToGroup("test-group-1",
-                    new GroupSheetBean(sheet1.getID(), gAuthCode1, sAuthCode1));
+                    new GroupSheetBean(sheet1.get_id(), gAuthCode1, sAuthCode1));
             service.addSheetToGroup("test-group-1",
-                    new GroupSheetBean(sheet2.getID(), gAuthCode1, sAuthCode2));
+                    new GroupSheetBean(sheet2.get_id(), gAuthCode1, sAuthCode2));
             service.addSheetToGroup("test-group-2",
-                    new GroupSheetBean(sheet1.getID(), gAuthCode2, sAuthCode1));
+                    new GroupSheetBean(sheet1.get_id(), gAuthCode2, sAuthCode1));
             assertTrue(service.listSheets("test-group-1").contains(sheet1));
             assertTrue(service.listSheets("test-group-1").contains(sheet2));
             assertTrue(service.listSheets("test-group-2").contains(sheet1));
             assertFalse(service.listSheets("test-group-2").contains(sheet2));
-            service.removeSheetFromGroup("test-group-1", sheet1.getID(), gAuthCode1);
+            service.removeSheetFromGroup("test-group-1", sheet1.get_id(), gAuthCode1);
             assertFalse(service.listSheets("test-group-1").contains(sheet1));
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
@@ -103,7 +103,7 @@ public class GroupingSheets {
     public void addSheet_exception_groupNotFound() {
         try {
             service.addSheetToGroup("no such group",
-                    new GroupSheetBean(sheet1.getID(), gAuthCode1, sAuthCode1));
+                    new GroupSheetBean(sheet1.get_id(), gAuthCode1, sAuthCode1));
             fail("Group should not be found");
         } catch (ItemNotFoundException e) {
             /* Group should not be found */
@@ -117,7 +117,7 @@ public class GroupingSheets {
     public void addSheet_exception_wrongSheetAuthCode() {
         try {
             service.addSheetToGroup("test-group-1",
-                    new GroupSheetBean(sheet1.getID(), gAuthCode1, "wrong code"));
+                    new GroupSheetBean(sheet1.get_id(), gAuthCode1, "wrong code"));
             fail("The sheet auth code is wrong");
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
@@ -131,7 +131,7 @@ public class GroupingSheets {
     public void addSheet_exception_wrongGroupAuthCode() {
         try {
             service.addSheetToGroup("test-group-1",
-                    new GroupSheetBean(sheet1.getID(), "wrong code", sAuthCode1));
+                    new GroupSheetBean(sheet1.get_id(), "wrong code", sAuthCode1));
             fail("The group auth code is wrong");
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
@@ -148,18 +148,18 @@ public class GroupingSheets {
         try {
             /* add sheets to be removed - assumed to work - tested elsewhere */
             service.addSheetToGroup("test-group-1",
-                    new GroupSheetBean(sheet1.getID(), gAuthCode1, sAuthCode1));
+                    new GroupSheetBean(sheet1.get_id(), gAuthCode1, sAuthCode1));
             service.addSheetToGroup("test-group-1",
-                    new GroupSheetBean(sheet2.getID(), gAuthCode1, sAuthCode2));
+                    new GroupSheetBean(sheet2.get_id(), gAuthCode1, sAuthCode2));
             service.addSheetToGroup("test-group-2",
-                    new GroupSheetBean(sheet1.getID(), gAuthCode2, sAuthCode1));
+                    new GroupSheetBean(sheet1.get_id(), gAuthCode2, sAuthCode1));
             /* alternately remove sheets and check they have been removed */
-            service.removeSheetFromGroup("test-group-1", sheet1.getID(), gAuthCode1);
-            assertFalse(service.listSheets("test-group-1").contains(sheet1.getID()));
-            service.removeSheetFromGroup("test-group-1", sheet2.getID(), gAuthCode1);
-            assertFalse(service.listSheets("test-group-1").contains(sheet2.getID()));
-            service.removeSheetFromGroup("test-group-2", sheet1.getID(), gAuthCode2);
-            assertFalse(service.listSheets("test-group-2").contains(sheet2.getID()));
+            service.removeSheetFromGroup("test-group-1", sheet1.get_id(), gAuthCode1);
+            assertFalse(service.listSheets("test-group-1").contains(sheet1.get_id()));
+            service.removeSheetFromGroup("test-group-1", sheet2.get_id(), gAuthCode1);
+            assertFalse(service.listSheets("test-group-1").contains(sheet2.get_id()));
+            service.removeSheetFromGroup("test-group-2", sheet1.get_id(), gAuthCode2);
+            assertFalse(service.listSheets("test-group-2").contains(sheet2.get_id()));
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
             fail("The groups and sheets should all be found");
@@ -186,7 +186,7 @@ public class GroupingSheets {
     @Test
     public void removeSheet_exception_groupNotFound() {
         try {
-            service.removeSheetFromGroup("no such group", sheet1.getID(), gAuthCode1);
+            service.removeSheetFromGroup("no such group", sheet1.get_id(), gAuthCode1);
             fail("Group should not be found");
         } catch (ItemNotFoundException e) {
             /* Group should not be found */
@@ -200,7 +200,7 @@ public class GroupingSheets {
     public void removeSheet_exception_wrongGroupAuthCode() {
         try { /* add a sheet to remove */
             service.addSheetToGroup("test-group-1",
-                    new GroupSheetBean(sheet1.getID(), gAuthCode1, sAuthCode1));
+                    new GroupSheetBean(sheet1.get_id(), gAuthCode1, sAuthCode1));
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
             fail("The groups and sheets should all be found");
@@ -209,7 +209,7 @@ public class GroupingSheets {
             fail("All operations should be allowed");
         }
         try {
-            service.removeSheetFromGroup("test-group-1", sheet1.getID(), "wrong code");
+            service.removeSheetFromGroup("test-group-1", sheet1.get_id(), "wrong code");
             fail("The group auth code is wrong");
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
@@ -222,7 +222,7 @@ public class GroupingSheets {
     @Test
     public void removeSheet_exception_sheetNotInGroup() {
         try {
-            service.removeSheetFromGroup("test-group-1", sheet1.getID(), gAuthCode1);
+            service.removeSheetFromGroup("test-group-1", sheet1.get_id(), gAuthCode1);
             fail("The sheet was not in the group to begin with");
         } catch (ItemNotFoundException e) {
             /* The sheet was not in the group to begin with */

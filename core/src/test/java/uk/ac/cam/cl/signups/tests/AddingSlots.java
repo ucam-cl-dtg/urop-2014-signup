@@ -22,13 +22,13 @@ import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
 import uk.ac.cam.cl.signups.database.DatabaseModule;
-import uk.ac.cam.cl.signups.interfaces.WebInterface;
+import uk.ac.cam.cl.signups.interfaces.SignupsWebInterface;
 
 public class AddingSlots {
     
-    private WebInterface service =
+    private SignupsWebInterface service =
             Guice.createInjector(ModuleProvider.provide())
-            .getInstance(WebInterface.class);
+            .getInstance(SignupsWebInterface.class);
     
     private Sheet sheet;
     private Column column;
@@ -39,9 +39,9 @@ public class AddingSlots {
     @Before
     public void setUp() throws DuplicateNameException {
         sheet = Get.sheet();
-        column = Get.column(sheet.getID());
+        column = Get.column(sheet.get_id());
         sheet.addColumn(column);
-        slot = new Slot(sheet.getID(), column.getName(),
+        slot = new Slot(sheet.get_id(), column.getName(),
                 new Date(), 60000, "test-user", "this slot has been added in the test");
         SheetInfo info = service.addSheet(sheet);
         id = info.getSheetID();

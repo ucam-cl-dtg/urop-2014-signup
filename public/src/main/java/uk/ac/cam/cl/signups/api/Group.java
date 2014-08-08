@@ -65,12 +65,12 @@ public class Group implements DatabaseItem {
     }
     
     @Override @Id
-    public String getID() {
+    public String get_id() {
         return _id;
     }
     
     @Id
-    public void setID(String _id) {
+    public void set_id(String _id) {
         this._id = _id;
     }
         

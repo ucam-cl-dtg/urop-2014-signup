@@ -146,7 +146,7 @@ public class Sheet implements DatabaseItem {
     public void removeGroup(String groupID) throws ItemNotFoundException {
         Group toRemove = null;
         for (Group g : groups) {
-            if (g.getID().equals(groupID)) {
+            if (g.get_id().equals(groupID)) {
                 toRemove = g;
             }
         }
@@ -159,7 +159,7 @@ public class Sheet implements DatabaseItem {
     @JsonIgnore
     public boolean isPartOfGroup(String groupID) {
         for (Group g : groups) {
-            if (g.getID().equals(groupID)) {
+            if (g.get_id().equals(groupID)) {
                 return true;
             }
         }
@@ -178,12 +178,12 @@ public class Sheet implements DatabaseItem {
     }
     
     //@Id @ObjectId @JsonProperty("_id")
-    public String getID() { /* Used to ensure uniqueness in database */
+    public String get_id() { /* Used to ensure uniqueness in database */
         return sheetID;
     }
     
     //@Id @ObjectId @JsonProperty("_id")
-    public void setID(String sheetID) { /* Used by mongojack */
+    public void set_id(String sheetID) { /* Used by mongojack */
         this.sheetID = sheetID;
     }
 
