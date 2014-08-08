@@ -23,7 +23,7 @@ import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
 /**
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
-public class Sheet implements DatabaseItem {
+public class Sheet implements DatabaseItem, Comparable<Sheet> {
     
     private List<Column> columns;
     private String authCode;
@@ -221,7 +221,7 @@ public class Sheet implements DatabaseItem {
         for (byte b : bytes) {
             out.append(String.format("%02x", b));
         }
-        return out.toString().substring(12);
+        return out.toString();
     }
     
     @JsonIgnore
@@ -254,7 +254,8 @@ public class Sheet implements DatabaseItem {
         return true;
     }
 
-     
-    
-     
+    @Override
+    public int compareTo(Sheet other) {
+        return title.compareTo(other.getTitle());
+    }
 }

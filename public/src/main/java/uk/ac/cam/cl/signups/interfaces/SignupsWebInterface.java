@@ -140,7 +140,7 @@ public interface SignupsWebInterface {
     
     /**
      * @param user
-     * @return A list of all slots booked by the user: past, present and future.
+     * @return A sorted list of all slots booked by the user: past, present and future.
      */
     @GET
     @Path("/users/{user}")
@@ -392,7 +392,7 @@ public interface SignupsWebInterface {
     
     /**
      * @param groupName
-     * @return A list of the sheet IDs for all the sheets in the specified group.
+     * @return A sorted list of the sheet IDs for all the sheets in the specified group.
      * @throws ItemNotFoundException
      */
     @GET

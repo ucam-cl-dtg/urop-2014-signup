@@ -63,7 +63,9 @@ public class SignupService implements SignupsWebInterface {
     }
 
     public List<Sheet> listSheets() {
-        return sheets.listItems();
+        List<Sheet> toReturn = sheets.listItems();
+        Collections.sort(toReturn);
+        return toReturn;
     }
 
     public void deleteSheet(String sheetID, String authCode)
@@ -130,7 +132,9 @@ public class SignupService implements SignupsWebInterface {
     }
     
     public List<Slot> listUserSlots(String user) {
-        return slots.listByUser(user);
+        List<Slot> toReturn = slots.listByUser(user);
+        Collections.sort(toReturn);
+        return toReturn;
     }
     
     public List<Date> listAllFreeStartTimes(String user, String comment, String groupID, String sheetID) throws ItemNotFoundException {
@@ -416,49 +420,6 @@ public class SignupService implements SignupsWebInterface {
             }
         }
         return false;
-    }
-    
-    public static void main(String[] args) throws Exception {
-        try {
-            ResteasyClient client = new ResteasyClientBuilder().build();
-            ResteasyWebTarget target = client.target("http://urop2014.dtg.cl.cam.ac.uk/UROP_SIGNUPS/rest/");
-            SignupsWebInterface service = target.proxy(SignupsWebInterface.class);
-            Sheet sheet = new Sheet("Example sheet 1",
-                    "this is an example sheet, which now has some tickers", "right here right now");
-            Sheet sheet2 = new Sheet("Example sheet 2", "another example sheet", "intel lab");
-            SheetInfo info1 = service.addSheet(sheet);
-            String id1 = info1.getSheetID();
-            String sauth1 = info1.getAuthCode();
-            SheetInfo info2 = service.addSheet(sheet2);
-            String id2 = info2.getSheetID();
-            String sauth2 = info2.getAuthCode();
-            String groupID = "53e3a05de4b0f3b586f207df";
-            String gauth = service.addGroup(new Group(groupID));
-            Column column = new Column("Ticker A", new LinkedList<String>());
-            Column column2 = new Column("Ticker B", new LinkedList<String>());
-            Column column3 = new Column("Ticker C", new LinkedList<String>());
-            service.addColumn(id1, new ColumnBean(column, sauth1));
-            service.addColumn(id1, new ColumnBean(column2, sauth1));
-            service.addColumn(id1, new ColumnBean(column3, sauth1));
-            service.addColumn(id2, new ColumnBean(column, sauth2));
-            service.addColumn(id2, new ColumnBean(column2, sauth2));
-            service.addColumn(id2, new ColumnBean(column3, sauth2));
-            service.addSlot(id1, column.getName(),
-                    new SlotBean(new Slot(id1, column.getName(), new Date(1420120800000L), 60000L), sauth1));
-            service.addSlot(id1, column.getName(),
-                    new SlotBean(new Slot(id1, column.getName(), new Date(1420200800000L), 60000L), sauth1));
-            service.addSlot(id1, column.getName(),
-                    new SlotBean(new Slot(id1, column.getName(), new Date(1420920800000L), 60000L), sauth1));
-            service.addSheetToGroup(groupID, new GroupSheetBean(id1, gauth, sauth1));
-            service.addSheetToGroup(groupID, new GroupSheetBean(id2, gauth, sauth2));
-            System.out.println(service.listAllFreeStartTimes("sd", "wfawf", "53e2578ce4b03ff2afde9d17", "bff4c05ecc344b72a40ac74b4c42"));
-            System.out.println("done");
-        } catch (javax.ws.rs.InternalServerErrorException e) {
-            RemoteFailureHandler h = new RemoteFailureHandler();
-            Object o = h.readException(e);
-            System.out.println(o);
-            throw e;
-        }
     }
 
 }
