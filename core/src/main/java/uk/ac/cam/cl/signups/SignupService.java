@@ -114,10 +114,11 @@ public class SignupService implements SignupsWebInterface {
 
     public void deleteColumn(String sheetID, String columnName, String authCode)
             throws NotAllowedException, ItemNotFoundException {
+        log.info("Delete column passed authCode is: " + authCode);
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(authCode)) {
             log.warn("Deleting column: incorrect authorisation code");
-            throw new NotAllowedException("Incorrect authorisation code");
+            throw new NotAllowedException("Incorrect authorisation code: " + authCode);
         }
         sheet.removeColumn(columnName);
         sheets.updateItem(sheet);
@@ -375,7 +376,7 @@ public class SignupService implements SignupsWebInterface {
     }
 
     public List<Sheet> listSheets(String groupID) throws ItemNotFoundException {
-        List<Sheet> toReturn = (List<Sheet>) new LinkedList<Sheet>();
+        List<Sheet> toReturn = new LinkedList<Sheet>();
         for (Sheet sheet : listSheets()) {
             if (sheet.isPartOfGroup(groupID)) {
                 toReturn.add(sheet);
