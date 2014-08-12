@@ -216,6 +216,9 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
         digester.update(title.getBytes());
         digester.update(description.getBytes());
         digester.update(location.getBytes());
+        for (Group g : groups) {
+            digester.update(g.get_id().getBytes());
+        }
         byte[] bytes = digester.digest();
         StringBuilder out = new StringBuilder();
         for (byte b : bytes) {
