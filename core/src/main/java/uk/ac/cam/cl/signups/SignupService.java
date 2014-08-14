@@ -140,6 +140,9 @@ public class SignupService implements SignupsWebInterface {
             log.debug("Incorrect authorisation code: " + authCode);
             throw new NotAllowedException("Incorrect authorisation code: " + authCode);
         }
+        for (String slotID : sheet.getColumn(columnName).getSlotIDs()) {
+            slots.removeSlot(slotID);
+        }
         sheet.removeColumn(columnName);
         sheets.updateItem(sheet);
         log.debug("Column deleted");
@@ -460,13 +463,7 @@ public class SignupService implements SignupsWebInterface {
         List<Sheet> toReturn = new LinkedList<Sheet>();
         for (Sheet sheet : listSheets()) {
             if (sheet.isPartOfGroup(groupID)) {
-                try {
-                    toReturn.add(computeStartTime(sheet));
-                } catch (ItemNotFoundException e) {
-                    log.error("Something that should definitely be in the " +
-                            "database was not found", e);
-                    throw new RuntimeException(e);
-                }
+                toReturn.add(computeStartTime(sheet));
             }
         }
         return toReturn;
