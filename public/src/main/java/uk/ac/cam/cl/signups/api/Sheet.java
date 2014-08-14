@@ -11,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
     private String title;
     private String description;
     private String location;
+    private Date startTime; // controlled not automatically but by setter
     
     private List<Group> groups;
     
@@ -68,7 +70,6 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
         groups = new LinkedList<Group>();
         sheetID = generateSheetID();
         authCode = generateAuthCode();
-        
         /*
          * TODO: generate URL
          */
@@ -82,6 +83,7 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
         , @JsonProperty("title")        String title
         , @JsonProperty("description")  String description
         , @JsonProperty("location")     String location
+        , @JsonProperty("startTime")     Date startTime
         , @JsonProperty("groups")       List<Group> groups
         )
     {
@@ -91,6 +93,7 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
         this.title = title;
         this.description = description;
         this.location = location;
+        this.startTime = startTime;
         this.groups = groups;
         this.sheetID = sheetID;
     }
@@ -200,6 +203,15 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
     @JsonProperty("location")
     public String getLocation() {
         return location;
+    }
+    
+    @JsonProperty("startTime")
+    public Date getStartTime() {
+        return startTime;
+    }
+    
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
     }
 
     @Override @JsonIgnore

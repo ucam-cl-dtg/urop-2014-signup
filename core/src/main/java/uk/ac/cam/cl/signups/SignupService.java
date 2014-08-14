@@ -66,7 +66,16 @@ public class SignupService implements SignupsWebInterface {
     }
 
     public List<Sheet> listSheets() {
-        List<Sheet> toReturn = sheets.listItems();
+        List<Sheet> toReturn = new ArrayList<Sheet>();
+        for (Sheet s : sheets.listItems()) {
+            try {
+                toReturn.add(computeStartTime(s));
+            } catch (ItemNotFoundException e) {
+                log.error("Something that should definitely be in the " +
+                        "database was not found", e);
+                throw new RuntimeException(e);
+            }
+        }
         Collections.sort(toReturn);
         return toReturn;
     }
@@ -451,7 +460,13 @@ public class SignupService implements SignupsWebInterface {
         List<Sheet> toReturn = new LinkedList<Sheet>();
         for (Sheet sheet : listSheets()) {
             if (sheet.isPartOfGroup(groupID)) {
-                toReturn.add(sheet);
+                try {
+                    toReturn.add(computeStartTime(sheet));
+                } catch (ItemNotFoundException e) {
+                    log.error("Something that should definitely be in the " +
+                            "database was not found", e);
+                    throw new RuntimeException(e);
+                }
             }
         }
         return toReturn;
@@ -497,6 +512,28 @@ public class SignupService implements SignupsWebInterface {
             }
         }
         return false;
+    }
+    
+    /**
+     * Computes the time of the first slot in the sheet and sets the startTime
+     * field of the sheet to that time, and return the sheet.
+     * @param sheet
+     * @return The sheet with its start time now correct
+     * @throws ItemNotFoundException
+     */
+    private Sheet computeStartTime(Sheet sheet) throws ItemNotFoundException {
+        Date sheetTime = sheet.getStartTime();
+        for (Column col : sheet.getColumns()) {
+            for (String slotID : col.getSlotIDs()) {
+                Date slotTime = slots.getSlot(slotID).getStartTime();
+                if (sheetTime == null || sheetTime.after(slotTime)) {
+                    sheetTime = slotTime;
+                }
+            }
+        }
+        sheet.setStartTime(sheetTime);
+        sheets.updateItem(sheet);
+        return sheet;
     }
 
 }
