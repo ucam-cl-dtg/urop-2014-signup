@@ -34,8 +34,13 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
     private String title;
     private String description;
     private String location;
-    private Date startTime; // controlled not automatically but by setter
+    
+    /* The following 3 fields are optional (used in ticking) and are not
+     * automatically taken care of but controlled with setters.
+     */
+    private Date startTime;
     private Date endTime;
+    private int slotLength;
     
     private List<Group> groups;
     
@@ -86,6 +91,7 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
         , @JsonProperty("location")     String location
         , @JsonProperty("startTime")    Date startTime
         , @JsonProperty("endTime")      Date endTime
+        , @JsonProperty("slotLength")    int slotLength
         , @JsonProperty("groups")       List<Group> groups
         )
     {
@@ -97,6 +103,7 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
         this.location = location;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.slotLength = slotLength;
         this.groups = groups;
         this.sheetID = sheetID;
     }
@@ -224,6 +231,26 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
 
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
+    }
+        
+    public int getSlotLength() {
+        return slotLength;
+    }
+
+    public void setSlotLength(int slotLength) {
+        this.slotLength = slotLength;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     @Override @JsonIgnore

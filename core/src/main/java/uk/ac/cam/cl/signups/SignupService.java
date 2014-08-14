@@ -96,6 +96,26 @@ public class SignupService implements SignupsWebInterface {
         sheets.removeItem(sheetID);
         log.debug("Sheet deleted.");
     }
+    
+    public Sheet getSheet(String sheetID) throws ItemNotFoundException {
+         return sheets.getItem(sheetID);
+    }
+    
+    public void updateSheet(String sheetID, UpdateSheetBean bean) throws NotAllowedException, ItemNotFoundException {
+        log.debug("Attempting edit of sheet of ID " + sheetID);
+        if (!sheetID.equals(bean.getSheet().get_id())) {
+            log.debug("The ID of the sheet does not match " +
+                    "the ID in the URL");
+            throw new NotAllowedException("The ID of the sheet does not match " +
+                    "the ID in the URL");
+        }
+        if (sheets.getItem(sheetID).isAuthCode(bean.getAuthCode())) {
+            log.debug("Incorrect authorisation code: " + bean.getAuthCode());
+            throw new NotAllowedException("Incorrect authorisation code: " + bean.getAuthCode());
+        }
+        sheets.updateItem(bean.getSheet());
+        log.debug("Sheet updated");
+    }
 
     public List<Column> listColumns(String sheetID)
             throws ItemNotFoundException {
@@ -220,6 +240,22 @@ public class SignupService implements SignupsWebInterface {
         sheets.updateItem(sheet);
         log.debug("Slot added");
     }
+    
+    public void createSlotsForAllColumns(String sheetID, BatchCreateBean bean)
+            throws ItemNotFoundException, NotAllowedException, DuplicateNameException {
+        Sheet sheet = sheets.getItem(sheetID);
+        if (!sheet.isAuthCode(bean.getAuthCode())) {
+            log.debug("Incorrect authorisation code: " + bean.getAuthCode());
+            throw new NotAllowedException("Incorrect authorisation code: " + bean.getAuthCode());
+        }
+        for (Column c : sheet.getColumns()) {
+            for (long slotTime = bean.getStartTime(); slotTime < bean.getEndTime();
+                    slotTime += bean.getSlotLength()*60000) {
+                addSlot(sheetID, c.getName(), new SlotBean(
+                        new Slot(sheetID, c.getName(), new Date(slotTime), bean.getSlotLength()*60000), bean.getAuthCode()));
+            }
+        }
+    }
 
     public void deleteSlot(String sheetID, String columnName, Long startTimeLong,
             String authCode) throws ItemNotFoundException, NotAllowedException {
@@ -235,6 +271,25 @@ public class SignupService implements SignupsWebInterface {
         sheet.getColumn(columnName).removeSlot(IDofDeletedSlot);
         sheets.updateItem(sheet);
         log.debug("Slot deleted");
+    }
+    
+    public void deleteSlotsBetween(String sheetID, BatchDeleteBean bean) throws ItemNotFoundException, NotAllowedException {
+        Sheet sheet = sheets.getItem(sheetID);
+        if (!sheet.isAuthCode(bean.getAuthCode())) {
+            log.debug("Incorrect authorisation code: " + bean.getAuthCode());
+            throw new NotAllowedException("Incorrect authorisation code: " + bean.getAuthCode());
+        }
+        for (Column c : sheet.getColumns()) {
+            for (String slotID : c.getSlotIDs()) {
+                Slot slot = slots.getSlot(slotID);
+                if ((slot.getStartTime().getTime() >= bean.getStartTime()) &&
+                        (slot.getStartTime().getTime() < bean.getEndTime())) {
+                    slots.removeSlot(slotID);
+                    c.removeSlot(slotID);
+                }
+            }
+        }
+        sheets.updateItem(sheet);
     }
 
     public BookingInfo showBooking(String sheetID, String columnName, Long startTimeLong)

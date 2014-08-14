@@ -5,6 +5,7 @@
  */
 package uk.ac.cam.cl.signups.interfaces;
 
+import java.sql.BatchUpdateException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,22 @@ public interface SignupsWebInterface {
     @Consumes("application/json")
     @Produces("application/json")
     public SheetInfo addSheet(Sheet sheet) throws DuplicateNameException;
+    
+    /**
+     * @param sheetID
+     * @return The requested sheet object
+     * @throws ItemNotFoundException
+     */
+    @GET
+    @Path("/sheetobjects/{sheetID}")
+    @Produces("application/json")
+    public Sheet getSheet(String sheetID) throws ItemNotFoundException;
+    
+    @POST
+    @Path("/sheetobjects/{sheetID}")
+    @Consumes("application/json")
+    public void updateSheet(String sheetID, UpdateSheetBean bean)
+            throws NotAllowedException, ItemNotFoundException;
     
     /**
      * @return A list of all the sheet objects currently stored in the
@@ -190,7 +207,23 @@ public interface SignupsWebInterface {
             @PathParam("columnName") String columnName,
             SlotBean bean /* contains Slot to add and sheet authCode */)
                     throws ItemNotFoundException, NotAllowedException, DuplicateNameException;
-    
+
+    /**
+     * Creates slots at slotLength-minute intervals starting at start (inclusive)
+     * and ending at end (exclusive). No checks of existing slots are made, the
+     * slots are just created.
+     * @param sheetID
+     * @param start Time in milliseconds
+     * @param end Time in milliseconds
+     * @param slotLength Length in minutes
+     * @throws ItemNotFoundException
+     */
+    @POST
+    @Path("/sheets/{sheetID}/batchcreate")
+    @Consumes("application/json")
+    public void createSlotsForAllColumns(@PathParam("sheetID") String sheetID, BatchCreateBean bean)
+            throws ItemNotFoundException, NotAllowedException, DuplicateNameException;
+
     /**
      * Deletes the specified slot from the specified column in the specified
      * sheet in the database. TODO: notify user booked?
@@ -210,6 +243,20 @@ public interface SignupsWebInterface {
             @PathParam("time") Long startTime,
             String authCode /* in request body */)
                     throws ItemNotFoundException, NotAllowedException;
+    
+    /**
+     * Removes all slots with start time no earlier than start and earlier than
+     * end from the given sheet and the database.
+     * @param sheetID
+     * @param start
+     * @param end
+     * @throws ItemNotFoundException
+     */
+    @POST
+    @Path("/sheets/{sheetID}/batchdelete")
+    @Consumes("application/json")
+    public void deleteSlotsBetween(@PathParam("sheetID") String sheetID, BatchDeleteBean bean)
+            throws ItemNotFoundException, NotAllowedException;
     
     /**
      * Gives information about the current booking status of the slot.

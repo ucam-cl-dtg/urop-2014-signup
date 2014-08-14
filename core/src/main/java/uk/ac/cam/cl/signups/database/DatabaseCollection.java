@@ -22,7 +22,7 @@ public interface DatabaseCollection<T extends /*ie implements*/ DatabaseItem> {
      * Adds a new item to the database collection.
      *
      * @param item The item to be added
-     * @throws DuplicateNameException An item with this name already exists.
+     * @throws DuplicateidException An item with this id already exists.
      */
     public void insertItem(T item) throws DuplicateNameException;
 
@@ -30,7 +30,7 @@ public interface DatabaseCollection<T extends /*ie implements*/ DatabaseItem> {
      * Updates the given item.
      *
      * @param item The updated item (there must also be a
-     * item with this name in the collection already).
+     * item with this id in the collection already).
      */
     public void updateItem(T item) throws ItemNotFoundException;
 
@@ -40,18 +40,18 @@ public interface DatabaseCollection<T extends /*ie implements*/ DatabaseItem> {
     public List<T> listItems();
         
     /**
-     * Returns true iff there is an item with the given name in the collection.
+     * Returns true iff there is an item with the given id in the collection.
      */
-    public boolean contains(String name);
+    public boolean contains(String id);
 
     /**
-     * Returns the item with the given name in the
+     * Returns the item with the given id in the
      * database collection.
      * 
-     * @param name The name of the item
+     * @param id The id of the item
      * @return The requested item
      */
-    public T getItem(String name) throws ItemNotFoundException;    
+    public T getItem(String id) throws ItemNotFoundException;    
 
     /**
      * Removes all items from the database collection.
@@ -59,9 +59,9 @@ public interface DatabaseCollection<T extends /*ie implements*/ DatabaseItem> {
     public void removeAll();
 
     /**
-     * Removes the item with the given name from the database.
+     * Removes the item with the given id from the database.
      * 
-     * @param name The name of the item to remove
+     * @param id The id of the item to remove
      */
-    public void removeItem(String name) throws ItemNotFoundException;
+    public void removeItem(String id) throws ItemNotFoundException;
 }
