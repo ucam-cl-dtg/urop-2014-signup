@@ -17,6 +17,7 @@ import uk.ac.cam.cl.signups.Get;
 import uk.ac.cam.cl.signups.ModuleProvider;
 import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.*;
+import uk.ac.cam.cl.signups.api.beans.SlotBean;
 import uk.ac.cam.cl.signups.api.exceptions.DuplicateNameException;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.api.exceptions.NotAllowedException;
@@ -37,13 +38,16 @@ public class DeletingColumns {
     private String auth;
     
     @Before
-    public void setUp() throws DuplicateNameException {
-        sheet = Get.sheet();
-        column = Get.column(sheet.get_id(), "test-column");
+    public void setUp() throws Exception {
+        sheet = Get.sheetWithEmptyCols();
+        column = Get.emptyColumn();
         sheet.addColumn(column);
         SheetInfo info = service.addSheet(sheet); // We assume this function is fine
         id = info.getSheetID();
         auth = info.getAuthCode();
+        for (Slot slot : Get.slotList(sheet.get_id(), column.getName())) {
+            service.addSlot(sheet.get_id(), column.getName(), new SlotBean(slot, auth));
+        }
     }
     
     @Test
@@ -98,7 +102,7 @@ public class DeletingColumns {
             System.out.println();
         } catch (ItemNotFoundException e) {
             e.printStackTrace();
-            fail("The sheet should be found");
+            fail(e.getMessage());
         } catch (NotAllowedException e) {
             e.printStackTrace();
             fail("The authCode should be correct");
