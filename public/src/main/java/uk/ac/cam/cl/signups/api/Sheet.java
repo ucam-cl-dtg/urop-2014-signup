@@ -35,6 +35,7 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
     private String description;
     private String location;
     private Date startTime; // controlled not automatically but by setter
+    private Date endTime;
     
     private List<Group> groups;
     
@@ -83,7 +84,8 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
         , @JsonProperty("title")        String title
         , @JsonProperty("description")  String description
         , @JsonProperty("location")     String location
-        , @JsonProperty("startTime")     Date startTime
+        , @JsonProperty("startTime")    Date startTime
+        , @JsonProperty("endTime")      Date endTime
         , @JsonProperty("groups")       List<Group> groups
         )
     {
@@ -94,6 +96,7 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
         this.description = description;
         this.location = location;
         this.startTime = startTime;
+        this.endTime = endTime;
         this.groups = groups;
         this.sheetID = sheetID;
     }
@@ -212,6 +215,15 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
     
     public void setStartTime(Date startTime) {
         this.startTime = startTime;
+    }
+    
+    @JsonProperty("endTime")
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 
     @Override @JsonIgnore
