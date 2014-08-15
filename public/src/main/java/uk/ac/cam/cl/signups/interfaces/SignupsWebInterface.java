@@ -49,12 +49,12 @@ public interface SignupsWebInterface {
     @GET
     @Path("/sheetobjects/{sheetID}")
     @Produces("application/json")
-    public Sheet getSheet(String sheetID) throws ItemNotFoundException;
+    public Sheet getSheet(@PathParam("sheetID") String sheetID) throws ItemNotFoundException;
     
     @POST
     @Path("/sheetobjects/{sheetID}")
     @Consumes("application/json")
-    public void updateSheet(String sheetID, UpdateSheetBean bean)
+    public void updateSheet(@PathParam("sheetID") String sheetID, UpdateSheetBean bean)
             throws NotAllowedException, ItemNotFoundException;
     
     /**
