@@ -5,13 +5,11 @@
  */
 package uk.ac.cam.cl.signups.api;
 
-import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 import org.mongojack.Id;
-import org.mongojack.ObjectId;
 
 import uk.ac.cam.cl.signups.interfaces.DatabaseItem;
 

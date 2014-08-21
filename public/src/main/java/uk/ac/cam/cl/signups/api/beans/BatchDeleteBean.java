@@ -10,46 +10,30 @@ package uk.ac.cam.cl.signups.api.beans;
  */
 public class BatchDeleteBean {
     
-    private Long startTime;
-    private Long endTime;
+    private Long time;
     private String authCode;
     
     
-    public BatchDeleteBean(Long startTime, Long endTime, String authCode) {
-        this.startTime = startTime;
-        this.endTime = endTime;
+    public BatchDeleteBean(Long time, String authCode) {
+        this.time = time;
         this.authCode = authCode;
     }
-    
+
     public BatchDeleteBean() {
         // Default constructor
     }
 
-
-    public Long getStartTime() {
-        return startTime;
+    public Long getTime() {
+        return time;
     }
 
-
-    public void setStartTime(Long startTime) {
-        this.startTime = startTime;
+    public void setTime(Long time) {
+        this.time = time;
     }
-
-
-    public Long getEndTime() {
-        return endTime;
-    }
-
-
-    public void setEndTime(Long endTime) {
-        this.endTime = endTime;
-    }
-
 
     public String getAuthCode() {
         return authCode;
     }
-
 
     public void setAuthCode(String authCode) {
         this.authCode = authCode;

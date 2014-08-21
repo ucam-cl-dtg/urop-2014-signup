@@ -145,10 +145,10 @@ public class SignupService implements SignupsWebInterface {
         addColumn(sheetID, new ColumnBean(column, bean.getAuthCode()));
         for (long slotStart = bean.getStartTime().getTime();
                 slotStart < bean.getEndTime().getTime();
-                slotStart += bean.getSlotLength()) {
+                slotStart += bean.getSlotLengthInMinutes()*60000L) {
             addSlot(sheetID, bean.getColumnName(),
                     new SlotBean(new Slot(sheetID, bean.getColumnName(),
-                            new Date(slotStart), bean.getSlotLength()), bean.getAuthCode()));
+                            new Date(slotStart), bean.getSlotLengthInMinutes()*60000L), bean.getAuthCode()));
         }
     }
 
@@ -183,17 +183,19 @@ public class SignupService implements SignupsWebInterface {
         return toReturn;
     }
     
-    public List<Date> listAllFreeStartTimes(String user, String comment, String groupID, String sheetID) throws ItemNotFoundException {
+    public List<Date> listAllFreeStartTimes(String user, String comment, String groupID, String sheetID)
+            throws ItemNotFoundException {
         List<Date> toReturn = new LinkedList<Date>();
         Sheet sheet = sheets.getItem(sheetID);
         if (!getPermissions(groupID, user).containsKey(comment)) {
             return toReturn;
         }
         String allowedColumn = getPermissions(groupID, user).get(comment);
+        Date now = new Date();
         for (Column col : sheet.getColumns()) {
             if (allowedColumn == null || col.getName().equals(allowedColumn)) {
                 for (Slot slot : listColumnSlots(sheetID, col.getName())) {
-                    if (!slot.isBooked() && !toReturn.contains(slot.getStartTime())) {
+                    if (slot.getStartTime().after(now) && !slot.isBooked() && !toReturn.contains(slot.getStartTime())) {
                         toReturn.add(slot.getStartTime());
                     }
                 }
@@ -275,7 +277,8 @@ public class SignupService implements SignupsWebInterface {
         log.info("Slot deleted");
     }
     
-    public void deleteSlotsBetween(String sheetID, BatchDeleteBean bean) throws ItemNotFoundException, NotAllowedException {
+    public void deleteSlotsBefore(String sheetID, BatchDeleteBean bean)
+            throws ItemNotFoundException, NotAllowedException {
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(bean.getAuthCode())) {
             log.info("Incorrect authorisation code: " + bean.getAuthCode());
@@ -286,8 +289,28 @@ public class SignupService implements SignupsWebInterface {
             while (it.hasNext()) {
                 String slotID = it.next();
                 Slot slot = slots.getSlot(slotID);
-                if ((slot.getStartTime().getTime() >= bean.getStartTime()) &&
-                        (slot.getStartTime().getTime() < bean.getEndTime())) {
+                if ((slot.getStartTime().before(new Date(bean.getTime())))) {
+                    slots.removeSlot(slotID);
+                    it.remove();
+                }
+            }
+        }
+        sheets.updateItem(sheet);
+    }
+    
+    public void deleteSlotsAfter(String sheetID, BatchDeleteBean bean)
+            throws ItemNotFoundException, NotAllowedException {
+        Sheet sheet = sheets.getItem(sheetID);
+        if (!sheet.isAuthCode(bean.getAuthCode())) {
+            log.info("Incorrect authorisation code: " + bean.getAuthCode());
+            throw new NotAllowedException("Incorrect authorisation code: " + bean.getAuthCode());
+        }
+        for (Column c : sheet.getColumns()) {
+            Iterator<String> it = c.getSlotIDs().iterator();
+            while (it.hasNext()) {
+                String slotID = it.next();
+                Slot slot = slots.getSlot(slotID);
+                if ((slot.getStartTime().after(new Date(bean.getTime())))) {
                     slots.removeSlot(slotID);
                     it.remove();
                 }
@@ -327,7 +350,8 @@ public class SignupService implements SignupsWebInterface {
                     throw new NotAllowedException("The slot has already been booked by "
                             + slot.getBookedUser());
                 }
-                if (slot.getStartTime().before(new Date())) {
+                Date now = new Date();
+                if (slot.getStartTime().before(now)) {
                     log.info("The start time of the slot has passed");
                     throw new NotAllowedException("The start time of the slot has passed");
                 }
@@ -361,7 +385,8 @@ public class SignupService implements SignupsWebInterface {
                     log.info("The user given was not booked to this slot");
                     throw new NotAllowedException("The user given was not booked to this slot");
                 }
-                if (slot.getStartTime().before(new Date())) {
+                Date now = new Date();
+                if (slot.getStartTime().before(now)) {
                     log.info("The start time of the slot has passed");
                     throw new NotAllowedException("The start time of the slot has passed");
                 }
@@ -382,9 +407,10 @@ public class SignupService implements SignupsWebInterface {
             log.info("Incorrect authorisation code: " + authCode);
             throw new NotAllowedException("Incorrect authorisation code: " + authCode);
         }
+        Date now = new Date();
         for (Column col : sheet.getColumns()) {
             for (Slot slot : slots.listByColumn(sheetID, col.getName())) {
-                if (slot.isBooked() && slot.getBookedUser().equals(user) && slot.getStartTime().after(new Date())) {
+                if (slot.isBooked() && slot.getBookedUser().equals(user) && slot.getStartTime().after(now)) {
                     slot.unbook();
                     slots.updateSlot(slot);
                 }
@@ -517,14 +543,21 @@ public class SignupService implements SignupsWebInterface {
         }
         return toReturn;
     }
-
+    
     public List<Sheet> listSheets(String groupID) throws ItemNotFoundException {
-        List<Sheet> toReturn = new LinkedList<Sheet>();
-        for (Sheet sheet : listSheets()) {
-            if (sheet.isPartOfGroup(groupID)) {
-                toReturn.add(computeStartAndEndTimesAndSlotLength(sheet));
+        List<Sheet> toReturn = new ArrayList<Sheet>();
+        for (Sheet sheet : sheets.listItems()) { // TODO: optimise. MongoSheets class,
+            try {                                // get all sheets which are part of a group?
+                if (sheet.isPartOfGroup(groupID)) {
+                    toReturn.add(computeStartAndEndTimesAndSlotLength(sheet));
+                }
+            } catch (ItemNotFoundException e) {
+                log.error("Something that should definitely be in the " +
+                        "database was not found", e);
+                throw new RuntimeException(e);
             }
         }
+        Collections.sort(toReturn);
         return toReturn;
     }
 
@@ -594,10 +627,11 @@ public class SignupService implements SignupsWebInterface {
                     sheetEndTime = slotEndTime;
                 }
             }
+            break; // Hopefully will make loading sheets quicker. TODO: solve properly
         }
         sheet.setStartTime(sheetStartTime);
         sheet.setEndTime(sheetEndTime);
-        sheet.setSlotLength((int) slotLengthInMilliseconds/60000); 
+        sheet.setSlotLengthInMinutes((int) slotLengthInMilliseconds/60000); 
         sheets.updateItem(sheet);
         return sheet;
     }

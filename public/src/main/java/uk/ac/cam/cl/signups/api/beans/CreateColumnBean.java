@@ -18,7 +18,7 @@ public class CreateColumnBean {
     private String authCode;
     private Date startTime;
     private Date endTime;
-    private int slotLength;
+    private int slotLengthInMinutes;
     
     @JsonCreator
     public CreateColumnBean(
@@ -26,12 +26,12 @@ public class CreateColumnBean {
             @JsonProperty("authCode")   String authCode,
             @JsonProperty("startTime")  Date startTime,
             @JsonProperty("endTime")    Date endTime,
-            @JsonProperty("slotLength") int slotLength) {
+            @JsonProperty("slotLengthInMinutes") int slotLengthInMinutes) {
         this.columnName = columnName;
         this.authCode = authCode;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.slotLength = slotLength;
+        this.slotLengthInMinutes = slotLengthInMinutes;
     }
 
     @JsonProperty("columnName")
@@ -51,8 +51,8 @@ public class CreateColumnBean {
         return endTime;
     }
 
-    public int getSlotLength() {
-        return slotLength;
+    public int getSlotLengthInMinutes() {
+        return slotLengthInMinutes;
     }
 
         

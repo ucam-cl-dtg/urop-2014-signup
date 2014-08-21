@@ -245,17 +245,29 @@ public interface SignupsWebInterface {
                     throws ItemNotFoundException, NotAllowedException;
     
     /**
-     * Removes all slots with start time no earlier than start and earlier than
-     * end from the given sheet and the database.
+     * Removes all slots with start time earlier than the given time.
      * @param sheetID
      * @param start
      * @param end
      * @throws ItemNotFoundException
      */
     @POST
-    @Path("/sheets/{sheetID}/batchdelete")
+    @Path("/sheets/{sheetID}/batchdelete/before")
     @Consumes("application/json")
-    public void deleteSlotsBetween(@PathParam("sheetID") String sheetID, BatchDeleteBean bean)
+    public void deleteSlotsBefore(@PathParam("sheetID") String sheetID, BatchDeleteBean bean)
+            throws ItemNotFoundException, NotAllowedException;
+    
+    /**
+     * Removes all slots with start time later than the given time.
+     * @param sheetID
+     * @param start
+     * @param end
+     * @throws ItemNotFoundException
+     */
+    @POST
+    @Path("/sheets/{sheetID}/batchdelete/after")
+    @Consumes("application/json")
+    public void deleteSlotsAfter(@PathParam("sheetID") String sheetID, BatchDeleteBean bean)
             throws ItemNotFoundException, NotAllowedException;
     
     /**

@@ -40,7 +40,7 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
      */
     private Date startTime;
     private Date endTime;
-    private int slotLength;
+    private int slotLengthInMinutes;
     
     private List<Group> groups;
     
@@ -83,16 +83,16 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
     
     @JsonCreator
     public Sheet
-        ( @JsonProperty("columns")      List<Column> columns
-        , @JsonProperty("authCode")     String authCode
-        , @JsonProperty("_id")          String sheetID
-        , @JsonProperty("title")        String title
-        , @JsonProperty("description")  String description
-        , @JsonProperty("location")     String location
-        , @JsonProperty("startTime")    Date startTime
-        , @JsonProperty("endTime")      Date endTime
-        , @JsonProperty("slotLength")    int slotLength
-        , @JsonProperty("groups")       List<Group> groups
+        ( @JsonProperty("columns")              List<Column> columns
+        , @JsonProperty("authCode")             String authCode
+        , @JsonProperty("_id")                  String sheetID
+        , @JsonProperty("title")                String title
+        , @JsonProperty("description")          String description
+        , @JsonProperty("location")             String location
+        , @JsonProperty("startTime")            Date startTime
+        , @JsonProperty("endTime")              Date endTime
+        , @JsonProperty("slotLengthInMinutes")  int slotLength
+        , @JsonProperty("groups")               List<Group> groups
         )
     {
         this.columns = columns;
@@ -103,7 +103,7 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
         this.location = location;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.slotLength = slotLength;
+        this.slotLengthInMinutes = slotLength;
         this.groups = groups;
         this.sheetID = sheetID;
     }
@@ -233,12 +233,12 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
         this.endTime = endTime;
     }
         
-    public int getSlotLength() {
-        return slotLength;
+    public int getSlotLengthInMinutes() {
+        return slotLengthInMinutes;
     }
 
-    public void setSlotLength(int slotLength) {
-        this.slotLength = slotLength;
+    public void setSlotLengthInMinutes(int slotLength) {
+        this.slotLengthInMinutes = slotLength;
     }
 
     public void setTitle(String title) {
