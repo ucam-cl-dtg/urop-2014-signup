@@ -246,6 +246,9 @@ public class SignupService implements SignupsWebInterface {
     
     public void createSlotsForAllColumns(String sheetID, BatchCreateBean bean)
             throws ItemNotFoundException, NotAllowedException, DuplicateNameException {
+        log.info("Adding slots to all columns from " + bean.getStartTime() + " to " + 
+                bean.getEndTime() + ", with a slot length of " + bean.getSlotLength() + 
+                " milliseconds.");
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(bean.getAuthCode())) {
             log.info("Incorrect authorisation code: " + bean.getAuthCode());
@@ -611,8 +614,8 @@ public class SignupService implements SignupsWebInterface {
      * @throws ItemNotFoundException
      */
     private Sheet computeStartAndEndTimesAndSlotLength(Sheet sheet) throws ItemNotFoundException {
-        Date sheetStartTime = sheet.getStartTime();
-        Date sheetEndTime = sheet.getEndTime();
+        Date sheetStartTime = null;
+        Date sheetEndTime = null;
         long slotLengthInMilliseconds = -60000;
         for (Column col : sheet.getColumns()) {
             for (String slotID : col.getSlotIDs()) {
@@ -627,7 +630,7 @@ public class SignupService implements SignupsWebInterface {
                     sheetEndTime = slotEndTime;
                 }
             }
-            break; // Hopefully will make loading sheets quicker. TODO: solve properly
+            break; // Hopefully will make loading sheets quicker. TODO: solve properly?
         }
         sheet.setStartTime(sheetStartTime);
         sheet.setEndTime(sheetEndTime);
