@@ -86,7 +86,7 @@ public class SignupService implements SignupsWebInterface {
         log.info("Attempting deletion of sheet with id=" + sheetID);
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(authCode)) {
-            log.info("Incorrect authorisation code: " + authCode);
+            log.warn("Incorrect authorisation code: " + authCode);
             throw new NotAllowedException("Incorrect authorisation code:" + authCode);
         }
         for (Column col : sheet.getColumns()) {
@@ -111,11 +111,11 @@ public class SignupService implements SignupsWebInterface {
                     "the ID in the URL");
         }
         if (!sheets.getItem(sheetID).isAuthCode(bean.getAuthCode())) {
-            log.info("Incorrect authorisation code: " + bean.getAuthCode());
+            log.warn("Incorrect authorisation code: " + bean.getAuthCode());
             throw new NotAllowedException("Incorrect authorisation code: " + bean.getAuthCode());
         }
         sheets.updateItem(bean.getSheet());
-        log.info("Sheet updated");
+        log.info("Sheet of ID " + sheetID + " updated");
     }
 
     public List<Column> listColumns(String sheetID)
@@ -129,7 +129,7 @@ public class SignupService implements SignupsWebInterface {
                 + "sheet of ID " + sheetID);
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(bean.getAuthCode())) {
-            log.info("Incorrect authorisation code: " + bean.getAuthCode());
+            log.warn("Incorrect authorisation code: " + bean.getAuthCode());
             throw new NotAllowedException("Incorrect authorisation code:" + bean.getAuthCode());
         }
         sheet.addColumn(bean.getColumn());
@@ -139,7 +139,7 @@ public class SignupService implements SignupsWebInterface {
     
     public void createColumn(String sheetID, CreateColumnBean bean)
             throws ItemNotFoundException, NotAllowedException, DuplicateNameException {
-        log.info("Creating new column of name " + bean.getColumnName() + "and adding it "
+        log.info("Creating new column of name " + bean.getColumnName() + " and adding it "
                 + "to sheet of ID " + sheetID);
         Column column = new Column(bean.getColumnName(), new LinkedList<String>());
         addColumn(sheetID, new ColumnBean(column, bean.getAuthCode()));
@@ -158,7 +158,7 @@ public class SignupService implements SignupsWebInterface {
                 + sheetID);
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(authCode)) {
-            log.info("Incorrect authorisation code: " + authCode);
+            log.warn("Incorrect authorisation code: " + authCode);
             throw new NotAllowedException("Incorrect authorisation code: " + authCode);
         }
         for (String slotID : sheet.getColumn(columnName).getSlotIDs()) {
@@ -208,7 +208,7 @@ public class SignupService implements SignupsWebInterface {
     public List<String> listColumnsWithFreeSlotsAt(String sheetID, Long startTimeLong)
             throws ItemNotFoundException {
         Date startTime = new Date(startTimeLong);
-        log.info("Listing columns in sheet of ID " + sheetID + "with a free slot at" + startTime);
+        log.info("Listing columns in sheet of ID " + sheetID + " with a free slot at " + startTime);
         Sheet sheet = sheets.getItem(sheetID);
         List<String> toReturn = new ArrayList<String>();
         for (Column col : sheet.getColumns()) {
@@ -235,7 +235,7 @@ public class SignupService implements SignupsWebInterface {
                         " to column " + columnName + " in sheet of ID " + sheetID);
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(bean.getAuthCode())) {
-            log.info("Incorrect authorisation code: " + bean.getAuthCode());
+            log.warn("Incorrect authorisation code: " + bean.getAuthCode());
             throw new NotAllowedException("Incorrect authorisation code: " + bean.getAuthCode());
         }
         slots.insertSlot(bean.getSlot());
@@ -251,7 +251,7 @@ public class SignupService implements SignupsWebInterface {
                 " milliseconds.");
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(bean.getAuthCode())) {
-            log.info("Incorrect authorisation code: " + bean.getAuthCode());
+            log.warn("Incorrect authorisation code: " + bean.getAuthCode());
             throw new NotAllowedException("Incorrect authorisation code: " + bean.getAuthCode());
         }
         long slotLengthInMilliseconds = bean.getSlotLength()*60000;
@@ -271,7 +271,7 @@ public class SignupService implements SignupsWebInterface {
                 " in sheet of ID " + sheetID);
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(authCode)) {
-            log.info("Incorrect authorisation code: " + authCode);
+            log.warn("Incorrect authorisation code: " + authCode);
             throw new NotAllowedException("Incorrect authorisation code: " + authCode);
         }
         String IDofDeletedSlot = slots.removeByTime(sheetID, columnName, startTime);
@@ -284,7 +284,7 @@ public class SignupService implements SignupsWebInterface {
             throws ItemNotFoundException, NotAllowedException {
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(bean.getAuthCode())) {
-            log.info("Incorrect authorisation code: " + bean.getAuthCode());
+            log.warn("Incorrect authorisation code: " + bean.getAuthCode());
             throw new NotAllowedException("Incorrect authorisation code: " + bean.getAuthCode());
         }
         for (Column c : sheet.getColumns()) {
@@ -305,7 +305,7 @@ public class SignupService implements SignupsWebInterface {
             throws ItemNotFoundException, NotAllowedException {
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(bean.getAuthCode())) {
-            log.info("Incorrect authorisation code: " + bean.getAuthCode());
+            log.warn("Incorrect authorisation code: " + bean.getAuthCode());
             throw new NotAllowedException("Incorrect authorisation code: " + bean.getAuthCode());
         }
         for (Column c : sheet.getColumns()) {
@@ -331,38 +331,44 @@ public class SignupService implements SignupsWebInterface {
             Long startTimeLong, SlotBookingBean bookingBean)
             throws ItemNotFoundException, NotAllowedException {
         Date startTime = new Date(startTimeLong);
-        log.info("Attempt to modify slot at time " + startTime + " in column " + columnName +
-                " in sheet of ID " + sheetID + " starting...");
         Sheet sheet = sheets.getItem(sheetID);
         Slot slot = slots.getSlot(sheetID, columnName, startTime);
-        if (bookingBean.authCodeProvided()) /* an admin request */ {
-            log.info("The request is an admin request");
+        if (bookingBean.authCodeProvided()) /* an admin request */ { // TODO: still need to check concurrency?
             if (sheet.isAuthCode(bookingBean.getAuthCode())) {
                 slot.book(bookingBean.getUserToBook(), bookingBean.getComment());
-                log.info("Modification successful");
+                log.info("Successfully admin-booked slot at time " + startTime +
+                        " in column " + columnName + " in sheet of ID " + sheetID +
+                        " for user " + bookingBean.getUserToBook() + " for tick " + bookingBean.getComment());
+                // TODO: improve logging, then sort concurrency!
             } else {
-                log.info("Incorrect authorisation code: " + bookingBean.getAuthCode());
+                log.warn("Incorrect authorisation code: " + bookingBean.getAuthCode());
                 throw new NotAllowedException("Incorrect authorisation code: " + bookingBean.getAuthCode());
             }
         } else /* a non-admin request */{
             if (bookingBean.getUserToBook() != null) /* a book request */ {
-                log.info("An ordinary user is try to book the slot");
                 if (slot.isBooked()) {
-                    log.info("The slot has already been booked by "
-                            + slot.getBookedUser());
+                    log.info("Booking slot at time " + startTime +
+                            " in column " + columnName + " in sheet of ID " + sheetID +
+                            " for user " + bookingBean.getUserToBook() + " for tick " + bookingBean.getComment()
+                            + " failed because the slot has already been booked by " + slot.getBookedUser());
                     throw new NotAllowedException("The slot has already been booked by "
                             + slot.getBookedUser());
                 }
                 Date now = new Date();
                 if (slot.getStartTime().before(now)) {
-                    log.info("The start time of the slot has passed");
+                    log.info("Booking slot at time " + startTime +
+                            " in column " + columnName + " in sheet of ID " + sheetID +
+                            " for user " + bookingBean.getUserToBook() + " for tick " + bookingBean.getComment()
+                            + " failed because the slot start time is in the past");
                     throw new NotAllowedException("The start time of the slot has passed");
                 }
                 try {
                     if (!userHasPermission(users.getItem(bookingBean.getUserToBook()), sheet,
                             bookingBean.getComment(), columnName)) {
-                        log.info("The user does not have permission to make "
-                                + "a booking using this comment on this column");
+                        log.warn("Booking slot at time " + startTime +
+                                " in column " + columnName + " in sheet of ID " + sheetID +
+                                " for user " + bookingBean.getUserToBook() + " for tick " + bookingBean.getComment()
+                                + " failed because the user does not have permission to make the booking");
                         throw new NotAllowedException("The user does not have permission to make "
                                 + "a booking using this comment on this column");
                         /* 
@@ -372,29 +378,44 @@ public class SignupService implements SignupsWebInterface {
                          */
                     }
                 } catch (ItemNotFoundException e) {
-                    log.info("The user was not found on the database and "
+                    log.warn("Booking slot at time " + startTime +
+                            " in column " + columnName + " in sheet of ID " + sheetID +
+                            " for user " + bookingBean.getUserToBook() + " for tick " + bookingBean.getComment()
+                            + " failed because the user was not found on the database and "
                             + "so was assumed to not have permission to make the booking");
                     throw new NotAllowedException("The user was not found on the database and "
                             + "so was assumed to not have permission to make the booking");
                 }
                 slot.book(bookingBean.getUserToBook(), bookingBean.getComment());
-            } else /* an unbook request */ {
-                log.info("An ordinary user is try to unbook the slot");
+            } else /* an unbook request */ { // TODO: require authcode for unbooking
                 if (slot.getBookedUser() == null) {
-                    log.info("The slot is already unbooked");
+                    log.warn("Unbooking slot at time " + startTime +
+                            " in column " + columnName + " in sheet of ID " + sheetID +
+                            " for user " + bookingBean.getCurrentlyBookedUser() + " for tick " + bookingBean.getComment()
+                            + " failed because the slot is already unbooked");
                     throw new NotAllowedException("The slot is already unbooked");
                 }
                 if (!slot.getBookedUser().equals(bookingBean.getCurrentlyBookedUser())) {
-                    log.info("The user given was not booked to this slot");
+                    log.warn("Unbooking slot at time " + startTime +
+                            " in column " + columnName + " in sheet of ID " + sheetID +
+                            " for user " + bookingBean.getCurrentlyBookedUser() + " for tick " + bookingBean.getComment()
+                            + " failed because the user given was not booked to this slot");
                     throw new NotAllowedException("The user given was not booked to this slot");
                 }
                 Date now = new Date();
                 if (slot.getStartTime().before(now)) {
+                    log.warn("Unbooking slot at time " + startTime +
+                            " in column " + columnName + " in sheet of ID " + sheetID +
+                            " for user " + bookingBean.getCurrentlyBookedUser() + " for tick " + bookingBean.getComment()
+                            + " failed because the start time of the slot has passed");
                     log.info("The start time of the slot has passed");
                     throw new NotAllowedException("The start time of the slot has passed");
                 }
                 slot.unbook();
                 log.info("The slot was unbooked");
+                log.info("Successfully unbooked slot at time " + startTime +
+                        " in column " + columnName + " in sheet of ID " + sheetID +
+                        " for user " + bookingBean.getCurrentlyBookedUser() + " for tick " + bookingBean.getComment());
             }
         }
         slots.updateSlot(slot);
@@ -407,7 +428,7 @@ public class SignupService implements SignupsWebInterface {
                 "sheet of ID " + sheetID);
         Sheet sheet = sheets.getItem(sheetID);
         if (!sheet.isAuthCode(authCode)) {
-            log.info("Incorrect authorisation code: " + authCode);
+            log.warn("Incorrect authorisation code: " + authCode);
             throw new NotAllowedException("Incorrect authorisation code: " + authCode);
         }
         Date now = new Date();
@@ -526,12 +547,12 @@ public class SignupService implements SignupsWebInterface {
                 "of ID " + groupID);
         Group group = groups.getItem(groupID);
         if (!group.isGroupAuthCode(bean.getGroupAuthCode())) {
-            log.info("Incorrect group authorisation code: " + bean.getGroupAuthCode());
+            log.warn("Incorrect group authorisation code: " + bean.getGroupAuthCode());
             throw new NotAllowedException("Incorrect group authorisation code: " + bean.getGroupAuthCode());
         }
         Sheet sheet = sheets.getItem(bean.getSheetID());
         if (!sheet.isAuthCode(bean.getSheetAuthCode())) {
-            log.info("Incorrectsheet authorisation code: " + bean.getSheetAuthCode());
+            log.warn("Incorrectsheet authorisation code: " + bean.getSheetAuthCode());
             throw new NotAllowedException("Incorrect sheet authorisation code: " + bean.getSheetAuthCode());
         }
         sheet.addGroup(group);
@@ -570,7 +591,7 @@ public class SignupService implements SignupsWebInterface {
                 " from group of ID " + groupID);
         Group group = groups.getItem(groupID);
         if (!group.isGroupAuthCode(groupAuthCode)) {
-            log.info("Incorrect group authorisation code: " + groupAuthCode);
+            log.warn("Incorrect group authorisation code: " + groupAuthCode);
         throw new NotAllowedException("Incorrect group authorisation code: " + groupAuthCode);
         }
         Sheet sheet = sheets.getItem(sheetID);
