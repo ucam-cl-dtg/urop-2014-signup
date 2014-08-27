@@ -476,4 +476,15 @@ public interface SignupsWebInterface {
             @PathParam("sheetID") String sheetID,
             String groupAuthCode) throws ItemNotFoundException, NotAllowedException;
     
+    /**
+     * @param sheetID
+     * @param columnName
+     * @return true iff the given column has no free slots in the future
+     */
+    @GET
+    @Path("/sheets/{sheetID}/columnisbooked/{columnName}")
+    @Produces("text/plain")
+    public boolean columnIsFullyBooked(@PathParam("sheetID") String sheetID,
+            @PathParam("columnName") String columnName);
+    
 }

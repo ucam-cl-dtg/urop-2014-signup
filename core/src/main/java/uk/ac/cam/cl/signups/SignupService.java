@@ -34,28 +34,28 @@ public class SignupService implements SignupsWebInterface {
     /* For logging */
     private static final Logger log = LoggerFactory.getLogger(SignupService.class);
     
-    private DatabaseCollection<Sheet> sheets;
-    private DatabaseCollection<User> users;
-    private DatabaseCollection<Group> groups;
-    private MongoSlots slots = new MongoSlots();
+    private static DatabaseCollection<Sheet> sheets;
+    private static DatabaseCollection<User> users;
+    private static DatabaseCollection<Group> groups;
+    private static MongoSlots slots = new MongoSlots();
     
     {
         Guice.createInjector(new DatabaseModule()).injectMembers(this);
     }
     
     @Inject
-    public void setSheets(DatabaseCollection<Sheet> sheets) {
-        this.sheets = sheets;
+    public void setSheets(DatabaseCollection<Sheet> newSheets) {
+        sheets = newSheets;
     }
 
     @Inject
-    public void setUsers(DatabaseCollection<User> users) {
-        this.users = users;
+    public void setUsers(DatabaseCollection<User> newUsers) {
+        users = newUsers;
     }
 
     @Inject
-    public void setGroups(DatabaseCollection<Group> groups) {
-        this.groups = groups;
+    public void setGroups(DatabaseCollection<Group> newGroups) {
+        groups = newGroups;
     }
 
     public SheetInfo addSheet(Sheet sheet) throws DuplicateNameException {
@@ -192,8 +192,12 @@ public class SignupService implements SignupsWebInterface {
         }
         String allowedColumn = getPermissions(groupID, user).get(comment);
         Date now = new Date();
+        boolean allowedColIsBooked = false;
+        if (allowedColumn != null) {
+            allowedColIsBooked = columnIsFullyBooked(sheetID, allowedColumn);
+        }
         for (Column col : sheet.getColumns()) {
-            if (allowedColumn == null || col.getName().equals(allowedColumn)) {
+            if (allowedColumn == null || col.getName().equals(allowedColumn) || allowedColIsBooked) {
                 for (Slot slot : listColumnSlots(sheetID, col.getName())) {
                     if (slot.getStartTime().after(now) && !slot.isBooked() && !toReturn.contains(slot.getStartTime())) {
                         toReturn.add(slot.getStartTime());
@@ -208,7 +212,6 @@ public class SignupService implements SignupsWebInterface {
     public List<String> listColumnsWithFreeSlotsAt(String sheetID, Long startTimeLong)
             throws ItemNotFoundException {
         Date startTime = new Date(startTimeLong);
-        log.info("Listing columns in sheet of ID " + sheetID + " with a free slot at " + startTime);
         Sheet sheet = sheets.getItem(sheetID);
         List<String> toReturn = new ArrayList<String>();
         for (Column col : sheet.getColumns()) {
@@ -329,118 +332,126 @@ public class SignupService implements SignupsWebInterface {
 
     public void book(String sheetID, String columnName,
             Long startTimeLong, SlotBookingBean bookingBean)
-            throws ItemNotFoundException, NotAllowedException {
+                    throws ItemNotFoundException, NotAllowedException {
         Date startTime = new Date(startTimeLong);
         Sheet sheet = sheets.getItem(sheetID);
-        Slot slot = slots.getSlot(sheetID, columnName, startTime);
-        if (bookingBean.authCodeProvided()) /* an admin request */ { // TODO: still need to check concurrency?
-            if (sheet.isAuthCode(bookingBean.getAuthCode())) {
-                slot.book(bookingBean.getUserToBook(), bookingBean.getComment());
-                log.info("Successfully admin-booked slot at time " + startTime +
-                        " in column " + columnName + " in sheet of ID " + sheetID +
-                        " for user " + bookingBean.getUserToBook() + " for tick " + bookingBean.getComment());
-                // TODO: improve logging, then sort concurrency!
-            } else {
-                log.warn("Incorrect authorisation code: " + bookingBean.getAuthCode());
-                throw new NotAllowedException("Incorrect authorisation code: " + bookingBean.getAuthCode());
-            }
-        } else /* a non-admin request */{
-            if (bookingBean.getUserToBook() != null) /* a book request */ {
-                if (slot.isBooked()) {
-                    log.info("Booking slot at time " + startTime +
+        synchronized (slots) {
+            Slot slot = slots.getSlot(sheetID, columnName, startTime);
+            if (bookingBean.authCodeProvided()) /* an admin request */ { // TODO: still need to check concurrency?
+                if (sheet.isAuthCode(bookingBean.getAuthCode())) {
+                    slot.book(bookingBean.getUserToBook(), bookingBean.getComment());
+                    log.info("Successfully admin-booked slot at time " + startTime +
                             " in column " + columnName + " in sheet of ID " + sheetID +
-                            " for user " + bookingBean.getUserToBook() + " for tick " + bookingBean.getComment()
-                            + " failed because the slot has already been booked by " + slot.getBookedUser());
-                    throw new NotAllowedException("The slot has already been booked by "
-                            + slot.getBookedUser());
+                            " for user " + bookingBean.getUserToBook() + " with comment " + bookingBean.getComment());
+                    // TODO: improve logging, then sort concurrency!
+                } else {
+                    log.warn("Incorrect authorisation code: " + bookingBean.getAuthCode());
+                    throw new NotAllowedException("Incorrect authorisation code: " + bookingBean.getAuthCode());
                 }
-                Date now = new Date();
-                if (slot.getStartTime().before(now)) {
-                    log.info("Booking slot at time " + startTime +
-                            " in column " + columnName + " in sheet of ID " + sheetID +
-                            " for user " + bookingBean.getUserToBook() + " for tick " + bookingBean.getComment()
-                            + " failed because the slot start time is in the past");
-                    throw new NotAllowedException("The start time of the slot has passed");
-                }
-                try {
-                    if (!userHasPermission(users.getItem(bookingBean.getUserToBook()), sheet,
-                            bookingBean.getComment(), columnName)) {
+            } else /* a non-admin request */{
+                if (bookingBean.getUserToBook() != null) /* a book request */ {
+                    if (slot.isBooked()) {
+                        log.info("Booking slot at time " + startTime +
+                                " in column " + columnName + " in sheet of ID " + sheetID +
+                                " for user " + bookingBean.getUserToBook() + " with comment " + bookingBean.getComment()
+                                + " failed because the slot has already been booked by " + slot.getBookedUser());
+                        throw new NotAllowedException("The slot has already been booked by "
+                                + slot.getBookedUser());
+                    }
+                    Date now = new Date();
+                    if (slot.getStartTime().before(now)) {
+                        log.info("Booking slot at time " + startTime +
+                                " in column " + columnName + " in sheet of ID " + sheetID +
+                                " for user " + bookingBean.getUserToBook() + " with comment " + bookingBean.getComment()
+                                + " failed because the slot start time is in the past");
+                        throw new NotAllowedException("The start time of the slot has passed");
+                    }
+                    try {
+                        if (!userHasPermission(users.getItem(bookingBean.getUserToBook()), sheet,
+                                bookingBean.getComment(), columnName)) {
+                            log.warn("Booking slot at time " + startTime +
+                                    " in column " + columnName + " in sheet of ID " + sheetID +
+                                    " for user " + bookingBean.getUserToBook() + " with comment " + bookingBean.getComment()
+                                    + " failed because the user does not have permission to make the booking");
+                            throw new NotAllowedException("The user does not have permission to make "
+                                    + "a booking using this comment on this column");
+                            /* 
+                             * TODO: we can give more information about exactly what is not allowed -
+                             * we can say if the comment is not allowed at all or whether a different
+                             * column must be used.
+                             */
+                        }
+                    } catch (ItemNotFoundException e) {
                         log.warn("Booking slot at time " + startTime +
                                 " in column " + columnName + " in sheet of ID " + sheetID +
-                                " for user " + bookingBean.getUserToBook() + " for tick " + bookingBean.getComment()
-                                + " failed because the user does not have permission to make the booking");
-                        throw new NotAllowedException("The user does not have permission to make "
-                                + "a booking using this comment on this column");
-                        /* 
-                         * TODO: we can give more information about exactly what is not allowed -
-                         * we can say if the comment is not allowed at all or whether a different
-                         * column must be used.
-                         */
+                                " for user " + bookingBean.getUserToBook() + " with comment " + bookingBean.getComment()
+                                + " failed because the user was not found on the database and "
+                                + "so was assumed to not have permission to make the booking");
+                        throw new NotAllowedException("The user was not found on the database and "
+                                + "so was assumed to not have permission to make the booking");
                     }
-                } catch (ItemNotFoundException e) {
-                    log.warn("Booking slot at time " + startTime +
+                    slot.book(bookingBean.getUserToBook(), bookingBean.getComment());
+                    log.info("Successfully booked slot at time " + startTime +
                             " in column " + columnName + " in sheet of ID " + sheetID +
-                            " for user " + bookingBean.getUserToBook() + " for tick " + bookingBean.getComment()
-                            + " failed because the user was not found on the database and "
-                            + "so was assumed to not have permission to make the booking");
-                    throw new NotAllowedException("The user was not found on the database and "
-                            + "so was assumed to not have permission to make the booking");
-                }
-                slot.book(bookingBean.getUserToBook(), bookingBean.getComment());
-            } else /* an unbook request */ { // TODO: require authcode for unbooking
-                if (slot.getBookedUser() == null) {
-                    log.warn("Unbooking slot at time " + startTime +
+                            " for user " + bookingBean.getUserToBook() + " with comment " + bookingBean.getComment());
+                } else /* an unbook request */ { // TODO: require authcode for unbooking
+                    if (slot.getBookedUser() == null) {
+                        log.warn("Unbooking slot at time " + startTime +
+                                " in column " + columnName + " in sheet of ID " + sheetID +
+                                " for user " + bookingBean.getCurrentlyBookedUser() + " with comment " + bookingBean.getComment()
+                                + " failed because the slot is already unbooked");
+                        throw new NotAllowedException("The slot is already unbooked");
+                    }
+                    if (!slot.getBookedUser().equals(bookingBean.getCurrentlyBookedUser())) {
+                        log.warn("Unbooking slot at time " + startTime +
+                                " in column " + columnName + " in sheet of ID " + sheetID +
+                                " for user " + bookingBean.getCurrentlyBookedUser() + " with comment " + bookingBean.getComment()
+                                + " failed because the user given was not booked to this slot");
+                        throw new NotAllowedException("The user given was not booked to this slot");
+                    }
+                    Date now = new Date();
+                    if (slot.getStartTime().before(now)) {
+                        log.warn("Unbooking slot at time " + startTime +
+                                " in column " + columnName + " in sheet of ID " + sheetID +
+                                " for user " + bookingBean.getCurrentlyBookedUser() + " with comment " + bookingBean.getComment()
+                                + " failed because the start time of the slot has passed");
+                        log.info("The start time of the slot has passed");
+                        throw new NotAllowedException("The start time of the slot has passed");
+                    }
+                    slot.unbook();
+                    log.info("Successfully unbooked slot at time " + startTime +
                             " in column " + columnName + " in sheet of ID " + sheetID +
-                            " for user " + bookingBean.getCurrentlyBookedUser() + " for tick " + bookingBean.getComment()
-                            + " failed because the slot is already unbooked");
-                    throw new NotAllowedException("The slot is already unbooked");
+                            " for user " + bookingBean.getCurrentlyBookedUser() + " with comment " + bookingBean.getComment());
                 }
-                if (!slot.getBookedUser().equals(bookingBean.getCurrentlyBookedUser())) {
-                    log.warn("Unbooking slot at time " + startTime +
-                            " in column " + columnName + " in sheet of ID " + sheetID +
-                            " for user " + bookingBean.getCurrentlyBookedUser() + " for tick " + bookingBean.getComment()
-                            + " failed because the user given was not booked to this slot");
-                    throw new NotAllowedException("The user given was not booked to this slot");
-                }
-                Date now = new Date();
-                if (slot.getStartTime().before(now)) {
-                    log.warn("Unbooking slot at time " + startTime +
-                            " in column " + columnName + " in sheet of ID " + sheetID +
-                            " for user " + bookingBean.getCurrentlyBookedUser() + " for tick " + bookingBean.getComment()
-                            + " failed because the start time of the slot has passed");
-                    log.info("The start time of the slot has passed");
-                    throw new NotAllowedException("The start time of the slot has passed");
-                }
-                slot.unbook();
-                log.info("The slot was unbooked");
-                log.info("Successfully unbooked slot at time " + startTime +
-                        " in column " + columnName + " in sheet of ID " + sheetID +
-                        " for user " + bookingBean.getCurrentlyBookedUser() + " for tick " + bookingBean.getComment());
             }
+            slots.updateSlot(slot);
+            sheets.updateItem(sheet); // FIXME: Why is this call necessary? Definitely remove if it isn't
         }
-        slots.updateSlot(slot);
-        sheets.updateItem(sheet);
     }
     
     public void removeAllUserBookings(String sheetID, String user, String authCode)
             throws NotAllowedException, ItemNotFoundException {
         log.info("Attempting to remove all future booking of user " + user + " in the " +
                 "sheet of ID " + sheetID);
-        Sheet sheet = sheets.getItem(sheetID);
-        if (!sheet.isAuthCode(authCode)) {
-            log.warn("Incorrect authorisation code: " + authCode);
-            throw new NotAllowedException("Incorrect authorisation code: " + authCode);
-        }
-        Date now = new Date();
-        for (Column col : sheet.getColumns()) {
-            for (Slot slot : slots.listByColumn(sheetID, col.getName())) {
-                if (slot.isBooked() && slot.getBookedUser().equals(user) && slot.getStartTime().after(now)) {
-                    slot.unbook();
-                    slots.updateSlot(slot);
+        synchronized (sheets) {
+            Sheet sheet = sheets.getItem(sheetID);
+            if (!sheet.isAuthCode(authCode)) {
+                log.warn("Incorrect authorisation code: " + authCode);
+                throw new NotAllowedException("Incorrect authorisation code: " + authCode);
+            }
+            Date now = new Date();
+            for (Column col : sheet.getColumns()) {
+                synchronized (slots) {
+                    for (Slot slot : slots.listByColumn(sheetID, col.getName())) {
+                        if (slot.isBooked() && slot.getBookedUser().equals(user) && slot.getStartTime().after(now)) {
+                            slot.unbook();
+                            slots.updateSlot(slot);
+                        }
+                    }
                 }
             }
+            sheets.updateItem(sheet);
         }
-        sheets.updateItem(sheet);
         log.info("All future bookings successfully removed");
     }
 
@@ -601,8 +612,9 @@ public class SignupService implements SignupsWebInterface {
     }
     
     public boolean columnIsFullyBooked(String sheetID, String columnName) {
+        Date now = new Date();
         for (Slot slot : slots.listByColumn(sheetID, columnName)) {
-            if (!slot.isBooked()) {
+            if (!slot.isBooked() && slot.getStartTime().after(now)) {
                 return false;
             }
         }
