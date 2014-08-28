@@ -23,7 +23,7 @@ import uk.ac.cam.cl.signups.api.Sheet;
 import uk.ac.cam.cl.signups.api.SheetInfo;
 import uk.ac.cam.cl.signups.api.Slot;
 import uk.ac.cam.cl.signups.api.beans.GroupSheetBean;
-import uk.ac.cam.cl.signups.api.beans.PermissionsBean;
+import uk.ac.cam.cl.signups.api.beans.AddPermissionsBean;
 import uk.ac.cam.cl.signups.api.beans.SlotBean;
 import uk.ac.cam.cl.signups.api.beans.SlotBookingBean;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
@@ -51,9 +51,9 @@ public class ChangingPermissions {
     private String id;
     private String sauth;
     private String gauth;
-    private PermissionsBean specificColumnPermBean;
-    private PermissionsBean otherColumnPermBean;
-    private PermissionsBean anyColumnPermBean;
+    private AddPermissionsBean specificColumnPermBean;
+    private AddPermissionsBean otherColumnPermBean;
+    private AddPermissionsBean anyColumnPermBean;
     
     @Before
     public void setUp() throws Exception {
@@ -93,13 +93,13 @@ public class ChangingPermissions {
         
         Map<String,String> map = new HashMap<String,String>();
         map.put("tick789", column.getName());
-        specificColumnPermBean = new PermissionsBean(map, gauth);
+        specificColumnPermBean = new AddPermissionsBean(map, gauth);
         map = new HashMap<String,String>();
         map.put("tick789", otherColumn.getName());
-        otherColumnPermBean = new PermissionsBean(map, gauth);
+        otherColumnPermBean = new AddPermissionsBean(map, gauth);
         map = new HashMap<String,String>();
         map.put("tick789", null);
-        anyColumnPermBean = new PermissionsBean(map, gauth);
+        anyColumnPermBean = new AddPermissionsBean(map, gauth);
     }
     
     @After

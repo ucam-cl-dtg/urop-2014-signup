@@ -10,14 +10,14 @@ import java.util.Map;
 /**
  * @author Isaac Dunn &lt;ird28@cam.ac.uk&gt;
  */
-public class PermissionsBean {
+public class AddPermissionsBean {
     
     Map<String, String> commentColumnMap;
     String groupAuthCode;
     
-    public PermissionsBean() {}
+    public AddPermissionsBean() {}
     
-    public PermissionsBean(Map<String, String> commentColumnMap,
+    public AddPermissionsBean(Map<String, String> commentColumnMap,
             String groupAuthCode) {
         this.commentColumnMap = commentColumnMap;
         this.groupAuthCode = groupAuthCode;

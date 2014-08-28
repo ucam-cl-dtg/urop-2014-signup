@@ -12,34 +12,46 @@ import uk.ac.cam.cl.signups.api.Sheet;
  */
 public class UpdateSheetBean {
     
-    private Sheet sheet;
+    private String title;
+    private String location;
+    private String description;
     private String authCode;
     
-    public UpdateSheetBean(Sheet sheet, String authCode) {
-        this.sheet = sheet;
+    public UpdateSheetBean(String title, String location, String description,
+            String authCode) {
+        this.title = title;
+        this.location = location;
+        this.description = description;
         this.authCode = authCode;
     }
     
     public UpdateSheetBean() {
         // Default constructor
     }
-
-    public Sheet getSheet() {
-        return sheet;
+    
+    public String getTitle() {
+        return title;
     }
-
-    public void setSheet(Sheet sheet) {
-        this.sheet = sheet;
+    public void setTitle(String title) {
+        this.title = title;
     }
-
+    public String getLocation() {
+        return location;
+    }
+    public void setLocation(String location) {
+        this.location = location;
+    }
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
     public String getAuthCode() {
         return authCode;
     }
-
     public void setAuthCode(String authCode) {
         this.authCode = authCode;
     }
     
-    
-
 }

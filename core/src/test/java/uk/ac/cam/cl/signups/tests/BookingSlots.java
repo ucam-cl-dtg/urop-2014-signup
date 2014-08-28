@@ -15,7 +15,7 @@ import uk.ac.cam.cl.signups.ModuleProvider;
 import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.*;
 import uk.ac.cam.cl.signups.api.beans.GroupSheetBean;
-import uk.ac.cam.cl.signups.api.beans.PermissionsBean;
+import uk.ac.cam.cl.signups.api.beans.AddPermissionsBean;
 import uk.ac.cam.cl.signups.api.beans.SlotBean;
 import uk.ac.cam.cl.signups.api.beans.SlotBookingBean;
 import uk.ac.cam.cl.signups.api.exceptions.*;
@@ -40,8 +40,8 @@ public class BookingSlots {
     private String id;
     private String sauth;
     private String gauth;
-    private PermissionsBean specificColumnPermBean;
-    private PermissionsBean anyColumnPermBean;
+    private AddPermissionsBean specificColumnPermBean;
+    private AddPermissionsBean anyColumnPermBean;
     
     @Before
     public void setUp() throws Exception {
@@ -78,10 +78,10 @@ public class BookingSlots {
         
         Map<String,String> map = new HashMap<String,String>();
         map.put("tick789", column.getName());
-        specificColumnPermBean = new PermissionsBean(map, gauth);
+        specificColumnPermBean = new AddPermissionsBean(map, gauth);
         map = new HashMap<String,String>();
         map.put("tick789", null);
-        anyColumnPermBean = new PermissionsBean(map, gauth);
+        anyColumnPermBean = new AddPermissionsBean(map, gauth);
     }
     
     @After

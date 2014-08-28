@@ -16,29 +16,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class SheetInfo {
     
-    private String URL;
     private String authCode;
     private String sheetID;
     
     @JsonIgnore
     public SheetInfo(Sheet sheet) {
-        URL = sheet.getURL();
         authCode = sheet.getAuthCode();
         sheetID = sheet.get_id();
     }
     
     @JsonCreator
-    public SheetInfo(@JsonProperty("url") String URL,
-            @JsonProperty("code") String authCode,
+    public SheetInfo(@JsonProperty("code") String authCode,
             @JsonProperty("sheetID") String sheetID) {
-        this.URL = URL;
         this.authCode = authCode;
         this.sheetID = sheetID;
-    }
-
-    @JsonProperty("url")
-    public String getURL() {
-        return URL;
     }
 
     @JsonProperty("code")

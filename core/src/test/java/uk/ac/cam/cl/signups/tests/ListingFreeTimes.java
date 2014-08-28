@@ -25,7 +25,7 @@ import uk.ac.cam.cl.signups.ModuleProvider;
 import uk.ac.cam.cl.signups.TestDatabaseModule;
 import uk.ac.cam.cl.signups.api.*;
 import uk.ac.cam.cl.signups.api.beans.ColumnBean;
-import uk.ac.cam.cl.signups.api.beans.PermissionsBean;
+import uk.ac.cam.cl.signups.api.beans.AddPermissionsBean;
 import uk.ac.cam.cl.signups.api.beans.SlotBean;
 import uk.ac.cam.cl.signups.api.exceptions.ItemNotFoundException;
 import uk.ac.cam.cl.signups.database.DatabaseModule;
@@ -76,7 +76,7 @@ public class ListingFreeTimes {
         gauth = service.addGroup(new Group("test-group"));
         Map<String, String> map = new HashMap<String, String>();
         map.put("Tick 6", null);
-        service.addPermissions("test-group", "ird28", new PermissionsBean(map, gauth));
+        service.addPermissions("test-group", "ird28", new AddPermissionsBean(map, gauth));
     }
     
     @After

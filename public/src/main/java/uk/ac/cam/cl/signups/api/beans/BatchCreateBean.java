@@ -12,15 +12,15 @@ public class BatchCreateBean {
     
     private Long startTime;
     private Long endTime;
-    private int slotLength;
+    private int slotLengthInMinutes;
     private String authCode;
     
     
-    public BatchCreateBean(Long startTime, Long endTime, int slotLength,
+    public BatchCreateBean(Long startTime, Long endTime, int slotLengthInMinutes,
             String authCode) {
         this.startTime = startTime;
         this.endTime = endTime;
-        this.slotLength = slotLength;
+        this.slotLengthInMinutes = slotLengthInMinutes;
         this.authCode = authCode;
     }
     
@@ -49,13 +49,13 @@ public class BatchCreateBean {
     }
 
 
-    public int getSlotLength() {
-        return slotLength;
+    public int getSlotLengthInMinutes() {
+        return slotLengthInMinutes;
     }
 
 
-    public void setSlotLength(int slotLength) {
-        this.slotLength = slotLength;
+    public void setSlotLengthInMinutes(int slotLengthInMinutes) {
+        this.slotLengthInMinutes = slotLengthInMinutes;
     }
 
 
