@@ -631,7 +631,7 @@ public class SignupService implements SignupsWebInterface {
             boolean commentFound = user.getCommentColumnMap(group.get_id()).containsKey(comment);
             String allowedColumn = user.getCommentColumnMap(group.get_id()).get(comment);
             boolean columnAllowed = allowedColumn == null || allowedColumn.equals(columnName);
-            boolean allowedColumnIsFullyBooked = columnIsFullyBooked(sheet.get_id(), columnName);
+            boolean allowedColumnIsFullyBooked = columnIsFullyBooked(sheet.get_id(), allowedColumn);
             if (commentFound && (columnAllowed || allowedColumnIsFullyBooked)) {
                 return true;
             }

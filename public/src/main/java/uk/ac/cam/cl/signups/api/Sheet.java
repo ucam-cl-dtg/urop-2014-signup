@@ -310,6 +310,10 @@ public class Sheet implements DatabaseItem, Comparable<Sheet> {
 
     @Override
     public int compareTo(Sheet other) {
-        return title.compareTo(other.getTitle());
+        int toReturn = this.startTime.compareTo(other.startTime);
+        if (toReturn == 0) {
+            toReturn = title.compareTo(other.getTitle());
+        }
+        return toReturn;
     }
 }
