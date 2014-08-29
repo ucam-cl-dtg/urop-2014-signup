@@ -446,7 +446,7 @@ public interface SignupsWebInterface {
     @GET
     @Path("/groups/{groupName}/sheets")
     @Produces("application/json")
-    public List<Sheet> listSheets(@PathParam("groupName") String groupName, String groupAuthCode)
+    public List<Sheet> listSheets(@PathParam("groupName") String groupName, @QueryParam("groupAuthCode") String groupAuthCode)
             throws ItemNotFoundException, NotAllowedException;
     
     /**
