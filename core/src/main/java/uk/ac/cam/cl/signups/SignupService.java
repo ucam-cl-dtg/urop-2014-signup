@@ -66,22 +66,6 @@ public class SignupService implements SignupsWebInterface {
         return new SheetInfo(sheet);
     }
 
-    public List<Sheet> listSheets() {
-        List<Sheet> toReturn = new ArrayList<Sheet>();
-        for (Sheet s : sheets.listItems()) {
-            try {
-                /* Recompute start times, end times, slot lengths; add to list */
-                toReturn.add(computeStartAndEndTimesAndSlotLength(s));
-                /* Clearly if there are lots of sheets, this will take a long time. */
-            } catch (ItemNotFoundException e) {
-                log.error("Something that should definitely be in the " +
-                        "database was not found", e);
-            }
-        }
-        Collections.sort(toReturn);
-        return toReturn;
-    }
-
     public void deleteSheet(String sheetID, String authCode)
             throws ItemNotFoundException, NotAllowedException {
         log.info("Attempting deletion of sheet with id=" + sheetID);
@@ -509,10 +493,6 @@ public class SignupService implements SignupsWebInterface {
         groups.insertItem(group);
         log.info("Group added");
         return group.getGroupAuthCode();
-    }
-
-    public List<Group> listGroups() {
-        return groups.listItems();
     }
 
     public void deleteGroup(String groupID, String groupAuthCode)

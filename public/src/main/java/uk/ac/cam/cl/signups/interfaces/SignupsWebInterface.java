@@ -51,9 +51,8 @@ public interface SignupsWebInterface {
      */
     @GET
     @Path("/sheetobjects/{sheetID}")
-    @Consumes("text/plain")
     @Produces("application/json")
-    public Sheet getSheet(@PathParam("sheetID") String sheetID, String authCode)
+    public Sheet getSheet(@PathParam("sheetID") String sheetID, @QueryParam("authCode") String authCode)
             throws ItemNotFoundException, NotAllowedException;
     
     /**
@@ -68,14 +67,6 @@ public interface SignupsWebInterface {
     @Consumes("application/json")
     public void updateSheetInfo(@PathParam("sheetID") String sheetID, UpdateSheetBean bean)
             throws NotAllowedException, ItemNotFoundException;
-    
-    /**
-     * @return A list of all the sheet objects currently stored in the
-     * database, sorted by start time and then title.
-     */
-    /* Should not be public - people could see auth codes */
-    /* It was public before now - this should see if removing it breaks anything */
-    public List<Sheet> listSheets();
     
     /**
      * Deletes the specified sheet from database.
@@ -358,12 +349,6 @@ public interface SignupsWebInterface {
     @Consumes("application/json")
     @Produces("text/plain")
     public String addGroup(Group group) throws DuplicateNameException;
-    
-    /**
-     * @return A list of all group objects currently stored in the database
-     */
-    /* Like listSheets(), this should not be public. */
-    public List<Group> listGroups();
         
     /**
      * Deletes the given group object from the database. All sheets corresponding to
